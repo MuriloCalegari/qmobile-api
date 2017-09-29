@@ -18,21 +18,6 @@ export function openDiarios(browser: webdriver.QBrowser): Promise<webdriver.QBro
     });
 }
 
-interface Disciplina {
-    turma: string;
-    nome: string;
-    professor: string;
-    etapa1: Nota[];
-    etapa2: Nota[];
-}
-
-interface Nota {
-    descricao: string;
-    peso: number;
-    notamaxima: number;
-    nota: number;
-}
-
 function readNota(element: WebElement): Promise<Nota> {
     return new Promise(async (resolve, reject) => {
         const tds = await element.findElements(By.tagName('td'));
