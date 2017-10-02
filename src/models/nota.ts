@@ -7,6 +7,10 @@ const Nota = orm.define('nota', {
         type: Sequelize.UUIDV4,
         primaryKey: true
     },
+    etapa: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
     descricao: {
         type: Sequelize.STRING,
         allowNull: false

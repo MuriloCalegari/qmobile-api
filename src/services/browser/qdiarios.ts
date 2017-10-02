@@ -18,31 +18,66 @@ export function openDiarios(browser: webdriver.QBrowser): Promise<webdriver.QBro
     });
 }
 
+export interface Disciplina {
+    id?: string;
+    turma: string;
+    nome: string;
+    professor: string;
+    etapas: Etapa[];
+}
+
+export interface Etapa {
+    numero: number;
+    notas: Nota[];
+}
+
+export interface Nota {
+    id?: string;
+    descricao: string;
+    peso: number;
+    notamaxima: number;
+    nota: number;
+}
+
+function extractFloat(val: string): number {
+    return parseFloat(val.replace(/[^0-9\.]/g, '')) || -1;
+}
+
+function extractInt(val: string): number {
+    return parseInt(val.replace(/[^0-9]/g, '')) || -1;
+}
+
 function readNota(element: WebElement): Promise<Nota> {
     return new Promise(async (resolve, reject) => {
         const tds = await element.findElements(By.tagName('td'));
         resolve({
-            descricao: (await tds[1].getText()).replace(/\([a-zA-Z0-9]+\)/g, '').trim(),
-            peso: parseFloat((await tds[2].getText()).replace(/[^0-9\.]/g, '')) || -1,
-            notamaxima: parseFloat((await tds[3].getText()).replace(/[^0-9\.]/g, '')) || -1,
-            nota: parseFloat((await tds[4].getText()).replace(/[^0-9\.]/g, '')) || -1,
+            descricao: (
+                await tds[1].getText()
+            ).replace(/\([a-zA-Z0-9]+\)/g, '').trim(),
+            peso: extractFloat(await tds[2].getText()),
+            notamaxima: extractFloat(await tds[3].getText()),
+            nota: extractFloat(await tds[4].getText()),
         })
     });
 }
 
-function readNotas(element: WebElement): Promise<Nota[]> {
+function readEtapa(element: WebElement): Promise<Etapa> {
     return new Promise(async (resolve, reject) => {
         if ((await element.getAttribute("class")) != 'conteudoTexto') {
             return resolve(null);
         }
         const notas: Nota[] = [];
+        const numEtapa = extractInt(await element.findElement(By.className("conteudoTitulo")).getText());
         const tbody = await element.findElement(By.tagName('tbody'));
         const trs = await tbody.findElements(By.xpath('tr'));
         for (let i = 0; i < trs.length; i++) {
             const tr = trs[i];
             notas.push(await readNota(tr));
         }
-        resolve(notas);
+        resolve({
+            numero: numEtapa,
+            notas: notas
+        });
     });
 }
 
@@ -60,14 +95,20 @@ export function getDisciplinas(browser: webdriver.QBrowser): Promise<Disciplina[
             if (cl != 'conteudoTexto' && cl != 'rotulo') {
                 const desc = await tr.findElement(By.className("conteudoTexto")).getText();
                 const parts = desc.split("-");
-                const etapa1 = trs.length > i + 1 ? (await readNotas(trs[i + 1])) : null;
-                const etapa2 = etapa1 != null && trs.length > i + 2 ? (await(readNotas(trs[i + 2]))) : null;
+                const etapas: Etapa[] = [];
+                for (let j = 1; j <= 2 && i + j < trs.length; j++) {
+                    const etapa = await readEtapa(trs[i + j]);
+                    if (etapa !== null) {
+                        etapas.push(etapa);
+                    } else {
+                        break;
+                    }
+                }
                 disciplinas.push({
                     turma: parts[1].trim(),
                     nome: parts[2].trim(),
                     professor: parts[3].trim(),
-                    etapa1: etapa1 || [],
-                    etapa2: etapa2 || []
+                    etapas: etapas
                 });
             }
         }

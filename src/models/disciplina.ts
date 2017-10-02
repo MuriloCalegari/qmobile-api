@@ -1,7 +1,8 @@
 import * as Sequelize from 'sequelize';
 import * as orm from './orm';
+import * as Turma from './turma';
 
-const disciplina = orm.define('disciplina', {
+const Disciplina = orm.define('disciplina', {
     id: {
         type: Sequelize.UUIDV4,
         primaryKey: true
@@ -20,4 +21,6 @@ const disciplina = orm.define('disciplina', {
     }
 });
 
-export = disciplina;
+Disciplina.belongsTo(Turma, { foreignKey: 'codturma' });
+
+export = Disciplina;

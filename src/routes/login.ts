@@ -1,5 +1,6 @@
 import * as express from 'express';
-import * as qauth from '../services/browser/qauth';
+import { QError, QSiteError } from '../services/errors/errors';
+import * as authenticate from '../services/auth/authenticate';
 
 const route = express.Router();
 
@@ -10,9 +11,22 @@ route.post('/login', (req, res) => {
             message: 'Preencha todos os campos'
         });
     }
-    const user = req.body.user;
-    const pass = req.body.pass;
-    
+    const username: string = req.body.user;
+    const pass: string = req.body.pass;
+    authenticate.login((<any>req).userdata.endpoint, username, pass)
+        .then(result => 
+            res.set('X-Access-Token', result.sessionid).json({
+                success: true,
+                name: result.name
+            })
+        )
+        .catch((err: QError) => 
+            res.status(err instanceof QSiteError ? 500 : 400)
+                .json({
+                    success: false,
+                    message: err instanceof QSiteError ? 'Falha no servidor do QAcadêmico' : err.message
+                })
+        );
 });
 
 export = route;
