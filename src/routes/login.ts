@@ -2,6 +2,7 @@ import * as express from 'express';
 import { QError, QSiteError } from '../services/errors/errors';
 import * as authenticate from '../services/auth/authenticate';
 import * as session from '../services/auth/session';
+import * as notasJob from '../tasks/notas';
 
 const route = express.Router();
 
@@ -14,7 +15,16 @@ route.post('/login', (req, res) => {
     }
     const username: string = req.body.user;
     const pass: string = req.body.pass;
-    authenticate.login((<any>req).userdata.endpoint, username, pass)
+    const endpoint: string = (<any>req).userdata.endpoint;
+    authenticate.login(endpoint, username, pass)
+        .then(result => {
+            if (result.newbie) {
+                return notasJob.retrieveData(result.browser, username)
+                    .then(() => result.browser.exit())
+                    .then(() => result);
+            }
+            return result;
+        })
         .then(result => {
             return session.createSession(result.userid).then(sessionid => {
                 res.set('X-Access-Token', sessionid).json({
@@ -24,6 +34,7 @@ route.post('/login', (req, res) => {
             })
         })
         .catch((err: QError) => {
+            console.error(err);
             res.status(err instanceof QSiteError ? 500 : 400)
                 .json({
                     success: false,

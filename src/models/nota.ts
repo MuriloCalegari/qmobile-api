@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import * as orm from './orm';
 import * as Disciplina from './disciplina';
+import * as Usuario from './usuario';
 
 const Nota = orm.define('nota', {
     id: {
@@ -27,6 +28,7 @@ const Nota = orm.define('nota', {
     }
 });
 
-Nota.belongsTo(Disciplina, { foreignKey: 'disciplinaid' });
+Disciplina.hasMany(Nota, { foreignKey: 'disciplinaid' });
+Usuario.hasMany(Nota, { foreignKey: 'userid' })
 
 export = Nota;

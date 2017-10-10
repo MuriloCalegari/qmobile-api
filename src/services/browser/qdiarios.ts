@@ -50,11 +50,11 @@ function extractInt(val: string): number {
 
 function readNota(dom: CheerioStatic, preelem: CheerioElement): Nota {
     const element = dom(preelem);
-    const tds = element.find('> td');
+    const tds = element.children('td');
     return {
         descricao: (
             tds.eq(1).text()
-        ).replace(/\([a-zA-Z0-9]+\)/g, '').trim(),
+        ).replace(/\([a-zA-Z0-9]+\)/g, '').replace(/\s\s+/g, ' ').trim(),
         peso: extractFloat(tds.eq(2).text()),
         notamaxima: extractFloat(tds.eq(3).text()),
         nota: extractFloat(tds.eq(4).text()),
@@ -67,9 +67,9 @@ function readEtapa(dom: CheerioStatic, preelem: CheerioElement): Etapa {
         return null;
     }
     const notas: Nota[] = [];
-    const numEtapa = extractInt(element.find("conteudoTitulo").text());
-    const tbody = element.find('> tbody');
-    const trs = tbody.find('> tr');
+    const numEtapa = extractInt(element.find("div.conteudoTitulo").text());
+    const tbody = element.find('tbody');
+    const trs = tbody.children('tr');
     for (let i = 0; i < trs.length; i++) {
         const tr = trs[i];
         notas.push(readNota(dom, tr));
@@ -85,13 +85,13 @@ export function getDisciplinas(browser: webdriver.QBrowser): Promise<Disciplina[
         const driver = browser.getDriver();
         await openDiarios(browser);
         const dom = cheerio.load(await driver.getPageSource());
-        const tabelaNotas = dom('table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) > table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3)');
-        const trs = tabelaNotas.find("> tr").toArray();
+        const tabelaNotas = dom('table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) > table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody');
+        const trs = tabelaNotas.children("tr").toArray();
         const disciplinas: Disciplina[] = [];
         trs.forEach((elem, i) => {
             const tr = dom(elem);
             if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
-                const descricao = tr.find(".conteudoTexto").text();
+                const descricao = tr.find("td.conteudoTexto").text();
                 const parts = descricao.split("-");
                 const etapas: Etapa[] = [];
                 for (let j = 1; j <= 2 && i + j < trs.length; j++) {

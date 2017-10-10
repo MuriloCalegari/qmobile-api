@@ -20,6 +20,10 @@ const Usuario = orm.define('user', {
     password: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    endpoint: {
+        type: Sequelize.STRING,
+        allowNull: false
     }
 });
 

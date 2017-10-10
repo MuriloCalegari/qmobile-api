@@ -8,10 +8,6 @@ const Disciplina = orm.define('disciplina', {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
-    dturma: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
     nome: {
         type: Sequelize.STRING,
         allowNull: false
@@ -22,6 +18,6 @@ const Disciplina = orm.define('disciplina', {
     }
 });
 
-Disciplina.belongsTo(Turma, { foreignKey: 'codturma' });
+Turma.hasMany(Disciplina, { foreignKey: 'codturma' });
 
 export = Disciplina;
