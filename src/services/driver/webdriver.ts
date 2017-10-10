@@ -1,17 +1,11 @@
 import { Builder, promise, ThenableWebDriver, IWebDriverOptionsCookie } from 'selenium-webdriver';
-import * as firefox from 'selenium-webdriver/firefox';
+//import * as phantomjs from 'selenium-webdriver/phantomjs';
 import { HOME_PAGE } from '../../constants';
 
 promise.USE_PROMISE_MANAGER = false;
 
-const binary = new firefox.Binary();
-binary.addArguments("--headless");
-
 const builder = new Builder()
-                    .forBrowser('firefox')
-                    .setFirefoxOptions(
-                        new firefox.Options().setBinary(binary)
-                    );
+                    .forBrowser('phantomjs');
 
 export class QBrowser {
 
@@ -36,7 +30,4 @@ export class QBrowser {
 
 export function create() {
     return new QBrowser(builder.build());
-}
-export function getBinary() {
-    return binary;
 }

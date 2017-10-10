@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import { Builder, By, until, promise, ThenableWebDriver } from 'selenium-webdriver';
 import * as webdriver from '../driver/webdriver';
 import { LOGIN_PAGE } from '../../constants';
+import { QError } from '../errors/errors';
 
 export function login(endpoint: string, username: string, password: string): Promise<webdriver.QBrowser> {
     return new Promise(async (resolve, reject) => {
@@ -25,19 +26,11 @@ export function login(endpoint: string, username: string, password: string): Pro
             const readyState = await driver.executeScript('return document.readyState');
             return readyState === 'complete';
         });
-        const cookies = await driver.manage().getCookies();
-        await driver.manage().deleteAllCookies();
-        for (let cookie of cookies) {
-            if (cookie.name.charAt(0) != '_') {
-                cookie.expiry = moment().add(5, 'years').toDate();
-            }
-            await driver.manage().addCookie(cookie);
-        }
         const titulo = await driver.getTitle();
         if (titulo === 'Q-ACADÊMICO WEB PARA IFSULBem Vindo!') {
             resolve(browser);
         } else {
-            reject();
+            reject(new QError('Senha incorreta'));
         }
     });
 }

@@ -5,7 +5,8 @@ import * as UsuarioDisciplina from './usuario_disciplina';
 
 const Usuario = orm.define('user', {
     id: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
     matricula: {

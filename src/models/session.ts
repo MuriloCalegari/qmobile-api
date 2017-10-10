@@ -4,7 +4,8 @@ import * as Usuario from './usuario';
 
 const Session = orm.define('session', {
     id: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
     startdate: {

@@ -1,5 +1,6 @@
 import { Builder, By, until, WebElement } from 'selenium-webdriver';
 import * as webdriver from '../driver/webdriver';
+import * as cheerio from 'cheerio';
 import { DIARIOS_PAGE } from '../../constants';
 
 export function openDiarios(browser: webdriver.QBrowser): Promise<webdriver.QBrowser> {
@@ -47,57 +48,54 @@ function extractInt(val: string): number {
     return parseInt(val.replace(/[^0-9]/g, '')) || -1;
 }
 
-function readNota(element: WebElement): Promise<Nota> {
-    return new Promise(async (resolve, reject) => {
-        const tds = await element.findElements(By.tagName('td'));
-        resolve({
-            descricao: (
-                await tds[1].getText()
-            ).replace(/\([a-zA-Z0-9]+\)/g, '').trim(),
-            peso: extractFloat(await tds[2].getText()),
-            notamaxima: extractFloat(await tds[3].getText()),
-            nota: extractFloat(await tds[4].getText()),
-        })
-    });
+function readNota(dom: CheerioStatic, preelem: CheerioElement): Nota {
+    const element = dom(preelem);
+    const tds = element.find('> td');
+    return {
+        descricao: (
+            tds.eq(1).text()
+        ).replace(/\([a-zA-Z0-9]+\)/g, '').trim(),
+        peso: extractFloat(tds.eq(2).text()),
+        notamaxima: extractFloat(tds.eq(3).text()),
+        nota: extractFloat(tds.eq(4).text()),
+    };
 }
 
-function readEtapa(element: WebElement): Promise<Etapa> {
-    return new Promise(async (resolve, reject) => {
-        if ((await element.getAttribute("class")) != 'conteudoTexto') {
-            return resolve(null);
-        }
-        const notas: Nota[] = [];
-        const numEtapa = extractInt(await element.findElement(By.className("conteudoTitulo")).getText());
-        const tbody = await element.findElement(By.tagName('tbody'));
-        const trs = await tbody.findElements(By.xpath('tr'));
-        for (let i = 0; i < trs.length; i++) {
-            const tr = trs[i];
-            notas.push(await readNota(tr));
-        }
-        resolve({
-            numero: numEtapa,
-            notas: notas
-        });
-    });
+function readEtapa(dom: CheerioStatic, preelem: CheerioElement): Etapa {
+    const element = dom(preelem);
+    if (!element.hasClass("conteudoTexto")) {
+        return null;
+    }
+    const notas: Nota[] = [];
+    const numEtapa = extractInt(element.find("conteudoTitulo").text());
+    const tbody = element.find('> tbody');
+    const trs = tbody.find('> tr');
+    for (let i = 0; i < trs.length; i++) {
+        const tr = trs[i];
+        notas.push(readNota(dom, tr));
+    }
+    return {
+        numero: numEtapa,
+        notas: notas
+    }
 }
 
 export function getDisciplinas(browser: webdriver.QBrowser): Promise<Disciplina[]> {
     return new Promise(async (resolve, reject) => {
         const driver = browser.getDriver();
         await openDiarios(browser);
-        console.log(await driver.manage().getCookies());
-        const tabelaNotas = await driver.findElement(By.xpath('/html/body/table/tbody/tr[2]/td/table/tbody/tr[2]/td[2]/table[2]/tbody/tr/td[2]/p/table[2]/tbody'));
-        const trs = await tabelaNotas.findElements(By.xpath('tr'));
+        const dom = cheerio.load(await driver.getPageSource());
+        const tabelaNotas = dom('table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) > table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3)');
+        const trs = tabelaNotas.find("> tr").toArray();
         const disciplinas: Disciplina[] = [];
-        for (let i = 0; i < trs.length; i++) {
-            const tr = trs[i];
-            const cl = await tr.getAttribute("class");
-            if (cl != 'conteudoTexto' && cl != 'rotulo') {
-                const desc = await tr.findElement(By.className("conteudoTexto")).getText();
-                const parts = desc.split("-");
+        trs.forEach((elem, i) => {
+            const tr = dom(elem);
+            if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
+                const descricao = tr.find(".conteudoTexto").text();
+                const parts = descricao.split("-");
                 const etapas: Etapa[] = [];
                 for (let j = 1; j <= 2 && i + j < trs.length; j++) {
-                    const etapa = await readEtapa(trs[i + j]);
+                    const etapa = readEtapa(dom, trs[i + j]);
                     if (etapa !== null) {
                         etapas.push(etapa);
                     } else {
@@ -111,7 +109,7 @@ export function getDisciplinas(browser: webdriver.QBrowser): Promise<Disciplina[
                     etapas: etapas
                 });
             }
-        }
+        });
         resolve(disciplinas);
     });
 }

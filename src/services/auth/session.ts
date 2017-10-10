@@ -3,7 +3,8 @@ import * as Session from '../../models/session';
 namespace s {
     export function createSession(userid, instanceid = ''): Promise<string> {
         return <any> Session.create({
-            instanceid: instanceid
+            instanceid: instanceid,
+            userid: userid
         }).then((ses: any) => Promise.resolve(ses.id));
     }
 }

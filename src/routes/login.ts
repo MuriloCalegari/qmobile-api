@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { QError, QSiteError } from '../services/errors/errors';
 import * as authenticate from '../services/auth/authenticate';
+import * as session from '../services/auth/session';
 
 const route = express.Router();
 
@@ -14,18 +15,21 @@ route.post('/login', (req, res) => {
     const username: string = req.body.user;
     const pass: string = req.body.pass;
     authenticate.login((<any>req).userdata.endpoint, username, pass)
-        .then(result => 
-            res.set('X-Access-Token', result.sessionid).json({
-                success: true,
-                name: result.name
+        .then(result => {
+            return session.createSession(result.userid).then(sessionid => {
+                res.set('X-Access-Token', sessionid).json({
+                    success: true,
+                    name: result.name
+                })
             })
-        )
-        .catch((err: QError) => 
+        })
+        .catch((err: QError) => {
             res.status(err instanceof QSiteError ? 500 : 400)
                 .json({
                     success: false,
                     message: err instanceof QSiteError ? 'Falha no servidor do QAcadêmico' : err.message
                 })
+            }
         );
 });
 
