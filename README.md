@@ -1,6 +1,6 @@
 # QMobile REST
 
-Esse repositório contém o servidor REST do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração REST para leitura dos dados.
+Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração REST para leitura dos dados.
 
 Este projeto faz parte do meu trabalho de conclusão de curso, espera-se que estja pronto no final de 2018 :satisfied:
 
