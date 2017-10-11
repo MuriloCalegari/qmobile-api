@@ -35,98 +35,111 @@ export function createJob(userid: string, matricula: string, senha: string, endp
     });
 }
 
+function createTurma(codigo: string, nome: string) {
+    return Turma.findOne({ where: { codigo: codigo } })
+        .then(turma => {
+            if (!turma) {
+                return Turma.create({
+                    codigo: codigo,
+                    nome: nome
+                })
+            }
+            return true;
+        });
+}
+
+function createDisciplina(codturma: string, nome: string, professor: string) {
+    return Disciplina.findOne({ where: { codturma: codturma, nome: nome, professor: professor } })
+        .then((discdb: any) => {
+            if (!discdb) {
+                return Disciplina.create({
+                        codturma: codturma,
+                        nome: nome,
+                        professor: professor
+                    })
+                    .then((res: any) => res.id);
+            }
+            return discdb.id;
+        });
+}
+
+function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota) {
+    return Nota.find({
+            where: {
+                descricao: nota.descricao
+            }
+        })
+        .then((notadb: any) => {
+            if (!notadb) {
+                return Nota.create({
+                    etapa: etapa.numero,
+                    descricao: nota.descricao,
+                    peso: nota.peso,
+                    notamaxima: nota.notamaxima,
+                    nota: nota.nota,
+                    disciplinaid: disciplina.id,
+                    userid: objaluno.id
+                })
+                .then((novanota: any) => objaluno.addNota(novanota).then(() => novanota))
+            }
+            if (nota.peso !== notadb.peso || nota.notamaxima !== notadb.notamaxima || nota.nota !== notadb.nota) {
+                return Nota.update({
+                    nota: nota.nota,
+                    notamaxima: nota.notamaxima,
+                    peso: nota.peso
+                },
+                {
+                    where: {
+                        id: notadb.id
+                    }
+                });
+            }
+            return notadb;
+        })
+}
+
+function updateEtapa(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa) {
+    const proms = [];
+    etapa.notas.forEach(nota => {
+        proms.push(updateNota(objaluno, disciplina, etapa, nota));
+    });
+    return Promise.all(proms);
+}
+
 export function retrieveData(browser: QBrowser, matricula: string): Promise<JobNotaResult> {
     const jobresult = {
-        browser: browser,
-        notas: {
-            alteradas: [],
-            novas: []
-        }
+        browser: browser
     };
-    let alunoid;
+    let objaluno;
     return <any> Usuario.find({ where: { matricula: matricula } })
-        .then((user: any) => alunoid = user.id)
+        .then((user: any) => objaluno = user)
         .then(() => qdiarios.getDisciplinas(browser))
         .then(disciplinas => {
-            let prom = Promise.resolve();
+            let sequencia = Promise.resolve();
             disciplinas.forEach(disc => {
-                prom = prom.then(() => Turma.findOne({ where: { codigo: disc.turma } })
-                    .then(turma => {
-                        if (!turma) {
-                            return Turma.create({
-                                codigo: disc.turma,
-                                nome: 'Turma ' + disc.turma
-                            })
-                        }
-                        return true;
-                    })
-                    .then(() => {
-                        return Disciplina.findOne({ where: { codturma: disc.turma, nome: disc.nome, professor: disc.professor } })
-                            .then((discdb: any) => {
-                                if (!discdb) {
-                                    return Disciplina.create({
-                                            codturma: disc.turma,
-                                            nome: disc.nome,
-                                            professor: disc.professor
-                                        })
-                                        .then((res: any) => {
-                                            return Usuario.findById(alunoid)
-                                                .then((user: any) => {
-                                                    return user.addDisciplina(res).then(() => res);
-                                                });
-                                        });
+                sequencia = sequencia
+                    .then(() => createTurma(disc.turma, 'Turma ' + disc.turma))
+                    .then(() => createDisciplina(disc.turma, disc.nome, disc.professor))
+                    .then(discid => 
+                        objaluno.hasDisciplina(discid)
+                            .then(has => {
+                                if (!has) {
+                                    return objaluno.addDisciplina(discid)
+                                        .then(() => discid);
                                 }
-                                return discdb.id;
-                            });
-                    })
+                                return discid;
+                            })
+                    )
                     .then(discid => {
-                        let prom = Promise.resolve();
+                        disc.id = discid;
+                        const proms = [];
                         disc.etapas.forEach(etapa => {
-                            etapa.notas.forEach(nota => {
-                                prom = prom.then(() => Nota.find({
-                                    where: {
-                                        descricao: nota.descricao
-                                    }
-                                }))
-                                .then((notadb: any) => {
-                                    if (!notadb) {
-                                        return Nota.create({
-                                            etapa: etapa.numero,
-                                            descricao: nota.descricao,
-                                            peso: nota.peso,
-                                            notamaxima: nota.notamaxima,
-                                            nota: nota.nota,
-                                            disciplinaid: discid,
-                                            userid: matricula
-                                        }).then((novanota: any) => {
-                                            return Usuario.findById(alunoid)
-                                                .then((user: any) => {
-                                                    jobresult.notas.novas.push(novanota.id);
-                                                    return user.addNota(novanota).then(() => novanota);
-                                                });
-                                        })
-                                    }
-                                    if (nota.peso !== notadb.peso || nota.notamaxima !== notadb.notamaxima || nota.nota !== notadb.nota) {
-                                        jobresult.notas.alteradas.push(notadb.id);
-                                        return Nota.update({
-                                            nota: nota.nota,
-                                            notamaxima: nota.notamaxima,
-                                            peso: nota.peso
-                                        },
-                                        {
-                                            where: {
-                                                id: notadb.id
-                                            }
-                                        });
-                                    }
-                                    return notadb;
-                                })
-                            })   
+                            proms.push(updateEtapa(objaluno, disc, etapa));
                         })
-                        return prom;
-                    }));
+                        return <any> Promise.all(proms);
+                    });
             })
-            return prom;
+            return sequencia;
         })
         .then(() => jobresult);
 }
@@ -146,10 +159,7 @@ queue.process('readnotas', 5, function (jobinfo, done) {
     const job: JobNota = jobinfo.data;
     qauth.login(job.endpoint, job.matricula, job.senha)
         .then(browser => retrieveData(browser, job.matricula))
-        .then(result => {
-            console.log(result.notas);
-            return result.browser.exit();
-        })
+        .then(result => result.browser.exit())
         .then(results => done());
 });
 
