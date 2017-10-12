@@ -7,7 +7,7 @@ import * as notasJob from '../tasks/notas';
 const route = express.Router();
 
 route.post('/login', (req, res) => {
-    if (!req.body.user || !req.body.pass) {
+    if (!req.body.user || !req.body.pass || !req.body.endpoint) {
         return res.status(400).json({
             success: false,
             message: 'Preencha todos os campos'
@@ -15,7 +15,7 @@ route.post('/login', (req, res) => {
     }
     const username: string = req.body.user;
     const pass: string = req.body.pass;
-    const endpoint: string = (<any>req).userdata.endpoint;
+    const endpoint: string = req.body.endpoint;
     authenticate.login(endpoint, username, pass)
         .then(result => {
             if (result.newbie) {
@@ -26,19 +26,21 @@ route.post('/login', (req, res) => {
             return result;
         })
         .then(result => {
-            return session.createSession(result.userid).then(sessionid => {
-                res.set('X-Access-Token', sessionid).json({
-                    success: true,
-                    name: result.name
+            return session.createSession(result.userid)
+                .then(sessionid => {
+                    res.set('X-Access-Token', sessionid).json({
+                        success: true,
+                        name: result.name
+                    })
                 })
-            })
         })
         .catch((err: QError) => {
             console.error(err);
-            res.status(err instanceof QSiteError ? 500 : 400)
+            const err500 = err instanceof QSiteError || err instanceof QError === false;
+            res.status(err500 ? 500 : 400)
                 .json({
                     success: false,
-                    message: err instanceof QSiteError ? 'Falha no servidor do QAcadêmico' : err.message
+                    message: err500 ? 'Falha no servidor do QAcadêmico' : err.message
                 })
             }
         );

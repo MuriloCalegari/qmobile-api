@@ -1,6 +1,7 @@
 import * as cron from 'node-cron';
 
 import * as queue from './queue';
+import { Job } from 'kue';
 import * as configs from '../configs';
 import * as Nota from '../models/nota';
 import * as Disciplina from '../models/disciplina';
@@ -26,7 +27,7 @@ export interface JobNotaResult {
     }
 }
 
-export function createJob(userid: string, matricula: string, senha: string, endpoint: string) {
+export function createJob(userid: string, matricula: string, senha: string, endpoint: string): Job {
     return queue.create('readnotas', {
         userid: userid,
         matricula: matricula,
@@ -35,8 +36,8 @@ export function createJob(userid: string, matricula: string, senha: string, endp
     });
 }
 
-function createTurma(codigo: string, nome: string) {
-    return Turma.findOne({ where: { codigo: codigo } })
+function createTurma(codigo: string, nome: string): Promise<any> {
+    return <any> Turma.findOne({ where: { codigo: codigo } })
         .then(turma => {
             if (!turma) {
                 return Turma.create({
@@ -48,8 +49,8 @@ function createTurma(codigo: string, nome: string) {
         });
 }
 
-function createDisciplina(codturma: string, nome: string, professor: string) {
-    return Disciplina.findOne({ where: { codturma: codturma, nome: nome, professor: professor } })
+function createDisciplina(codturma: string, nome: string, professor: string): Promise<string> {
+    return <any> Disciplina.findOne({ where: { codturma: codturma, nome: nome, professor: professor } })
         .then((discdb: any) => {
             if (!discdb) {
                 return Disciplina.create({
@@ -63,8 +64,8 @@ function createDisciplina(codturma: string, nome: string, professor: string) {
         });
 }
 
-function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota) {
-    return Nota.find({
+function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota): Promise<any> {
+    return <any> Nota.find({
             where: {
                 descricao: nota.descricao
             }
@@ -98,7 +99,7 @@ function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiar
         })
 }
 
-function updateEtapa(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa) {
+function updateEtapa(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa): Promise<any[]> {
     const proms = [];
     etapa.notas.forEach(nota => {
         proms.push(updateNota(objaluno, disciplina, etapa, nota));

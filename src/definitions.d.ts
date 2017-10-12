@@ -1,5 +1,6 @@
 interface UserData {
-    endpoint: string;
+    endpoint?: string;
+    userid: string;
 }
 
 declare namespace Express {

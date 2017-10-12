@@ -11,16 +11,17 @@ require('./tasks/notas');
 
 const app = express();
 
-app.use(morgan('dev'));
+app.use(<any> morgan('dev'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(endpoint);
 
 app.use('/auth', loginRoute);
 
-orm.sync({ force: true })
+app.use(endpoint);
+
+orm.sync()
     .then(() => {
         app.listen(3010, () => {
             console.log("Servidor iniciado na porta 3010");

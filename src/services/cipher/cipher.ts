@@ -4,15 +4,15 @@ const ALGORITHM = "aes-256-ctr";
 
 namespace c {
     export function cipher(str: string, pass: string): string {
-        const cipher = crypto.createCipher(ALGORITHM, pass);
-        let ciphered = cipher.update(str, 'utf8', 'hex');
-        ciphered += cipher.final('hex');
+        const cipherobj = crypto.createCipher(ALGORITHM, pass);
+        let ciphered = cipherobj.update(str, 'utf8', 'hex');
+        ciphered += cipherobj.final('hex');
         return ciphered;
     }
     export function decipher(str: string, pass: string): string {
-        const decipher = crypto.createDecipher(ALGORITHM, pass);
-        let dec = decipher.update(str, 'hex' ,'utf8');
-        dec += decipher.final('utf8');
+        const decipherobj = crypto.createDecipher(ALGORITHM, pass);
+        let dec = decipherobj.update(str, 'hex' ,'utf8');
+        dec += decipherobj.final('utf8');
         return dec;
     }
 }
