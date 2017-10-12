@@ -51,3 +51,36 @@ Após realizar build, acesse a pasta de saída e execute o projeto:
 cd dist/
 node qmobile.js
 ```
+Quando o comando for executado pela primeira vez, ele avisará que é necessário a configuração do sistema, para fazer isso, volte para a pasta raiz e abra o arquivo **config.json**.
+
+O arquivo se parecerá com:
+
+```json
+{
+    "crypt_pass": "123mudar",
+    "db": {
+        "host": "localhost",
+        "username": "postgres",
+        "password": "postgres",
+        "port": 5432,
+        "database": "qmobile"
+    },
+    "tests": {
+        "endpoint": null,
+        "login": null,
+        "password": null,
+        "name": null
+    }
+}
+```
+
+A opção **crypt_pass** se refere a chave da cifra que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
+
+As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta PostgreSQL.
+
+As opções em **tests** são os dados de entrada no Q-Acadêmico, sendo:
+
+* **endpoint**: Url base do serviço. Ex: *http://qacademico.ifexemplo.edu.br/qacademico*
+* **login**: Login do usuário (matrícula)
+* **password**: Senha do usuário
+* **name**: Nome completo do usuário (o mesmo do Q-Acadêmico)
