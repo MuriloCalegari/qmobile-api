@@ -1,9 +1,12 @@
+import * as configs from '../configs';
 import * as Sequelize from 'sequelize';
 
-const sequelize = new Sequelize('qmobile', 'postgres', '12345', {
+const cfg = configs.db;
+
+const sequelize = new Sequelize(cfg.database, cfg.username, cfg.password, {
     dialect: 'postgres',
-    host: 'localhost',
-    port: 5432
+    host: cfg.host,
+    port: cfg.port
 });
 
 export = sequelize;
