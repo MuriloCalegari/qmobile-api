@@ -3,11 +3,11 @@ import * as qauth from '../../services/browser/qauth';
 import * as quser from '../../services/browser/quser';
 import { QError } from '../../services/errors/errors';
 import * as configs from '../../configs';
-import * as crypto from '../crypt/crypto';
+import * as cipher from '../cipher/cipher';
 import { QBrowser } from '../driver/webdriver';
 
 function insereBanco(endpoint, username, nome, pass): Promise<any> {
-    const hash = crypto.crypt(pass, configs.crypt_pass);
+    const hash = cipher.cipher(pass, configs.cipher_pass);
     return <any> Usuario.create({
         matricula: username,
         nome: nome,
@@ -50,7 +50,7 @@ namespace a {
             }
         })
         .then(user => {
-            const hash = crypto.crypt(pass, configs.crypt_pass);
+            const hash = cipher.cipher(pass, configs.cipher_pass);
             if (user.password === hash) {
                 res.name = user.nome;
                 res.userid = user.id;

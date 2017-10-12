@@ -6,7 +6,7 @@ import * as Nota from '../models/nota';
 import * as Disciplina from '../models/disciplina';
 import * as Turma from '../models/turma';
 import * as Usuario from '../models/usuario';
-import * as crypto from '../services/crypt/crypto';
+import * as cipher from '../services/cipher/cipher';
 import { QBrowser } from '../services/driver/webdriver';
 import * as qauth from '../services/browser/qauth';
 import * as qdiarios from '../services/browser/qdiarios';
@@ -148,7 +148,7 @@ function atualizaNotas() {
     Usuario.all()
         .then((users: any[]) => {
             users.forEach(user => {
-                const job = createJob(user.id, user.matricula, crypto.decrypt(user.password, configs.crypt_pass), user.endpoint);
+                const job = createJob(user.id, user.matricula, cipher.decipher(user.password, configs.cipher_pass), user.endpoint);
                 job.events(false);
                 job.save();
             });

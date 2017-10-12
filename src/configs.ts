@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 let obj = {
-    crypt_pass: '123mudar',
+    cipher_pass: '123mudar',
     db: {
         host: 'localhost',
         username: 'postgres',

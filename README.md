@@ -57,7 +57,7 @@ O arquivo se parecerá com:
 
 ```json
 {
-    "crypt_pass": "123mudar",
+    "cipher_pass": "123mudar",
     "db": {
         "host": "localhost",
         "username": "postgres",
@@ -74,7 +74,7 @@ O arquivo se parecerá com:
 }
 ```
 
-A opção **crypt_pass** se refere a chave da cifra que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
+A opção **cipher_pass** se refere a chave da cifra que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
 
 As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta PostgreSQL.
 
