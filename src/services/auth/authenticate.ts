@@ -46,7 +46,7 @@ namespace a {
                                 return insereBanco(endpoint, username, nome, pass)
                             });
             } else {
-                return Promise.resolve(user);
+                return <any>user;
             }
         })
         .then(user => {
@@ -54,7 +54,7 @@ namespace a {
             if (user.password === hash) {
                 res.name = user.nome;
                 res.userid = user.id;
-                return Promise.resolve(res);
+                return <any> res;
             }
             return Promise.reject(new QError('Senha incorreta'));
         });

@@ -41,12 +41,10 @@ route.get('/', (req, res) => {
                     }))
             })
             Promise.all(proms)
-                .then(() => {
-                    res.json({
+                .then(() => res.json({
                         success: true,
                         disciplinas: resultado
-                    });
-                })
+                    }))
         })
         .catch(err => {
             res.status(500).json({

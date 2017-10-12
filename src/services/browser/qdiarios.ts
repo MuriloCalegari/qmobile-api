@@ -66,14 +66,10 @@ function readEtapa(dom: CheerioStatic, preelem: CheerioElement): Etapa {
     if (!element.hasClass("conteudoTexto")) {
         return null;
     }
-    const notas: Nota[] = [];
     const numEtapa = extractInt(element.find("div.conteudoTitulo").text());
     const tbody = element.find('tbody');
     const trs = tbody.children('tr');
-    for (let i = 0; i < trs.length; i++) {
-        const tr = trs[i];
-        notas.push(readNota(dom, tr));
-    }
+    const notas = [].map.call(trs, tr => readNota(dom, tr));
     return {
         numero: numEtapa,
         notas: notas

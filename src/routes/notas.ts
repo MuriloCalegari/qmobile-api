@@ -70,15 +70,14 @@ route.get('/:disciplina/:etapa', (req, res) => {
         }
     })
     .then((notas: any[]) => {
-        const resnotas = [];
-        notas.forEach(nota => {
-            resnotas.push({
+        const resnotas = notas.map(nota => { 
+            return {
                 id: nota.id,
                 descricao: nota.descricao,
                 peso: nota.peso,
                 notamaxima: nota.notamaxima,
                 nota: nota.nota
-            })
+            }
         });
         res.json({
             success: true,
@@ -86,7 +85,6 @@ route.get('/:disciplina/:etapa', (req, res) => {
         })
     })
     .catch(err => {
-        console.error(err);
         res.status(500).json({
             success: false,
             message: 'Erro no servidor, tente novamente mais tarde'

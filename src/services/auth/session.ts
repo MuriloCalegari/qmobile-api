@@ -5,7 +5,7 @@ namespace s {
         return <any> Session.create({
             instanceid: instanceid,
             userid: userid
-        }).then((ses: any) => Promise.resolve(ses.id));
+        }).then((ses: any) => ses.id);
     }
 }
 export = s;

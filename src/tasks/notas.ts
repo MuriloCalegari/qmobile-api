@@ -100,10 +100,7 @@ function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiar
 }
 
 function updateEtapa(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa): Promise<any[]> {
-    const proms = [];
-    etapa.notas.forEach(nota => {
-        proms.push(updateNota(objaluno, disciplina, etapa, nota));
-    });
+    const proms = etapa.notas.map(nota => updateNota(objaluno, disciplina, etapa, nota));
     return Promise.all(proms);
 }
 
@@ -133,10 +130,7 @@ export function retrieveData(browser: QBrowser, matricula: string): Promise<JobN
                     )
                     .then(discid => {
                         disc.id = discid;
-                        const proms = [];
-                        disc.etapas.forEach(etapa => {
-                            proms.push(updateEtapa(objaluno, disc, etapa));
-                        })
+                        const proms = disc.etapas.map(etapa => updateEtapa(objaluno, disc, etapa));
                         return <any> Promise.all(proms);
                     });
             })
