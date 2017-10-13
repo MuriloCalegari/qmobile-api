@@ -35,7 +35,8 @@ function bootstrap(): Promise<void> {
         return orm.sync()
     })
     .then(() => import('./tasks/notas'))
-    .then(task => new Promise((resolve, reject) => {
+    .then(task => 
+        new Promise((resolve, reject) => {
             spin.setSpinnerTitle(colors.blue('%s Atualizando dados dos usuários'));
             task.atualizaNotas()
                 .then(users => {
@@ -51,8 +52,9 @@ function bootstrap(): Promise<void> {
                     });
                 })
                 .catch(err => reject(err))
-        }).then(() => {
-            cron.schedule('0 */2 * * * *', () => task.atualizaNotas());
+        })
+        .then(() => {
+            cron.schedule('0 */2 * * * *', () => task.atualizaNotas(), false);
         })
     )
     .then(() => new Promise<void>((resolve, reject) => {
