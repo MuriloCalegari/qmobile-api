@@ -1,5 +1,3 @@
-import * as cron from 'node-cron';
-
 import * as queue from './queue';
 import { Job } from 'kue';
 import * as configs from '../configs';
@@ -158,6 +156,6 @@ queue.process('readnotas', 5, function (jobinfo, done) {
         .then(results => done());
 });
 
-cron.schedule('0 */2 * * * *', () => atualizaNotas, true);
+
 
 export { queue };

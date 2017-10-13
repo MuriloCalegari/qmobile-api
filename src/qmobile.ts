@@ -1,5 +1,6 @@
 /// <reference path="definitions.d.ts" />
 
+import * as cron from 'node-cron';
 import * as sequelize from 'sequelize';
 import * as express from 'express';
 import * as colors from 'colors/safe';
@@ -35,22 +36,25 @@ function bootstrap(): Promise<void> {
     })
     .then(() => import('./tasks/notas'))
     .then(task => new Promise((resolve, reject) => {
-        spin.setSpinnerTitle(colors.blue('%s Atualizando dados dos usuários'));
-        task.atualizaNotas()
-            .then(users => {
-                if (users.length === 0) {
-                    return resolve();
-                }
-                task.queue.on('job complete', () => {
-                    task.queue.activeCount('readnotas', (err, total) => {
-                        if (total == 0) {
-                            resolve();
-                        }
-                    })
-                });
-            })
-            .catch(err => reject(err))
-    }))
+            spin.setSpinnerTitle(colors.blue('%s Atualizando dados dos usuários'));
+            task.atualizaNotas()
+                .then(users => {
+                    if (users.length === 0) {
+                        return resolve(task);
+                    }
+                    task.queue.on('job complete', () => {
+                        task.queue.activeCount('readnotas', (err, total) => {
+                            if (total == 0) {
+                                resolve(task);
+                            }
+                        })
+                    });
+                })
+                .catch(err => reject(err))
+        }).then(() => {
+            cron.schedule('0 */2 * * * *', () => task.atualizaNotas());
+        })
+    )
     .then(() => new Promise<void>((resolve, reject) => {
         const configs = require('./configs');
         spin.setSpinnerTitle(colors.blue('%s Inicializando servidor'));
