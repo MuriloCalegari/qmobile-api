@@ -148,7 +148,7 @@ export function atualizaNotas() {
         });
 }
 
-queue.process('readnotas', 5, function (jobinfo, done) {
+queue.process('readnotas', 50, function (jobinfo, done) {
     const job: JobNota = jobinfo.data;
     qauth.login(job.endpoint, job.matricula, job.senha)
         .then(browser => retrieveData(browser, job.matricula))
