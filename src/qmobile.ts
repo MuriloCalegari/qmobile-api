@@ -18,7 +18,7 @@ function bootstrap(): Promise<void> {
    \\__\\_\\_|  |_|\\___/|_.__/|_|_|\\___|
                                      
  `));
-    console.log(colors.green('Inicializando versão ' + pjson.version));
+    console.log(colors.green('Inicializando versão ' + colors.white(pjson.version)));
     return new Promise<void>((resolve, reject) => {
         spin.setSpinnerTitle(colors.blue('%s Lendo configuração'));
         const configs = require('./configs');
@@ -72,4 +72,4 @@ bootstrap()
         console.error(colors.red('Falha ao inicializar servidor:'));
         console.error(err);
         process.exit(1);
-    })
+    });
