@@ -5,10 +5,10 @@ const queue = kue.createQueue();
 
 queue.setMaxListeners(configs.update_queue_size + 5);
 
-queue.on('job complete', function(id, result){
-    kue.Job.get(id, function(err, job){
+queue.on('job complete', id => {
+    kue.Job.get(id, (err, job) => {
         if (err) return;
-        job.remove(function(err){
+        job.remove(err => {
             if (err) throw err;
         });
     });
