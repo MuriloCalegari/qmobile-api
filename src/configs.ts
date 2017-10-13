@@ -19,7 +19,8 @@ let def = {
         password: null,
         name: null
     },
-    serverport: 3010
+    serverport: 3010,
+    update_queue_size: 50
 };
 
 let obj = null;
