@@ -139,14 +139,15 @@ export function retrieveData(browser: QBrowser, matricula: string): Promise<JobN
         .then(() => jobresult);
 }
 
-function atualizaNotas() {
-    Usuario.all()
+export function atualizaNotas() {
+    return Usuario.all()
         .then((users: any[]) => {
             users.forEach(user => {
                 const job = createJob(user.id, user.matricula, cipher.decipher(user.password, configs.cipher_pass), user.endpoint);
                 job.events(false);
                 job.save();
             });
+            return users;
         });
 }
 
@@ -158,5 +159,6 @@ queue.process('readnotas', 5, function (jobinfo, done) {
         .then(results => done());
 });
 
-//cron.schedule('0 */2 * * * *', atualizaNotas);
-setTimeout(() => atualizaNotas(), 1000);
+cron.schedule('0 */2 * * * *', () => atualizaNotas, true);
+
+export { queue };

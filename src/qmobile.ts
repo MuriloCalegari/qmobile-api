@@ -1,34 +1,75 @@
 /// <reference path="definitions.d.ts" />
 
-import * as orm from './models/orm';
-import * as Nota from './models/nota';
-import * as morgan from 'morgan';
+import * as sequelize from 'sequelize';
 import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import endpoint from './middlewares/endpoint';
-import * as loginRoute from './routes/login';
-import * as notasRoute from './routes/notas';
-import * as disciplinasRoute from './routes/disciplinas';
-require('./tasks/notas');
+import * as colors from 'colors/safe';
+import { Spinner } from 'cli-spinner';
+const pjson = require('../package.json');
 
-const app = express();
+const spin = new Spinner('%s');
+spin.start();
 
-app.use(<any> morgan('dev'));
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-
-app.use('/auth', loginRoute);
-
-app.use(endpoint);
-
-app.use('/nota(s)?', notasRoute);
-app.use('/disciplinas', disciplinasRoute);
-
-orm.sync()
+function bootstrap(): Promise<void> {
+    console.log(colors.green(`
+    ___  __  __       _     _ _      
+   / _ \\|  \\/  | ___ | |__ (_) | ___ 
+  | | | | |\\/| |/ _ \\| '_ \\| | |/ _ \\
+  | |_| | |  | | (_) | |_) | | |  __/
+   \\__\\_\\_|  |_|\\___/|_.__/|_|_|\\___|
+                                     
+ `));
+    console.log(colors.green('Inicializando versão ' + pjson.version));
+    return new Promise<void>((resolve, reject) => {
+        spin.setSpinnerTitle(colors.blue('%s Lendo configuração'));
+        const configs = require('./configs');
+        if (configs !== null && configs.cipher_pass && configs.cipher_pass === '123mudar') {
+            console.warn(colors.yellow('O valor de ' + colors.bold('cipher_pass') + ' precisa ser alterado.'));
+        }
+        configs !== null ? resolve() : reject(new Error('Falha ao ler a configuração'));
+    })
     .then(() => {
-        app.listen(3010, () => {
-            console.log("Servidor iniciado na porta 3010");
-        });
-    });
+        spin.setSpinnerTitle(colors.blue('%s Inicializando banco de dados'));
+        const orm: sequelize.Sequelize = require('./models/orm');
+        require('./models/nota');
+        return orm.sync()
+    })
+    .then(() => import('./tasks/notas'))
+    .then(task => new Promise((resolve, reject) => {
+        spin.setSpinnerTitle(colors.blue('%s Atualizando dados dos usuários'));
+        task.atualizaNotas()
+            .then(users => {
+                if (users.length === 0) {
+                    return resolve();
+                }
+                task.queue.on('job complete', () => {
+                    task.queue.activeCount('readnotas', (err, total) => {
+                        if (total == 0) {
+                            resolve();
+                        }
+                    })
+                });
+            })
+            .catch(err => reject(err))
+    }))
+    .then(() => new Promise<void>((resolve, reject) => {
+        const configs = require('./configs');
+        spin.setSpinnerTitle(colors.blue('%s Inicializando servidor'));
+        const server: express.Express = require('./server');
+        server.listen(configs.serverport, () => {
+            resolve();
+        }).on('error', err => reject(err));
+    }));
+}
+
+bootstrap()
+    .then(() => {
+        const configs = require('./configs');
+        spin.stop(true);
+        console.log(colors.green(`Servidor inicializado na porta ${configs.serverport}`));
+    })
+    .catch(err => {
+        spin.stop(true);
+        console.error(colors.red('Falha ao inicializar servidor:'));
+        console.error(err);
+        process.exit(1);
+    })
