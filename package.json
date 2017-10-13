@@ -1,10 +1,11 @@
 {
   "name": "qmobile-rest",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Servidor REST do QMobile",
   "main": "dist/qmobile.js",
   "scripts": {
-    "test": "mocha dist/test"
+    "test": "mocha dist/test",
+    "start": "node ./dist/qmobile.js"
   },
   "repository": {
     "type": "git",

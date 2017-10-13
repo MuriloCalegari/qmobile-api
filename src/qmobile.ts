@@ -43,9 +43,11 @@ function bootstrap(): Promise<void> {
                     if (users.length === 0) {
                         return resolve(task);
                     }
-                    task.queue.on('job complete', () => {
+                    let listener = null;
+                    task.queue.on('job complete', listener = function() {
                         task.queue.activeCount('readnotas', (err, total) => {
                             if (total == 0) {
+                                task.queue.removeListener('job complete', listener);
                                 resolve(task);
                             }
                         })
