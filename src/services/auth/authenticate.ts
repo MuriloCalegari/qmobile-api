@@ -49,13 +49,13 @@ namespace a {
                                     })
                                     .then(user => 
                                         quser.getPhoto(browser)
-                                            .then(buffer => photo.proccess(buffer))
+                                            .then(buffer => photo.process(buffer))
                                             .then(buffer => photo.savePhoto(buffer, user.id))
                                             .then(() => user)
                                     )
                             );
             } else {
-                return <any>user;
+                return <any> user;
             }
         })
         .then(user => {

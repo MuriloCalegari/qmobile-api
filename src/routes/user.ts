@@ -50,7 +50,7 @@ route.post('/picture', fileUpload(uploadConfig), (req, res) => {
                 message: 'Falha ao realizar upload'
             });
     }
-    photo.proccess(file.data)
+    photo.process(file.data)
         .then(buffer => photo.savePhoto(buffer, userid))
         .then(buffer => {
             res.setHeader('Content-Type', 'image/jpeg');

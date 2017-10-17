@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PHOTOS_FOLDER } from '../../constants';
 
-export function proccess(buffer: Buffer): Promise<Buffer> {
+export function process(buffer: Buffer): Promise<Buffer> {
     return sharp(buffer)
             .background('white')
             .resize(500, 500)
