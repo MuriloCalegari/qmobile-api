@@ -4,7 +4,7 @@ import * as Usuario from '../models/usuario';
 
 export default function(req: express.Request, res: express.Response, next: () => void) {
     const userdata = (<any>req).userdata = (<any>req).userdata || {};
-    const token = req.header('x-access-token');
+    const token = req.header('x-access-token') || req.query.token;
     if (!token) {
         return res.status(401)
                 .json({
@@ -15,6 +15,7 @@ export default function(req: express.Request, res: express.Response, next: () =>
     Session.findById(token, { include: [Usuario] })
         .then((ses: any) => {
             userdata.endpoint = ses.user.endpoint;
+            userdata.sessionid = token;
             userdata.userid = ses.user.id;
             next();
         })

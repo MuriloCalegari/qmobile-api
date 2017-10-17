@@ -3,6 +3,7 @@ import { QError, QSiteError } from '../services/errors/errors';
 import * as authenticate from '../services/auth/authenticate';
 import * as session from '../services/auth/session';
 import * as notasJob from '../tasks/notas';
+import endpoint from '../middlewares/endpoint';
 
 const route = express.Router();
 
@@ -44,6 +45,20 @@ route.post('/login', (req, res) => {
                 })
             }
         );
+});
+
+route.post('/logout', endpoint, (req, res) => {
+    session.destroySession(req.userdata.sessionid)
+        .then(() => {
+            res.json({
+                success: true
+            })
+        })
+        .catch(() => {
+            res.status(500).json({
+                success: false
+            })
+        })
 });
 
 export = route;

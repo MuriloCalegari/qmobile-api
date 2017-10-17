@@ -4,6 +4,7 @@ import * as quser from '../../services/browser/quser';
 import { QError } from '../../services/errors/errors';
 import * as configs from '../../configs';
 import * as cipher from '../cipher/cipher';
+import * as photo from '../photo/photo';
 import { QBrowser } from '../driver/webdriver';
 
 function insereBanco(endpoint, username, nome, pass): Promise<any> {
@@ -40,11 +41,19 @@ namespace a {
                 res.newbie = true;
                 return qauth.login(endpoint, username, pass)
                             .then(browser => res.browser = browser)
-                            .then(browser => quser.getName(browser))
-                            .then(nome => {
-                                res.name = nome;
-                                return insereBanco(endpoint, username, nome, pass)
-                            });
+                            .then(browser => 
+                                quser.getName(browser)
+                                    .then(nome => {
+                                        res.name = nome;
+                                        return insereBanco(endpoint, username, nome, pass)
+                                    })
+                                    .then(user => 
+                                        quser.getPhoto(browser)
+                                            .then(buffer => photo.proccess(buffer))
+                                            .then(buffer => photo.savePhoto(buffer, user.id))
+                                            .then(() => user)
+                                    )
+                            );
             } else {
                 return <any>user;
             }
