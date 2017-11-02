@@ -19,6 +19,7 @@ function openHome(browser: webdriver.QBrowser): Promise<void> {
             }
             resolve();
         } catch (e) {
+            await browser.exit(true);
             reject();
         }
     })
@@ -33,6 +34,7 @@ export function getName(browser: webdriver.QBrowser): Promise<string> {
             const nome = dom('.barraRodape').eq(1).text().trim();
             resolve(nome);
         } catch (exc) {
+            await browser.exit(true);
             reject(new QSiteError(exc, "Falha ao buscar os dados"));
         }
     });
@@ -43,7 +45,7 @@ export function getPhoto(browser: webdriver.QBrowser): Promise<Buffer> {
         try {
             const driver = browser.getDriver();
             await openHome(browser);
-            const base64 = (<string> await driver.executeScript(`
+            const base64 = (<string>await driver.executeScript(`
                 var c = document.createElement("canvas");
                 var ctx = c.getContext("2d");
                 var img = document.querySelector(".titulo img");
@@ -55,6 +57,7 @@ export function getPhoto(browser: webdriver.QBrowser): Promise<Buffer> {
             const buffer = new Buffer(base64, 'base64');
             resolve(buffer);
         } catch (exc) {
+            await browser.exit(true);
             reject(new QSiteError(exc, "Falha ao buscar os dados"));
         }
     });

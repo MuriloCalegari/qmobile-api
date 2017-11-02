@@ -8,7 +8,7 @@ export function login(endpoint: string, username: string, password: string): Pro
     return new Promise(async (resolve, reject) => {
         let browser: webdriver.QBrowser = null;
         try {
-            browser = webdriver.create();
+            browser = await webdriver.create();
             browser.setEndpoint(endpoint);
             const driver = browser.getDriver();
             await driver.get(browser.getEndpoint() + LOGIN_PAGE);
@@ -36,7 +36,7 @@ export function login(endpoint: string, username: string, password: string): Pro
             }
         } catch (e) {
             if (browser !== null) {
-                browser.exit()
+                browser.exit(true)
                     .then(() => reject(e))
                     .catch(() => reject(e));
             } else {

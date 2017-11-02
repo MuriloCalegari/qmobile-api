@@ -31,64 +31,69 @@ function bootstrap(): Promise<void> {
         }
         configs !== null ? resolve() : reject(new Error('Falha ao ler a configuração'));
     })
-    .then(() => {
-        spin.setSpinnerTitle(colors.blue('%s Inicializando banco de dados'));
-        const orm: sequelize.Sequelize = require('./models/orm');
-        require('./models/nota');
-        return orm.sync()
-    })
-    .then(() => import('./tasks/notas'))
-    /*.then(task => 
-        new Promise((resolve, reject) => {
-            spin.setSpinnerTitle(colors.blue('%s Atualizando dados dos usuários'));
-            task.atualizaNotas()
-                .then(users => {
-                    if (users.length === 0) {
-                        return resolve(task);
-                    }
-                    let listener = null;
-                    task.queue.on('job complete', listener = function() {
-                        task.queue.activeCount('readnotas', (err, total) => {
-                            if (total == 0) {
-                                task.queue.removeListener('job complete', listener);
-                                resolve(task);
-                            }
-                        })
-                    });
-                })
-                .catch(err => reject(err))
-        })
         .then(() => {
-            cron.schedule('0 *'+'/2 * * * *', () => task.atualizaNotas(), false);
+            spin.setSpinnerTitle(colors.blue('%s Inicializando banco de dados'));
+            const orm: sequelize.Sequelize = require('./models/orm');
+            require('./models/nota');
+            return orm.sync()
         })
-    )*/
-    .then(() => new Promise<void>((resolve, reject) => {
-        fs.exists(PHOTOS_FOLDER, exists => {
-            if (exists) return resolve();
-            fs.mkdir(PHOTOS_FOLDER, err => {
-                if (err) reject(err);
-                else resolve();
-            });
-        })
-    }))
-    .then(() => new Promise<void>((resolve, reject) => {
-        const folder = path.join(PHOTOS_FOLDER, 'users');
-        fs.exists(folder, exists => {
-            if (exists) return resolve();
-            fs.mkdir(folder, err => {
-                if (err) reject(err);
-                else resolve();
+        .then(() => import('./tasks/notas'))
+        /*.then(task => 
+            new Promise((resolve, reject) => {
+                spin.setSpinnerTitle(colors.blue('%s Atualizando dados dos usuários'));
+                task.atualizaNotas()
+                    .then(users => {
+                        if (users.length === 0) {
+                            return resolve(task);
+                        }
+                        let listener = null;
+                        task.queue.on('job complete', listener = function() {
+                            task.queue.activeCount('readnotas', (err, total) => {
+                                if (total == 0) {
+                                    task.queue.removeListener('job complete', listener);
+                                    resolve(task);
+                                }
+                            })
+                        });
+                    })
+                    .catch(err => reject(err))
             })
-        });
-    }))
-    .then(() => new Promise<void>((resolve, reject) => {
-        const configs = require('./configs');
-        spin.setSpinnerTitle(colors.blue('%s Inicializando servidor'));
-        const server: express.Express = require('./server');
-        server.listen(configs.serverport, () => {
-            resolve();
-        }).on('error', err => reject(err));
-    }));
+            .then(() => {
+                cron.schedule('0 *'+'/2 * * * *', () => task.atualizaNotas(), false);
+            })
+        )*/
+        .then(() => new Promise<void>((resolve, reject) => {
+            fs.exists(PHOTOS_FOLDER, exists => {
+                if (exists) return resolve();
+                fs.mkdir(PHOTOS_FOLDER, err => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            })
+        }))
+        .then(() => new Promise<void>((resolve, reject) => {
+            const folder = path.join(PHOTOS_FOLDER, 'users');
+            fs.exists(folder, exists => {
+                if (exists) return resolve();
+                fs.mkdir(folder, err => {
+                    if (err) reject(err);
+                    else resolve();
+                })
+            });
+        }))
+        .then(() => new Promise<void>((resolve, reject) => {
+            const configs = require('./configs');
+            spin.setSpinnerTitle(colors.blue('%s Inicializando servidor'));
+            const server: express.Express = require('./server');
+            server.listen(configs.serverport, () => {
+                resolve();
+            }).on('error', err => reject(err));
+        }));
+}
+
+function shutdown(): Promise<void> {
+    return import('./services/driver/webdriver')
+        .then(driver => driver.shutdown());
 }
 
 bootstrap()

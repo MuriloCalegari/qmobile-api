@@ -1,7 +1,5 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import * as deepAssign from 'deep-assign';
-
 
 let def = {
     cipher_pass: '123mudar',
@@ -20,10 +18,10 @@ let def = {
         name: null
     },
     serverport: 3010,
-    update_queue_size: 50
+    update_queue_size: 50,
+    maxinstances: 40
 };
 
-let obj = null;
 
 const cfgpath = path.join(__dirname, '../config.json');
 
@@ -31,17 +29,10 @@ if (!fs.existsSync(cfgpath)) {
     fs.writeFileSync(cfgpath, JSON.stringify(def, null, 4), 'utf8');
 } else {
     try {
-        obj = JSON.parse(fs.readFileSync(cfgpath, 'utf8'));
+        def = JSON.parse(fs.readFileSync(cfgpath, 'utf8'));
     } catch (e) {
-        obj = null;
+        def = null;
     }
-}
-
-if (obj !== null) {
-    def = deepAssign(def, obj);
-    fs.writeFileSync(cfgpath, JSON.stringify(def, null, 4), 'utf8');
-} else {
-    def = null;
 }
 
 export = def;

@@ -1,5 +1,13 @@
 const gulp = require('gulp');
 const ts = require('gulp-typescript');
+const { spawn } = require('child_process');
+
+let proc;
+
+const restart = () => {
+    if (proc) proc.kill();
+    proc = spawn('node', ['qmobile'], { cwd: './dist', stdio: 'inherit' });
+}
 
 gulp.task('ts', () => {
     return gulp.src('src/**/*.ts')
@@ -15,5 +23,13 @@ gulp.task('ts', () => {
 gulp.task('watch', () => {
     gulp.watch('src/**/*.ts', ['ts']);
 });
+
+gulp.task('live', ['default'], () => {
+    restart();
+    const watcher = gulp.watch('src/**/*', ['default']);
+    watcher.on('change', () => {
+        restart();
+    })
+})
 
 gulp.task('default', ['ts']);

@@ -5,17 +5,22 @@ import { DIARIOS_PAGE } from '../../constants';
 
 export function openDiarios(browser: webdriver.QBrowser): Promise<webdriver.QBrowser> {
     return new Promise(async (resolve, reject) => {
-        const driver = browser.getDriver();
-        const diarios = browser.getEndpoint() + DIARIOS_PAGE;
-        const url = await driver.getCurrentUrl();
-        if (url != diarios) {
-            await driver.get(diarios);
+        try {
+            const driver = browser.getDriver();
+            const diarios = browser.getEndpoint() + DIARIOS_PAGE;
+            const url = await driver.getCurrentUrl();
+            if (url != diarios) {
+                await driver.get(diarios);
+            }
+            await driver.wait(async () => {
+                const readyState = await driver.executeScript('return document.readyState');
+                return readyState === 'complete';
+            });
+            resolve(browser);
+        } catch (e) {
+            await browser.exit(true);
+            reject();
         }
-        await driver.wait(async () => {
-            const readyState = await driver.executeScript('return document.readyState');
-            return readyState === 'complete';
-        });
-        resolve(browser);
     });
 }
 
@@ -78,34 +83,39 @@ function readEtapa(dom: CheerioStatic, preelem: CheerioElement): Etapa {
 
 export function getDisciplinas(browser: webdriver.QBrowser): Promise<Disciplina[]> {
     return new Promise(async (resolve, reject) => {
-        const driver = browser.getDriver();
-        await openDiarios(browser);
-        const dom = cheerio.load(await driver.getPageSource());
-        const tabelaNotas = dom('table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) > table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody');
-        const trs = tabelaNotas.children("tr").toArray();
-        const disciplinas: Disciplina[] = [];
-        trs.forEach((elem, i) => {
-            const tr = dom(elem);
-            if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
-                const descricao = tr.find("td.conteudoTexto").text();
-                const parts = descricao.split("-");
-                const etapas: Etapa[] = [];
-                for (let j = 1; j <= 2 && i + j < trs.length; j++) {
-                    const etapa = readEtapa(dom, trs[i + j]);
-                    if (etapa !== null) {
-                        etapas.push(etapa);
-                    } else {
-                        break;
+        try {
+            const driver = browser.getDriver();
+            await openDiarios(browser);
+            const dom = cheerio.load(await driver.getPageSource());
+            const tabelaNotas = dom('table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) > table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody');
+            const trs = tabelaNotas.children("tr").toArray();
+            const disciplinas: Disciplina[] = [];
+            trs.forEach((elem, i) => {
+                const tr = dom(elem);
+                if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
+                    const descricao = tr.find("td.conteudoTexto").text();
+                    const parts = descricao.split("-");
+                    const etapas: Etapa[] = [];
+                    for (let j = 1; j <= 2 && i + j < trs.length; j++) {
+                        const etapa = readEtapa(dom, trs[i + j]);
+                        if (etapa !== null) {
+                            etapas.push(etapa);
+                        } else {
+                            break;
+                        }
                     }
+                    disciplinas.push({
+                        turma: parts[1].trim(),
+                        nome: parts[2].trim(),
+                        professor: parts[3].trim(),
+                        etapas: etapas
+                    });
                 }
-                disciplinas.push({
-                    turma: parts[1].trim(),
-                    nome: parts[2].trim(),
-                    professor: parts[3].trim(),
-                    etapas: etapas
-                });
-            }
-        });
-        resolve(disciplinas);
+            });
+            resolve(disciplinas);
+        } catch (e) {
+            await browser.exit(true);
+            reject();
+        }
     });
 }
