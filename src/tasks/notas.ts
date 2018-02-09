@@ -37,22 +37,22 @@ async function createTurma(codigo: string, nome: string): Promise<void> {
 }
 
 async function createDisciplina(codturma: string, nome: string, professor: string): Promise<string> {
-  const disc = await Disciplina.findOne({ where: { codturma, nome, professor } }) as any;
+  const disc = (await Disciplina.findOne({ where: { codturma, nome, professor } })).toJSON();
   if (!disc) {
-    const { id } = Disciplina.create(
+    const { id } = (await Disciplina.create(
       { codturma, nome, professor }
-    ) as any as qdiarios.Disciplina;
+    )).toJSON();
     return id;
   }
   return disc.id;
 }
 
 async function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota): Promise<void> {
-  const notadb = await Nota.find({
+  const notadb = (await Nota.find({
     where: {
       descricao: nota.descricao
     }
-  }) as any;
+  })).toJSON();
   if (!notadb) {
     const novanota = await Nota.create({
       etapa: etapa.numero,
@@ -89,7 +89,7 @@ export async function retrieveData(browser: QBrowser, matricula: string): Promis
   const jobresult = {
     browser: browser
   };
-  const objaluno = await Usuario.find({ where: { matricula: matricula } }) as any;
+  const objaluno = await Usuario.find({ where: { matricula: matricula } });
   const disciplinas = await qdiarios.getDisciplinas(browser);
   for (let disc of disciplinas) {
     await createTurma(disc.turma, 'Turma ' + disc.turma);
