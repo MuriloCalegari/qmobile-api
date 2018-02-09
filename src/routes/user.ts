@@ -6,63 +6,62 @@ import * as fileUpload from 'express-fileupload';
 import * as photo from '../services/photo/photo';
 import { PHOTOS_FOLDER } from '../constants';
 
-const uploadConfig = { 
-    limits: {
-        fileSize: 2e6 /* 2mb */,
-        files: 1
-    }, 
+const uploadConfig = {
+  limits: {
+    fileSize: 2e6 /* 2mb */,
+    files: 1
+  },
 };
 
 const route = express.Router();
 
 route.get('/picture', (req, res) => {
-    const userid = req.userdata.userid;
-    const file = path.join(PHOTOS_FOLDER, 'users', userid + '.jpg');
-    fs.exists(file, exists => {
-        if (!exists)
-            return res.status(404)
-                .json({
-                    success: false,
-                    message: 'Foto não encontrada'
-                })
-        console.log(file);
-        res.sendFile(file);
-    })
+  const { userid } = req.userdata;
+  const file = path.join(PHOTOS_FOLDER, 'users', userid + '.jpg');
+  fs.exists(file, exists => {
+    if (!exists)
+      return res.status(404)
+        .json({
+          success: false,
+          message: 'Foto não encontrada'
+        })
+    console.log(file);
+    res.sendFile(file);
+  })
 });
 
 const allowedExt = ['.jpeg', '.jpg', '.bmp', '.png'];
 
-route.post('/picture', fileUpload(uploadConfig), (req, res) => {
-    if (!req.files || !req.files.picture) {
-        return res.status(400)
-            .json({
-                success: false,
-                message: 'Falha ao realizar upload'
-            })
-    }
-    const userid = req.userdata.userid;
-    const file: any = req.files.picture;
-    const ext = path.extname(file.name.toLowerCase());
-    if (allowedExt.indexOf(ext) === -1) {
-        return res.status(400)
-            .json({
-                success: false,
-                message: 'Falha ao realizar upload'
-            });
-    }
-    photo.process(file.data)
-        .then(buffer => photo.savePhoto(buffer, userid))
-        .then(buffer => {
-            res.setHeader('Content-Type', 'image/jpeg');
-            res.setHeader('Content-Length', buffer.length + '');
-            res.end(buffer);
-        })
-        .catch(err => {
-            res.status(400).json({
-                success: false,
-                message: 'Falha ao realizar upload'
-            })
-        });
+route.post('/picture', fileUpload(uploadConfig), async (req, res) => {
+  if (!req.files || !req.files.picture) {
+    return res.status(400)
+      .json({
+        success: false,
+        message: 'Falha ao realizar upload'
+      })
+  }
+  const { userid } = req.userdata;
+  const file: any = req.files.picture;
+  const ext = path.extname(file.name.toLowerCase());
+  if (allowedExt.includes(ext)) {
+    return res.status(400)
+      .json({
+        success: false,
+        message: 'Falha ao realizar upload'
+      });
+  }
+  try {
+    const buffer = await photo.process(file.data);
+    photo.savePhoto(buffer, userid);
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Length', buffer.length + '');
+    res.end(buffer);
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: 'Falha ao realizar upload'
+    })
+  }
 })
 
 

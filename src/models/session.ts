@@ -1,32 +1,32 @@
-import * as Sequelize from 'sequelize';
-import * as orm from './orm';
-import * as Usuario from './usuario';
+import { Usuario } from './usuario';
+import {
+  Table,
+  Column,
+  Model,
+  PrimaryKey,
+  IsUUID,
+  AllowNull,
+  BelongsTo
+} from 'sequelize-typescript';
 
-interface DBSession {
-  id?: string;
-  startdate?: Date;
-  instanceid?: string;
-  userid?: string;
+@Table({
+  modelName: 'session'
+})
+export class Session extends Model<Session> {
+
+  @IsUUID(4)
+  @PrimaryKey
+  @Column
+  id: string;
+
+  @AllowNull(false)
+  @Column
+  startdate: Date;
+
+  @Column
+  instanceid: string;
+
+  @BelongsTo(() => Usuario, { foreignKey: 'usuario' })
+  usuario: Usuario;
+
 }
-
-interface DBSessionInstance extends Sequelize.Instance<DBSession> { }
-
-const Session = orm.define<DBSessionInstance, DBSession>('session', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
-  },
-  startdate: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: Sequelize.NOW
-  },
-  instanceid: {
-    type: Sequelize.STRING
-  }
-});
-
-Session.belongsTo(Usuario, { foreignKey: 'userid' });
-
-export = Session;

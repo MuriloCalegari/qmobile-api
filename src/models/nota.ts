@@ -1,47 +1,48 @@
-import * as Sequelize from 'sequelize';
-import * as orm from './orm';
-import * as Disciplina from './disciplina';
-import * as Usuario from './usuario';
+import { Usuario } from './usuario';
+import { Disciplina } from './disciplina';
+import {
+  Table,
+  Column,
+  Model,
+  HasMany,
+  PrimaryKey,
+  IsUUID,
+  AllowNull,
+  BelongsTo,
+  DataType
+} from 'sequelize-typescript';
 
-interface DBNota {
-  id?: string;
-  etapa?: number;
-  descricao?: string;
-  peso?: number;
-  notamaxima?: number;
-  nota?: number;
-  disciplinaid?: string;
-  userid?: string;
+@Table({
+  modelName: 'nota'
+})
+export class Nota extends Model<Nota> {
+
+  @IsUUID(4)
+  @PrimaryKey
+  @Column
+  id: string;
+
+  @AllowNull(false)
+  @Column
+  etapa: number;
+
+  @AllowNull(false)
+  @Column
+  descricao: string;
+
+  @Column(DataType.FLOAT)
+  peso: number;
+
+  @Column(DataType.FLOAT)
+  notamaxima: number;
+
+  @Column(DataType.FLOAT)
+  nota: number;
+
+  @BelongsTo(() => Disciplina)
+  disciplinaid: Disciplina;
+
+  @BelongsTo(() => Usuario)
+  userid: Usuario;
+
 }
-
-interface DBNotaInstance extends Sequelize.Instance<DBNota> { }
-
-const Nota = orm.define<DBNotaInstance, DBNota>('nota', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
-  },
-  etapa: {
-    type: Sequelize.INTEGER,
-    allowNull: false
-  },
-  descricao: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  peso: {
-    type: Sequelize.FLOAT
-  },
-  notamaxima: {
-    type: Sequelize.FLOAT
-  },
-  nota: {
-    type: Sequelize.FLOAT
-  }
-});
-
-Disciplina.hasMany(Nota, { foreignKey: 'disciplinaid' });
-Usuario.hasMany(Nota, { foreignKey: 'userid' })
-
-export = Nota;

@@ -1,32 +1,45 @@
-import * as Sequelize from 'sequelize';
-import * as orm from './orm';
-import * as Turma from './turma';
+import { Turma } from './turma';
+import { Nota } from './nota';
+import { Usuario } from './usuario';
+import { UsuarioDisciplina } from './usuario_disciplina';
 
-interface DBDisciplina {
-  id?: string;
-  nome?: string;
-  professor?: string;
-  codturma?: string;
+import {
+  Table,
+  Column,
+  Model,
+  HasMany,
+  PrimaryKey,
+  IsUUID,
+  AllowNull,
+  BelongsToMany,
+  BelongsTo
+} from 'sequelize-typescript';
+
+@Table({
+  modelName: 'disciplina'
+})
+export class Disciplina extends Model<Disciplina> {
+
+  @IsUUID(4)
+  @PrimaryKey
+  @Column
+  id: string;
+
+  @AllowNull(false)
+  @Column
+  nome: string;
+
+  @AllowNull(false)
+  @Column
+  professor: string;
+
+  @BelongsToMany(() => Usuario, () => UsuarioDisciplina)
+  usuarios: Usuario[]
+
+  @HasMany(() => Nota, { foreignKey: 'disciplina' })
+  notas: Nota[]
+
+  @BelongsTo(() => Turma, 'turma')
+  turma: Turma;
+
 }
-
-interface DBDisciplinaInstance extends Sequelize.Instance<DBDisciplina> { }
-
-const Disciplina = orm.define<DBDisciplinaInstance, DBDisciplina>('disciplina', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
-  },
-  nome: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  professor: {
-    type: Sequelize.STRING,
-    allowNull: false
-  }
-});
-
-Turma.hasMany(Disciplina, { foreignKey: 'codturma' });
-
-export = Disciplina;

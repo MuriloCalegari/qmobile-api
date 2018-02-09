@@ -1,14 +1,14 @@
+import { Usuario } from './../models/usuario';
+import { Disciplina } from './../models/disciplina';
+import { Turma } from './../models/turma';
 import * as queue from './queue';
 import { Job } from 'kue';
 import * as configs from '../configs';
-import * as Nota from '../models/nota';
-import * as Disciplina from '../models/disciplina';
-import * as Usuario from '../models/usuario';
 import * as cipher from '../services/cipher/cipher';
 import { QBrowser } from '../services/driver/webdriver';
 import * as qauth from '../services/browser/qauth';
 import * as qdiarios from '../services/browser/qdiarios';
-import * as Turma from '../models/turma';
+import { Nota } from '../models/nota';
 
 interface JobNota {
   userid: string;
@@ -36,23 +36,22 @@ async function createTurma(codigo: string, nome: string): Promise<void> {
   }
 }
 
-async function createDisciplina(codturma: string, nome: string, professor: string): Promise<string> {
-  const disc = (await Disciplina.findOne({ where: { codturma, nome, professor } })).toJSON();
+async function createDisciplina(codturma: string, nome: string, professor: string): Promise<Disciplina> {
+  let disc = await Disciplina.findOne({ where: { codturma, nome, professor } });
   if (!disc) {
-    const { id } = (await Disciplina.create(
+    disc = await Disciplina.create(
       { codturma, nome, professor }
-    )).toJSON();
-    return id;
+    ) as Disciplina;
   }
-  return disc.id;
+  return disc;
 }
 
-async function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota): Promise<void> {
-  const notadb = (await Nota.find({
+async function updateNota(objaluno: Usuario, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota): Promise<void> {
+  const notadb = await Nota.find({
     where: {
       descricao: nota.descricao
     }
-  })).toJSON();
+  });
   if (!notadb) {
     const novanota = await Nota.create({
       etapa: etapa.numero,
@@ -63,7 +62,7 @@ async function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa:
       disciplinaid: disciplina.id,
       userid: objaluno.id
     });
-    await objaluno.addNota(novanota);
+    await objaluno.$add('notas', novanota);
   } else if (nota.peso !== notadb.peso || nota.notamaxima !== notadb.notamaxima || nota.nota !== notadb.nota) {
     const { notamaxima, peso } = nota;
     await Nota.update({
@@ -77,7 +76,7 @@ async function updateNota(objaluno: any, disciplina: qdiarios.Disciplina, etapa:
   }
 }
 
-async function updateEtapa(objaluno: any, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa): Promise<void> {
+async function updateEtapa(objaluno: Usuario, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa): Promise<void> {
   await Promise.all(
     etapa.notas.map(
       nota => updateNota(objaluno, disciplina, etapa, nota)
@@ -90,23 +89,25 @@ export async function retrieveData(browser: QBrowser, matricula: string): Promis
     browser: browser
   };
   const objaluno = await Usuario.find({ where: { matricula: matricula } });
-  const disciplinas = await qdiarios.getDisciplinas(browser);
-  for (let disc of disciplinas) {
-    await createTurma(disc.turma, 'Turma ' + disc.turma);
-    const id = await createDisciplina(disc.turma, disc.nome, disc.professor);
-    if (await objaluno.hasDisciplina(id)) {
-      await objaluno.addDisciplina(id);
+  if (objaluno) {
+    const disciplinas = await qdiarios.getDisciplinas(browser);
+    for (let disc of disciplinas) {
+      await createTurma(disc.turma, 'Turma ' + disc.turma);
+      const nova = await createDisciplina(disc.turma, disc.nome, disc.professor);
+      if (await objaluno.$has('disciplinas', nova)) {
+        await objaluno.$add('disciplinas', nova);
+      }
+      disc.id = nova.id;
+      await Promise.all(
+        disc.etapas.map(etapa => updateEtapa(objaluno, disc, etapa))
+      );
     }
-    disc.id = id;
-    await Promise.all(
-      disc.etapas.map(etapa => updateEtapa(objaluno, disc, etapa))
-    );
   }
   return jobresult as any;
 }
 
 export async function atualizaNotas(): Promise<void> {
-  const users = await Usuario.all() as any;
+  const users = await Usuario.all();
   users.forEach(user => {
     const job = createJob(user.id, user.matricula, cipher.decipher(user.password, configs.cipher_pass), user.endpoint)
       .removeOnComplete(true).events(false).ttl(2.4e5 /* 4min */).save();

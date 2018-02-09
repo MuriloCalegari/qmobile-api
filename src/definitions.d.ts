@@ -1,12 +1,12 @@
 interface UserData {
-    endpoint?: string;
-    userid: string;
-    sessionid: string;
+  endpoint?: string;
+  userid: string;
+  sessionid: string;
 }
 
 declare namespace Express {
 
-    export interface Request {
-        userdata: UserData;
-    }
+  export interface Request {
+    userdata: UserData;
+  }
 }

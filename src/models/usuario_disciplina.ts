@@ -1,6 +1,11 @@
-import * as Sequelize from 'sequelize';
-import * as orm from './orm';
+import {
+  Table,
+  Model
+} from 'sequelize-typescript';
 
-const UsuarioDisciplina = orm.define('usuario_disciplina', {});
+@Table({
+  modelName: 'usuario_disciplina'
+})
+export class UsuarioDisciplina extends Model<UsuarioDisciplina> {
 
-export = UsuarioDisciplina;
+}
