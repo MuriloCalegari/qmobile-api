@@ -3,12 +3,12 @@ import { Job } from 'kue';
 import * as configs from '../configs';
 import * as Nota from '../models/nota';
 import * as Disciplina from '../models/disciplina';
-import * as Turma from '../models/turma';
 import * as Usuario from '../models/usuario';
 import * as cipher from '../services/cipher/cipher';
 import { QBrowser } from '../services/driver/webdriver';
 import * as qauth from '../services/browser/qauth';
 import * as qdiarios from '../services/browser/qdiarios';
+import * as Turma from '../models/turma';
 
 interface JobNota {
   userid: string;
@@ -30,7 +30,7 @@ export function createJob(userid: string, matricula: string, senha: string, endp
 }
 
 async function createTurma(codigo: string, nome: string): Promise<void> {
-  const turma = await Turma.findOne({ where: { codigo } }) as any;
+  const turma = await Turma.findOne({ where: { codigo } });
   if (!turma) {
     await Turma.create({ codigo, nome });
   }
