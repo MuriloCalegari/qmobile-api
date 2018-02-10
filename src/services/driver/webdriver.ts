@@ -1,98 +1,99 @@
-import { Builder, By, promise, ThenableWebDriver, IWebDriverOptionsCookie } from 'selenium-webdriver';
-//import * as phantomjs from 'selenium-webdriver/phantomjs';
+import * as genericPool from 'generic-pool';
+import { Builder, By, promise, ThenableWebDriver } from 'selenium-webdriver';
+
 import { HOME_PAGE } from '../../constants';
 
 import * as config from '../../configs';
+import { Factory } from 'generic-pool';
 
 promise.USE_PROMISE_MANAGER = false;
 
 const builder = new Builder()
-    .forBrowser('phantomjs');
+  .forBrowser('phantomjs');
 
-const waitingQueue: ((browser: QBrowser) => void)[] = [];
+const factory: Factory<QBrowser> = {
+  async create() {
+    return new QBrowser(builder.build())
+  },
+  validate(client) {
+    return client.isValid();
+  },
+  async destroy(client) {
+    await client.destroy();
+    return undefined;
+  }
+}
+
+const pool = genericPool.createPool(factory, {
+  min: 1,
+  max: config.maxinstances || 2,
+  testOnBorrow: true
+});
 
 export class QBrowser {
 
-    private endpoint: string;
-    inUse: boolean = true;
-    offline: boolean = false;
-    constructor(private driver: ThenableWebDriver) {
+  private endpoint: string;
 
-    }
-    getDriver(): ThenableWebDriver {
-        return this.driver;
-    }
-    setEndpoint(str: string): void {
-        this.endpoint = str;
-    }
-    getEndpoint(): string {
-        return this.endpoint;
-    }
-    async exit(error: boolean = false): Promise<void> {
-        if (this.driver === null) return;
-        const driver = this.getDriver();
-        if (error) this.driver = null;
-        try {
-            const btnSair = await driver.findElement(By.css('a[href*="sair.asp"]'))
-            await btnSair.click();
-            await driver.wait(async () => {
-                const readyState = await driver.executeScript('return document.readyState');
-                return readyState === 'complete';
-            });
-        } catch (e) { }
-        if (!error) {
-            if (waitingQueue.length > 0) {
-                waitingQueue.shift()(this);
-            }
-        } else {
-            this.offline = true;
-            try {
-                await driver.quit();
-            } catch (e) { }
-        }
-        this.inUse = false;
-    }
+  constructor(private driver: ThenableWebDriver | null) {
 
-}
+  }
 
-const maxInstances = config.maxinstances || 30;
+  getDriver(): ThenableWebDriver {
+    return this.driver as ThenableWebDriver;
+  }
 
-const browsers: QBrowser[] = [];
+  setEndpoint(str: string): void {
+    this.endpoint = str;
+  }
 
-function getAvailableBrowser(): QBrowser {
-    for (let i = browsers.length - 1; i >= 0 && i < browsers.length; i--) {
-        const browser = browsers[i];
-        if (browser.offline) {
-            browsers.splice(i, 1);
-        } else if (!browser.inUse) {
-            return browser;
-        }
+  getEndpoint(): string {
+    return this.endpoint;
+  }
+
+  async isValid(): Promise<boolean> {
+    if (!this.endpoint || !this.driver) {
+      return false;
     }
-    return null;
+    try {
+      await this.driver.getTitle();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async destroy(): Promise<void> {
+    if (!this.driver) return;
+    const driver = this.getDriver();
+    await driver.quit();
+    this.driver = null;
+  }
+
+  async exit(error: boolean = false): Promise<void> {
+    if (!this.driver) return;
+    const driver = this.getDriver();
+    try {
+      const btnSair = await driver.findElement(By.css('a[href*="sair.asp"]'))
+      await btnSair.click();
+      await driver.wait(async () => {
+        const readyState = await driver.executeScript('return document.readyState');
+        return readyState === 'complete';
+      });
+    } catch (e) { }
+    this.endpoint = '';
+    if (error) {
+      pool.destroy(this);
+    } else {
+      pool.release(this);
+    }
+  }
+
 }
 
 export function create(): Promise<QBrowser> {
-    let browser: QBrowser = getAvailableBrowser();
-    if (browser != null) {
-        browser.inUse = true;
-        return Promise.resolve(browser);
-    }
-    if (browsers.length >= maxInstances) {
-        return new Promise<QBrowser>((resolve, reject) => {
-            waitingQueue.push(browser => {
-                resolve(browser);
-            });
-        })
-    }
-    browser = new QBrowser(builder.build());
-    browsers.push(browser);
-    return Promise.resolve(browser);
+  return pool.acquire();
 }
 
-export function shutdown(): Promise<void> {
-    const proms = [];
-    browsers.forEach(browser => {
-        proms.push(browser.exit(true));
-    })
-    return <any>Promise.all(proms);
+export async function shutdown(): Promise<void> {
+  await pool.drain();
 }
