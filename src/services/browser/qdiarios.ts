@@ -1,9 +1,10 @@
+import { QBrowser } from './../driver/qbrowser';
 import { QDisciplina } from './qdiarios';
 import * as webdriver from '../driver/webdriver';
 import * as cheerio from 'cheerio';
 import { DIARIOS_PAGE } from '../../constants';
 
-export async function openDiarios(browser: webdriver.QBrowser): Promise<void> {
+export async function openDiarios(browser: QBrowser): Promise<void> {
   try {
     const driver = browser.getDriver();
     const diarios = browser.getEndpoint() + DIARIOS_PAGE;
@@ -21,6 +22,13 @@ export async function openDiarios(browser: webdriver.QBrowser): Promise<void> {
   }
 }
 
+export enum NumeroEtapa {
+  ETAPA1 = 1,
+  ETAPA2 = 2,
+  RP_ETAPA1 = 3,
+  RP_ETAPA2 = 4
+}
+
 export interface QDisciplina {
   id?: string;
   turma: string;
@@ -30,7 +38,7 @@ export interface QDisciplina {
 }
 
 export interface QEtapa {
-  numero: number;
+  numero: NumeroEtapa;
   notas: QNota[];
 }
 
@@ -84,7 +92,7 @@ function readEtapa(dom: CheerioStatic, preelem: CheerioElement): QEtapa | null {
   };
 }
 
-export async function getDisciplinas(browser: webdriver.QBrowser): Promise<QDisciplina[]> {
+export async function getDisciplinas(browser: QBrowser): Promise<QDisciplina[]> {
   try {
     const driver = browser.getDriver();
     await openDiarios(browser);
@@ -100,11 +108,17 @@ export async function getDisciplinas(browser: webdriver.QBrowser): Promise<QDisc
       const tr = dom(elem);
       if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
         const descricao = tr.find('td.conteudoTexto').text();
-        const [_, turma, nome, professor] = descricao.split('-').map(p => p && p.trim());
+        const [_, turma, nome, professor] = descricao.split('-')
+          .map(p => p && p.trim().replace(/\([a-zA-Z0-9]+\)/g, ''));
         const etapas: QEtapa[] = [];
-        for (let j = 1; j <= 2 && i + j < trs.length; j++) {
+        for (let j = 1; j <= 4 && i + j < trs.length; j++) {
           const etapa = readEtapa(dom, trs[i + j]);
           if (etapa) {
+            if (etapa.numero === 11) {
+              etapa.numero = NumeroEtapa.RP_ETAPA1;
+            } else if (etapa.numero === 12) {
+              etapa.numero = NumeroEtapa.RP_ETAPA2;
+            }
             etapas.push(etapa);
           } else {
             break;

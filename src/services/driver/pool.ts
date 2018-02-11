@@ -1,14 +1,17 @@
 import { QBrowser } from './qbrowser';
 import * as genericPool from 'generic-pool';
-import { Builder, promise } from 'selenium-webdriver';
+import { Builder, promise, Capabilities } from 'selenium-webdriver';
 
 import * as config from '../../configs';
 import { Factory, Pool } from 'generic-pool';
 
 promise.USE_PROMISE_MANAGER = false;
 
+const capabilities = Capabilities.phantomjs();
+capabilities.set('phantomjs.cli.args', ['--web-security=no', '--ssl-protocol=any']);
+
 const builder = new Builder()
-  .forBrowser('phantomjs');
+  .withCapabilities(capabilities);
 
 let pool: Pool<QBrowser>;
 
@@ -28,7 +31,8 @@ const factory: Factory<QBrowser> = {
 pool = genericPool.createPool(factory, {
   min: 1,
   max: config.maxinstances || 2,
-  testOnBorrow: true
+  testOnBorrow: true,
+  autostart: false
 });
 
 export = pool;

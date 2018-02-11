@@ -3,7 +3,7 @@ import { Pool } from 'generic-pool';
 
 export class QBrowser {
 
-  private endpoint: string;
+  private endpoint: string | null = '';
 
   constructor(private driver: ThenableWebDriver | null, private pool: Pool<QBrowser>) {
 
@@ -18,11 +18,11 @@ export class QBrowser {
   }
 
   getEndpoint(): string {
-    return this.endpoint;
+    return this.endpoint as string;
   }
 
   async isValid(): Promise<boolean> {
-    if (!this.endpoint || !this.driver) {
+    if (this.endpoint === null || !this.driver) {
       return false;
     }
     try {
@@ -53,6 +53,9 @@ export class QBrowser {
     } catch (e) { }
     this.endpoint = '';
     if (error) {
+      try {
+        await driver.quit();
+      } catch {}
       this.pool.destroy(this);
     } else {
       this.pool.release(this);

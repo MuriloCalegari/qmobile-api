@@ -1,9 +1,10 @@
+import { QBrowser } from './../driver/qbrowser';
 import * as webdriver from '../driver/webdriver';
 import { HOME_PAGE } from '../../constants';
 import { QSiteError } from '../errors/errors';
 import * as cheerio from 'cheerio';
 
-async function openHome(browser: webdriver.QBrowser): Promise<void> {
+async function openHome(browser: QBrowser): Promise<void> {
   try {
     const driver = browser.getDriver();
     const home = browser.getEndpoint() + HOME_PAGE;
@@ -20,7 +21,7 @@ async function openHome(browser: webdriver.QBrowser): Promise<void> {
   }
 }
 
-export async function getName(browser: webdriver.QBrowser): Promise<string> {
+export async function getName(browser: QBrowser): Promise<string> {
   try {
     const driver = browser.getDriver();
     await openHome(browser);
@@ -33,7 +34,7 @@ export async function getName(browser: webdriver.QBrowser): Promise<string> {
   }
 }
 
-export async function getPhoto(browser: webdriver.QBrowser): Promise<Buffer> {
+export async function getPhoto(browser: QBrowser): Promise<Buffer> {
   try {
     const driver = browser.getDriver();
     await openHome(browser);
