@@ -12,6 +12,7 @@ import {
   IsUUID,
   AllowNull,
   BelongsToMany,
+  ForeignKey,
   BelongsTo
 } from 'sequelize-typescript';
 
@@ -39,7 +40,10 @@ export class Disciplina extends Model<Disciplina> {
   @HasMany(() => Nota, { foreignKey: 'disciplina' })
   notas: Nota[];
 
-  @BelongsTo(() => Turma, 'turma')
+  @BelongsTo(() => Turma, { foreignKey: 'turmaId' })
   turma: Turma;
+
+  @ForeignKey(() => Turma)
+  turmaId: string;
 
 }

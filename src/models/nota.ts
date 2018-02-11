@@ -7,8 +7,9 @@ import {
   PrimaryKey,
   IsUUID,
   AllowNull,
-  BelongsTo,
-  DataType
+  DataType,
+  ForeignKey,
+  BelongsTo
 } from 'sequelize-typescript';
 
 @Table({
@@ -38,10 +39,18 @@ export class Nota extends Model<Nota> {
   @Column(DataType.FLOAT)
   nota: number;
 
-  @BelongsTo(() => Disciplina)
-  disciplinaid: Disciplina;
+  @BelongsTo(() => Disciplina, { foreignKey: 'disciplinaid' })
+  disciplina: Disciplina;
 
-  @BelongsTo(() => Usuario)
-  userid: Usuario;
+  @ForeignKey(() => Disciplina)
+  @Column
+  disciplinaid: string;
+
+  @BelongsTo(() => Usuario, { foreignKey: 'userid' })
+  user: Usuario;
+
+  @ForeignKey(() => Usuario)
+  @Column
+  userid: string;
 
 }

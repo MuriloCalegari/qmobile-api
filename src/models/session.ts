@@ -6,7 +6,9 @@ import {
   PrimaryKey,
   IsUUID,
   AllowNull,
-  BelongsTo
+  BelongsTo,
+  DataType,
+  ForeignKey
 } from 'sequelize-typescript';
 
 @Table({
@@ -20,13 +22,17 @@ export class Session extends Model<Session> {
   id: string;
 
   @AllowNull(false)
-  @Column
+  @Column(DataType.DATE)
   startdate: Date;
 
   @Column
   instanceid: string;
 
-  @BelongsTo(() => Usuario, { foreignKey: 'usuario' })
+  @ForeignKey(() => Usuario)
+  @Column
+  usuarioId: string;
+
+  @BelongsTo(() => Usuario, { foreignKey: 'usuarioId' })
   usuario: Usuario;
 
 }

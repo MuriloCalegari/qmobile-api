@@ -5,7 +5,7 @@
   "main": "dist/qmobile.js",
   "scripts": {
     "lint": "tslint --project .",
-    "start": "node ./dist/qmobile.js"
+    "start": "ts-node ./src/qmobile.ts"
   },
   "repository": {
     "type": "git",
@@ -40,7 +40,9 @@
     "selenium-webdriver": "^3.5.0",
     "sequelize": "^4.11.5",
     "sequelize-typescript": "^0.6.2",
-    "sharp": "^0.18.4"
+    "sharp": "^0.18.4",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.7.1"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.3",
@@ -55,7 +57,6 @@
     "@types/selenium-webdriver": "^3.0.7",
     "@types/sequelize": "^4.0.75",
     "@types/sharp": "^0.17.4",
-    "tslint": "^5.9.1",
-    "typescript": "^2.7.1"
+    "tslint": "^5.9.1"
   }
 }

@@ -12,14 +12,14 @@ import {
 })
 export class Turma extends Model<Turma> {
 
-  @Column
   @PrimaryKey
+  @Column
   codigo: string;
 
   @Column
   nome: string;
 
-  @HasMany(() => Disciplina, { foreignKey: 'turma' })
+  @HasMany(() => Disciplina, { foreignKey: 'turmaId' })
   disciplinas: Disciplina[];
 
 }
