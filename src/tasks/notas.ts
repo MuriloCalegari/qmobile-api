@@ -20,90 +20,96 @@ interface JobNota {
 export interface JobNotaResult {
   browser: QBrowser,
   notas: {
-    alteradas: string[],
-    novas: string[]
+    alteradas: Nota[],
+    novas: Nota[]
   }
 }
+
+type NotaState = 'alterada' | 'nova' | 'normal';
+
+type NotaUpdate = [Nota, NotaState];
 
 export function createJob(userid: string, matricula: string, senha: string, endpoint: string): Job {
   return queue.create('readnotas', { userid, matricula, senha, endpoint });
 }
 
-async function createTurma(codigo: string, nome: string): Promise<void> {
-  const turma = await Turma.findOne({ where: { codigo } });
-  if (!turma) {
-    await Turma.create({ codigo, nome });
-  }
-}
 
-async function createDisciplina(codturma: string, nome: string, professor: string): Promise<Disciplina> {
-  let disc = await Disciplina.findOne({ where: { codturma, nome, professor } });
-  if (!disc) {
-    disc = await Disciplina.create(
-      { codturma, nome, professor }
-    ) as Disciplina;
-  }
-  return disc;
-}
-
-async function updateNota(objaluno: Usuario, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa, nota: qdiarios.Nota): Promise<void> {
-  const notadb = await Nota.find({
+async function updateNota(aluno: Usuario, disciplina: qdiarios.QDisciplina, etapa: qdiarios.QEtapa, { id, ...nota }: qdiarios.QNota): Promise<NotaUpdate> {
+  const [notadb, created] = await Nota.findOrCreate({
     where: {
       descricao: nota.descricao
+    },
+    defaults: {
+      etapa: etapa.numero,
+      ...nota,
+      disciplinaid: disciplina.id,
+      userid: aluno.id
     }
   });
-  if (!notadb) {
-    const novanota = await Nota.create({
-      etapa: etapa.numero,
-      descricao: nota.descricao,
-      peso: nota.peso,
-      notamaxima: nota.notamaxima,
-      nota: nota.nota,
-      disciplinaid: disciplina.id,
-      userid: objaluno.id
-    });
-    await objaluno.$add('notas', novanota);
-  } else if (nota.peso !== notadb.peso || nota.notamaxima !== notadb.notamaxima || nota.nota !== notadb.nota) {
-    const { notamaxima, peso } = nota;
-    await Nota.update({
-      nota: nota.nota,
-      notamaxima, peso
-    }, {
-        where: {
-          id: notadb.id
-        }
-      });
+  const diffs = ['peso', 'notamaxima', 'nota'];
+  if (created) {
+    await aluno.$add('notas', notadb);
+    return [notadb, 'nova'];
+  } else if (diffs.some(key => nota[key] !== notadb.get(key))) {
+    const { descricao, ...update } = nota;
+    await notadb.update({ ...update });
+    return [notadb, 'alterada'];
+  } else {
+    return [notadb, 'normal'];
   }
 }
 
-async function updateEtapa(objaluno: Usuario, disciplina: qdiarios.Disciplina, etapa: qdiarios.Etapa): Promise<void> {
-  await Promise.all(
+async function updateEtapa(aluno: Usuario, disciplina: qdiarios.QDisciplina, etapa: qdiarios.QEtapa): Promise<NotaUpdate[]> {
+  return await Promise.all(
     etapa.notas.map(
-      nota => updateNota(objaluno, disciplina, etapa, nota)
+      nota => updateNota(aluno, disciplina, etapa, nota)
     )
   );
 }
 
 export async function retrieveData(browser: QBrowser, matricula: string): Promise<JobNotaResult> {
-  const jobresult = {
-    browser: browser
-  };
-  const objaluno = await Usuario.find({ where: { matricula: matricula } });
-  if (objaluno) {
+  const aluno = await Usuario.findById(matricula);
+  const changes: NotaUpdate[][] = [];
+  if (aluno) {
     const disciplinas = await qdiarios.getDisciplinas(browser);
     for (let disc of disciplinas) {
-      await createTurma(disc.turma, 'Turma ' + disc.turma);
-      const nova = await createDisciplina(disc.turma, disc.nome, disc.professor);
-      if (await objaluno.$has('disciplinas', nova)) {
-        await objaluno.$add('disciplinas', nova);
+
+      await Turma.findOrCreate({
+        where: { codigo: disc.turma },
+        defaults: {
+          codigo: disc.turma,
+          nome: `Turma ${disc.turma}`
+        }
+      });
+
+      const { id, etapas, ...rdisc } = disc;
+      const [nova] = await Disciplina.findOrCreate({
+        where: { ...rdisc },
+        defaults: { ...rdisc }
+      })
+
+      if (await aluno.$has('disciplinas', nova)) {
+        await aluno.$add('disciplinas', nova);
       }
       disc.id = nova.id;
-      await Promise.all(
-        disc.etapas.map(etapa => updateEtapa(objaluno, disc, etapa))
-      );
+      const res = (await Promise.all(
+        disc.etapas.map(etapa => updateEtapa(aluno, disc, etapa))
+      )).reduce((ac, val) => ac.concat(val), []);
+      changes.push(res);
     }
   }
-  return jobresult as any;
+  const flatten = changes.reduce((ac, val) => ac.concat(val), []);
+  return {
+    browser,
+    notas: {
+      alteradas: flatten
+        .filter(([_, state]) => state === 'alterada')
+        .map(([nota]) => nota),
+      novas: flatten
+        .filter(([_, state]) => state === 'nova')
+        .map(([nota]) => nota),
+    }
+  };
 }
 
 export async function atualizaNotas(): Promise<void> {

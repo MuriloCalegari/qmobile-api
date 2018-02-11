@@ -1,8 +1,10 @@
 import * as express from 'express';
 import { Nota } from '../models/nota';
+import { UserData } from '../middlewares/endpoint';
 const route = express.Router();
 
 route.get('/:nota', async (req, res) => {
+  const { usuario } = ((req as any).userdata as UserData).session;
   if (!req.params.nota) {
     return res.status(400).json({
       success: false,
@@ -14,7 +16,7 @@ route.get('/:nota', async (req, res) => {
     const resnota = await Nota.findOne({
       where: {
         id: nota,
-        userid: req.userdata.userid
+        userid: usuario.id
       }
     });
     if (resnota) {
@@ -49,6 +51,7 @@ route.get('/:disciplina/:etapa', async (req, res) => {
       message: 'Etapa não encontrada'
     })
   }
+  const { usuario } = ((req as any).userdata as UserData).session;
   const { disciplina } = req.params;
   const etapa = parseInt(req.params.etapa, 10) || -1;
   if (etapa < 1 || etapa > 2) {
@@ -62,7 +65,7 @@ route.get('/:disciplina/:etapa', async (req, res) => {
       where: {
         disciplinaid: disciplina,
         etapa: etapa,
-        userid: req.userdata.userid
+        userid: usuario.id
       }
     })).map(nota => ({
       id: nota.id,

@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as fileUpload from 'express-fileupload';
 import * as photo from '../services/photo/photo';
-import { PHOTOS_FOLDER } from '../constants';
+import { UserData } from '../middlewares/endpoint';
 
 const uploadConfig = {
   limits: {
@@ -16,8 +16,9 @@ const uploadConfig = {
 const route = express.Router();
 
 route.get('/picture', (req, res) => {
-  const { userid } = req.userdata;
-  const file = path.join(PHOTOS_FOLDER, 'users', userid + '.jpg');
+  const { usuario } = ((req as any).userdata as UserData).session;
+  const userid = usuario.id;
+  const file = photo.getPath(userid);
   fs.exists(file, exists => {
     if (!exists)
       return res.status(404)
@@ -40,7 +41,8 @@ route.post('/picture', fileUpload(uploadConfig), async (req, res) => {
         message: 'Falha ao realizar upload'
       })
   }
-  const { userid } = req.userdata;
+  const { usuario } = ((req as any).userdata as UserData).session;
+  const userid = usuario.id;
   const file: any = req.files.picture;
   const ext = path.extname(file.name.toLowerCase());
   if (allowedExt.includes(ext)) {
@@ -54,9 +56,9 @@ route.post('/picture', fileUpload(uploadConfig), async (req, res) => {
     const buffer = await photo.process(file.data);
     photo.savePhoto(buffer, userid);
     res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Content-Length', buffer.length + '');
+    res.setHeader('Content-Length', `${buffer.length}`);
     res.end(buffer);
-  } catch (err) {
+  } catch {
     res.status(400).json({
       success: false,
       message: 'Falha ao realizar upload'

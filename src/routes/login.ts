@@ -3,7 +3,7 @@ import { QError, QSiteError } from '../services/errors/errors';
 import * as authenticate from '../services/auth/authenticate';
 import * as session from '../services/auth/session';
 import * as notasJob from '../tasks/notas';
-import endpoint from '../middlewares/endpoint';
+import endpoint, { UserData } from '../middlewares/endpoint';
 import { QBrowser } from '../services/driver/webdriver';
 
 const route = express.Router();
@@ -18,16 +18,11 @@ route.post('/login', async (req, res) => {
   }
   const { username, pass, endpoint } = req.body;
   try {
-    const result = await authenticate.login(endpoint, username, pass)
-    if (result.newbie) {
-      const browser = result.browser as QBrowser;
-      await notasJob.retrieveData(browser, username)
-      await browser.exit();
-    }
-    const sessionid = await session.createSession(result.userid)
+    const user = await authenticate.login(endpoint, username, pass);
+    const sessionid = await session.createSession(user.id);
     res.set('X-Access-Token', sessionid).json({
       success: true,
-      name: result.name
+      name: user.nome
     });
   } catch (err) {
     const err500 = err instanceof QSiteError || err instanceof QError === false;
@@ -40,7 +35,8 @@ route.post('/login', async (req, res) => {
 });
 
 route.post('/logout', endpoint, (req, res) => {
-  session.destroySession(req.userdata.sessionid)
+  const userdata = (req as any).userdata as UserData;
+  session.destroySession(userdata.session.id)
     .then(() => {
       res.json({
         success: true

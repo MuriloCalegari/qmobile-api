@@ -1,7 +1,24 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-let def: any = {
+interface DatabaseConfiguration {
+  host: string;
+  username: string;
+  password: string;
+  port: number;
+  database: string;
+  logging?: boolean;
+}
+
+interface Configuration {
+  cipher_pass: string;
+  db: DatabaseConfiguration;
+  serverport: number;
+  update_queue_size: number;
+  maxinstances: number;
+}
+
+let def: Configuration = {
   cipher_pass: '123mudar',
   db: {
     host: 'localhost',
@@ -10,12 +27,6 @@ let def: any = {
     port: 5432,
     database: 'qmobile',
     logging: false
-  },
-  tests: {
-    endpoint: null,
-    login: null,
-    password: null,
-    name: null
   },
   serverport: 3010,
   update_queue_size: 50,
@@ -31,7 +42,7 @@ if (!fs.existsSync(cfgpath)) {
   try {
     def = JSON.parse(fs.readFileSync(cfgpath, 'utf8'));
   } catch (e) {
-    def = null;
+    def = null as any;
   }
 }
 
