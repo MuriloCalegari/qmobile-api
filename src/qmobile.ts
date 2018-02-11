@@ -1,13 +1,10 @@
-/// <reference path="definitions.d.ts" />
-
-import * as cron from 'node-cron';
 import * as sequelize from 'sequelize';
 import * as express from 'express';
 import * as colors from 'colors/safe';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Spinner } from 'cli-spinner';
-import { PHOTOS_FOLDER } from './constants'
+import { PHOTOS_FOLDER } from './constants';
 const pjson = require('../package.json');
 
 const spin = new Spinner('%s');
@@ -35,7 +32,7 @@ function bootstrap(): Promise<void> {
       spin.setSpinnerTitle(colors.blue('%s Inicializando banco de dados'));
       const orm: sequelize.Sequelize = require('./models/orm');
       require('./models/nota');
-      return orm.sync()
+      return orm.sync();
     })
     .then(() => import('./tasks/notas'))
     /*.then(task =>
@@ -64,21 +61,19 @@ function bootstrap(): Promise<void> {
     )*/
     .then(() => new Promise<void>((resolve, reject) => {
       fs.exists(PHOTOS_FOLDER, exists => {
-        if (exists) return resolve();
+        if (exists) { return resolve(); }
         fs.mkdir(PHOTOS_FOLDER, err => {
-          if (err) reject(err);
-          else resolve();
+          if (err) { reject(err); } else { resolve(); }
         });
-      })
+      });
     }))
     .then(() => new Promise<void>((resolve, reject) => {
       const folder = path.join(PHOTOS_FOLDER, 'users');
       fs.exists(folder, exists => {
-        if (exists) return resolve();
+        if (exists) { return resolve(); }
         fs.mkdir(folder, err => {
-          if (err) reject(err);
-          else resolve();
-        })
+          if (err) { reject(err); } else { resolve(); }
+        });
       });
     }))
     .then(() => new Promise<void>((resolve, reject) => {

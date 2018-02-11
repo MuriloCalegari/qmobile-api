@@ -1,5 +1,4 @@
-import * as moment from 'moment';
-import { Builder, By, until, promise, ThenableWebDriver } from 'selenium-webdriver';
+import { By, until } from 'selenium-webdriver';
 import * as webdriver from '../driver/webdriver';
 import { LOGIN_PAGE } from '../../constants';
 import { QError } from '../errors/errors';

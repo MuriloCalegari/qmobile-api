@@ -22,9 +22,10 @@ export function getPath(userid: string): string {
 export function savePhoto(buffer: Buffer, userid: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     fs.writeFile(getPath(userid), buffer, err => {
-      if (err)
+      if (err) {
         return reject(err);
+      }
       resolve(buffer);
-    })
-  })
+    });
+  });
 }

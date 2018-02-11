@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 
-const ALGORITHM = "aes-256-ctr";
+const ALGORITHM = 'aes-256-ctr';
 
 export function cipher(str: string, pass: string): string {
   const cipherobj = crypto.createCipher(ALGORITHM, pass);

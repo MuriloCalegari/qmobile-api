@@ -9,7 +9,7 @@ route.get('/:nota', async (req, res) => {
     return res.status(400).json({
       success: false,
       message: 'Nota não encontrada'
-    })
+    });
   }
   try {
     const { nota } = req.params;
@@ -29,12 +29,12 @@ route.get('/:nota', async (req, res) => {
           notamaxima: resnota.notamaxima,
           nota: resnota.nota
         }
-      })
+      });
     } else {
       res.status(400).json({
         success: false,
         message: 'Nota não encontrada'
-      })
+      });
     }
   } catch (err) {
     res.status(500).json({
@@ -42,14 +42,14 @@ route.get('/:nota', async (req, res) => {
       message: 'Erro no servidor, tente novamente mais tarde'
     });
   }
-})
+});
 
 route.get('/:disciplina/:etapa', async (req, res) => {
   if (!req.params.disciplina || !req.params.etapa) {
     return res.status(400).json({
       success: false,
       message: 'Etapa não encontrada'
-    })
+    });
   }
   const { usuario } = ((req as any).userdata as UserData).session;
   const { disciplina } = req.params;
@@ -77,13 +77,13 @@ route.get('/:disciplina/:etapa', async (req, res) => {
     res.json({
       success: true,
       notas: resnotas
-    })
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
       message: 'Erro no servidor, tente novamente mais tarde'
     });
   }
-})
+});
 
 export = route;

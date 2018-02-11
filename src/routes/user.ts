@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as Nota from '../models/nota';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as fileUpload from 'express-fileupload';
@@ -20,15 +19,16 @@ route.get('/picture', (req, res) => {
   const userid = usuario.id;
   const file = photo.getPath(userid);
   fs.exists(file, exists => {
-    if (!exists)
+    if (!exists) {
       return res.status(404)
         .json({
           success: false,
           message: 'Foto não encontrada'
-        })
+        });
+    }
     console.log(file);
     res.sendFile(file);
-  })
+  });
 });
 
 const allowedExt = ['.jpeg', '.jpg', '.bmp', '.png'];
@@ -39,7 +39,7 @@ route.post('/picture', fileUpload(uploadConfig), async (req, res) => {
       .json({
         success: false,
         message: 'Falha ao realizar upload'
-      })
+      });
   }
   const { usuario } = ((req as any).userdata as UserData).session;
   const userid = usuario.id;
@@ -62,9 +62,9 @@ route.post('/picture', fileUpload(uploadConfig), async (req, res) => {
     res.status(400).json({
       success: false,
       message: 'Falha ao realizar upload'
-    })
+    });
   }
-})
+});
 
 
 export = route;

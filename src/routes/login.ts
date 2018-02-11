@@ -2,9 +2,7 @@ import * as express from 'express';
 import { QError, QSiteError } from '../services/errors/errors';
 import * as authenticate from '../services/auth/authenticate';
 import * as session from '../services/auth/session';
-import * as notasJob from '../tasks/notas';
-import endpoint, { UserData } from '../middlewares/endpoint';
-import { QBrowser } from '../services/driver/webdriver';
+import endpointmd, { UserData } from '../middlewares/endpoint';
 
 const route = express.Router();
 
@@ -30,23 +28,23 @@ route.post('/login', async (req, res) => {
       .json({
         success: false,
         message: err500 ? 'Falha no servidor do QAcadêmico' : err.message
-      })
+      });
   }
 });
 
-route.post('/logout', endpoint, (req, res) => {
+route.post('/logout', endpointmd, (req, res) => {
   const userdata = (req as any).userdata as UserData;
   session.destroySession(userdata.session.id)
     .then(() => {
       res.json({
         success: true
-      })
+      });
     })
     .catch(() => {
       res.status(500).json({
         success: false
-      })
-    })
+      });
+    });
 });
 
 export = route;

@@ -1,5 +1,4 @@
 import { QDisciplina } from './qdiarios';
-import { Builder, By, until, WebElement } from 'selenium-webdriver';
 import * as webdriver from '../driver/webdriver';
 import * as cheerio from 'cheerio';
 import { DIARIOS_PAGE } from '../../constants';
@@ -9,7 +8,7 @@ export async function openDiarios(browser: webdriver.QBrowser): Promise<void> {
     const driver = browser.getDriver();
     const diarios = browser.getEndpoint() + DIARIOS_PAGE;
     const url = await driver.getCurrentUrl();
-    if (url != diarios) {
+    if (url !== diarios) {
       await driver.get(diarios);
     }
     await driver.wait(async () => {
@@ -49,7 +48,7 @@ function extractFloat(val: string): number {
 }
 
 function extractInt(val: string): number {
-  return parseInt(val.replace(/[^0-9]/g, '')) || -1;
+  return parseInt(val.replace(/[^0-9]/g, ''), 10) || -1;
 }
 
 function readNota(dom: CheerioStatic, preelem: CheerioElement): QNota {
@@ -82,7 +81,7 @@ function readEtapa(dom: CheerioStatic, preelem: CheerioElement): QEtapa | null {
   return {
     numero: numEtapa,
     notas
-  }
+  };
 }
 
 export async function getDisciplinas(browser: webdriver.QBrowser): Promise<QDisciplina[]> {
@@ -90,7 +89,10 @@ export async function getDisciplinas(browser: webdriver.QBrowser): Promise<QDisc
     const driver = browser.getDriver();
     await openDiarios(browser);
     const dom = cheerio.load(await driver.getPageSource());
-    const tabelaNotas = dom('table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) > table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody');
+    const tabelaNotas = dom(
+      `table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) >
+        table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody`
+    );
     const trs = tabelaNotas.children('tr').toArray();
 
     const disciplinas: QDisciplina[] = trs.map((elem, i) => {

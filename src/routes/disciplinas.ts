@@ -1,6 +1,5 @@
 import { UserData } from './../middlewares/endpoint';
 import { Disciplina } from './../models/disciplina';
-import { Usuario } from './../models/usuario';
 import * as express from 'express';
 import { Nota } from '../models/nota';
 
@@ -36,13 +35,13 @@ route.get('/', async (req, res) => {
     res.json({
       success: true,
       disciplinas: resultado
-    })
-  }).catch(err => {
+    });
+  }).catch(_ => {
     res.status(500).json({
       success: false,
       message: 'Erro no servidor, tente novamente mais tarde'
-    })
-  })
-})
+    });
+  });
+});
 
 export = route;

@@ -6,7 +6,6 @@ import * as configs from '../../configs';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
 import * as notasJob from '../../tasks/notas';
-import { QBrowser } from '../driver/webdriver';
 
 async function insereBanco(endpoint: string, matricula: string, nome: string, pass: string): Promise<Usuario> {
   const password = cipher.cipher(pass, configs.cipher_pass);
@@ -27,7 +26,7 @@ export async function login(endpoint: string, username: string, pass: string): P
   });
   if (!user) {
     const browser = await qauth.login(endpoint, username, pass);
-    const name = await quser.getName(browser)
+    const name = await quser.getName(browser);
     user = await insereBanco(endpoint, username, name, pass);
     const buffer = await quser.getPhoto(browser);
     await photo.process(buffer);

@@ -18,11 +18,11 @@ interface JobNota {
 }
 
 export interface JobNotaResult {
-  browser: QBrowser,
+  browser: QBrowser;
   notas: {
     alteradas: Nota[],
     novas: Nota[]
-  }
+  };
 }
 
 type NotaState = 'alterada' | 'nova' | 'normal';
@@ -34,7 +34,10 @@ export function createJob(userid: string, matricula: string, senha: string, endp
 }
 
 
-async function updateNota(aluno: Usuario, disciplina: qdiarios.QDisciplina, etapa: qdiarios.QEtapa, { id, ...nota }: qdiarios.QNota): Promise<NotaUpdate> {
+async function updateNota(
+  aluno: Usuario, disciplina: qdiarios.QDisciplina,
+  etapa: qdiarios.QEtapa, { id, ...nota }: qdiarios.QNota
+): Promise<NotaUpdate> {
   const [notadb, created] = await Nota.findOrCreate({
     where: {
       descricao: nota.descricao
@@ -72,7 +75,7 @@ export async function retrieveData(browser: QBrowser, matricula: string): Promis
   const changes: NotaUpdate[][] = [];
   if (aluno) {
     const disciplinas = await qdiarios.getDisciplinas(browser);
-    for (let disc of disciplinas) {
+    for (const disc of disciplinas) {
 
       await Turma.findOrCreate({
         where: { codigo: disc.turma },
@@ -86,7 +89,7 @@ export async function retrieveData(browser: QBrowser, matricula: string): Promis
       const [nova] = await Disciplina.findOrCreate({
         where: { ...rdisc },
         defaults: { ...rdisc }
-      })
+      });
 
       if (await aluno.$has('disciplinas', nova)) {
         await aluno.$add('disciplinas', nova);

@@ -96,6 +96,7 @@
     "arrow-return-shorthand": [
       true,
       "multiline"
-    ]
+    ],
+    "quotemark": [true, "single"]
   }
 }

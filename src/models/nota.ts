@@ -4,7 +4,6 @@ import {
   Table,
   Column,
   Model,
-  HasMany,
   PrimaryKey,
   IsUUID,
   AllowNull,

@@ -20,6 +20,6 @@ export class Turma extends Model<Turma> {
   nome: string;
 
   @HasMany(() => Disciplina, { foreignKey: 'turma' })
-  disciplinas: Disciplina[]
+  disciplinas: Disciplina[];
 
 }

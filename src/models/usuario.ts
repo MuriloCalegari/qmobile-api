@@ -43,6 +43,6 @@ export class Usuario extends Model<Usuario> {
   disciplinas: Disciplina[];
 
   @HasMany(() => Nota, { foreignKey: 'userid' })
-  notas: Nota[]
+  notas: Nota[];
 
 }

@@ -34,10 +34,10 @@ export class Disciplina extends Model<Disciplina> {
   professor: string;
 
   @BelongsToMany(() => Usuario, () => UsuarioDisciplina)
-  usuarios: Usuario[]
+  usuarios: Usuario[];
 
   @HasMany(() => Nota, { foreignKey: 'disciplina' })
-  notas: Nota[]
+  notas: Nota[];
 
   @BelongsTo(() => Turma, 'turma')
   turma: Turma;

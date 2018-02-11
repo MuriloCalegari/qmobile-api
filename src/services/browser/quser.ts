@@ -1,4 +1,3 @@
-import { Builder, By, until, promise, ThenableWebDriver } from 'selenium-webdriver';
 import * as webdriver from '../driver/webdriver';
 import { HOME_PAGE } from '../../constants';
 import { QSiteError } from '../errors/errors';
@@ -9,7 +8,7 @@ async function openHome(browser: webdriver.QBrowser): Promise<void> {
     const driver = browser.getDriver();
     const home = browser.getEndpoint() + HOME_PAGE;
     const url = await driver.getCurrentUrl();
-    if (url != home) {
+    if (url !== home) {
       await driver.get(home);
       await driver.wait(async () =>
         await driver.executeScript('return document.readyState') === 'complete'
