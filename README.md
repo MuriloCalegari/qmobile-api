@@ -1,4 +1,6 @@
-# QMobile REST
+[logo]: https://circleci.com/gh/Alan-Gomes/qmobile-rest.svg?style=shield&circle-token=664d4999a59f1b774789b0e63b64534aa07388c7 "CircleCI Status"
+
+# QMobile REST [![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-rest)
 
 Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração REST para leitura dos dados.
 
