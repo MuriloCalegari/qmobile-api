@@ -4,7 +4,7 @@ import * as qauth from './qauth';
 import * as imageSize from 'image-size';
 import { QBrowser } from '../driver/qbrowser';
 
-fdescribe('QUser', () => {
+describe('QUser', () => {
 
   let server: PocketServer;
   let browser: QBrowser;
