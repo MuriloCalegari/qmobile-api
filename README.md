@@ -77,10 +77,3 @@ O arquivo se parecerá com:
 A opção **cipher_pass** se refere a chave da cifra que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
 
 As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta PostgreSQL.
-
-As opções em **tests** são os dados de entrada no Q-Acadêmico, sendo:
-
-* **endpoint**: Url base do serviço. Ex: *http://qacademico.ifexemplo.edu.br/qacademico*
-* **login**: Login do usuário (matrícula)
-* **password**: Senha do usuário
-* **name**: Nome completo do usuário (o mesmo do Q-Acadêmico)
