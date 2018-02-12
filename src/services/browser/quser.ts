@@ -27,7 +27,11 @@ export async function getName(browser: QBrowser): Promise<string> {
     await openHome(browser);
     const dom = cheerio.load(await driver.getPageSource());
     const nome = dom('.barraRodape').eq(1).text().trim();
-    return nome;
+    if (!!nome) {
+      return nome;
+    } else {
+      throw new Error('Name not found');
+    }
   } catch (exc) {
     await browser.exit(true);
     throw new QSiteError(exc, 'Falha ao buscar os dados');

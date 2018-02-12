@@ -87,6 +87,9 @@ export class PocketServer {
             break;
         }
       });
+      app.get('/user.png', (_, res) =>
+        res.sendFile(path.join(assets, 'user.png'))
+      );
       app.get('/lib/sair.asp', (_, res) => {
         this.state.loggedIn = false;
         res.redirect('/index.asp?t=1001');

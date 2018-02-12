@@ -1,3 +1,4 @@
+import { QBrowser } from './../services/driver/qbrowser';
 import { Usuario } from './../models/usuario';
 import { Disciplina } from './../models/disciplina';
 import { Turma } from './../models/turma';
@@ -5,7 +6,6 @@ import * as queue from './queue';
 import { Job } from 'kue';
 import * as configs from '../configs';
 import * as cipher from '../services/cipher/cipher';
-import { QBrowser } from '../services/driver/webdriver';
 import * as qauth from '../services/browser/qauth';
 import * as qdiarios from '../services/browser/qdiarios';
 import { Nota } from '../models/nota';
