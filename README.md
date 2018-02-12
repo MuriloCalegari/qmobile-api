@@ -64,12 +64,6 @@ O arquivo se parecerá com:
         "password": "postgres",
         "port": 5432,
         "database": "qmobile"
-    },
-    "tests": {
-        "endpoint": null,
-        "login": null,
-        "password": null,
-        "name": null
     }
 }
 ```
