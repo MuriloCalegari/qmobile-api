@@ -1,22 +1,25 @@
-import * as Sequelize from 'sequelize';
-import * as orm from './orm';
+import { Disciplina } from './disciplina';
+import {
+  Table,
+  Column,
+  Model,
+  HasMany,
+  PrimaryKey
+} from 'sequelize-typescript';
 
-interface DBTurma {
-  codigo?: string;
-  nome?: string;
+@Table({
+  modelName: 'turma'
+})
+export class Turma extends Model<Turma> {
+
+  @PrimaryKey
+  @Column
+  codigo: string;
+
+  @Column
+  nome: string;
+
+  @HasMany(() => Disciplina, { foreignKey: 'turmaId' })
+  disciplinas: Disciplina[];
+
 }
-
-interface DBTurmaInstance extends Sequelize.Instance<DBTurma> { }
-
-const Turma = orm.define<DBTurmaInstance, DBTurma>('turma', {
-  codigo: {
-    type: Sequelize.STRING,
-    primaryKey: true
-  },
-  nome: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-});
-
-export = Turma;

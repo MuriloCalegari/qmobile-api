@@ -1,44 +1,48 @@
-import * as Sequelize from 'sequelize';
-import * as orm from './orm';
-import * as Disciplina from './disciplina';
-import * as UsuarioDisciplina from './usuario_disciplina';
+import { Nota } from './nota';
+import { Disciplina } from './disciplina';
+import { UsuarioDisciplina } from './usuario_disciplina';
 
-interface DBUser {
-  id?: string;
-  matricula?: string;
-  nome?: string;
-  password?: string;
-  endpoint?: string;
+import {
+  Table,
+  Column,
+  Model,
+  HasMany,
+  PrimaryKey,
+  IsUUID,
+  AllowNull,
+  BelongsToMany
+} from 'sequelize-typescript';
+
+@Table({
+  modelName: 'user'
+})
+export class Usuario extends Model<Usuario> {
+
+  @IsUUID(4)
+  @PrimaryKey
+  @Column
+  id: string;
+
+  @AllowNull(false)
+  @Column
+  matricula: string;
+
+  @AllowNull(false)
+  @Column
+  nome: string;
+
+  @AllowNull(false)
+  @Column
+  password: string;
+
+  @AllowNull(false)
+  @Column
+  endpoint: string;
+
+  @BelongsToMany(() => Disciplina, () => UsuarioDisciplina)
+  disciplinas: Disciplina[];
+
+  @HasMany(() => Nota, { foreignKey: 'userid' })
+  notas: Nota[];
+
 }
-
-interface DBUserInstance extends Sequelize.Instance<DBUser> { }
-
-const Usuario = orm.define<DBUserInstance, DBUser>('user', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
-  },
-  matricula: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  nome: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  endpoint: {
-    type: Sequelize.STRING,
-    allowNull: false
-  }
-});
-
-Usuario.belongsToMany(Disciplina, { through: UsuarioDisciplina });
-Disciplina.belongsToMany(Usuario, { through: UsuarioDisciplina });
-
-export = Usuario;
-

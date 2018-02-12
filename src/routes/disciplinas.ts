@@ -1,57 +1,47 @@
+import { UserData } from './../middlewares/endpoint';
+import { Disciplina } from './../models/disciplina';
 import * as express from 'express';
-import * as Disciplina from '../models/disciplina';
-import * as Nota from '../models/nota';
-import * as Usuario from '../models/usuario';
+import { Nota } from '../models/nota';
+
 const route = express.Router();
 
-route.get('/', (req, res) => {
-    Usuario.findById(req.userdata.userid)
-        .then((user: any) => user.getDisciplinas())
-        .then((disciplinas: any[]) => {
-            const resultado = [];
-            const proms = [];
-            disciplinas.forEach(disc => {
-                const etapas = [];
-                resultado.push({
-                    id: disc.id,
-                    nome: disc.nome,
-                    professor: disc.professor,
-                    turma: disc.codturma,
-                    etapas: etapas
-                })
-                proms.push(Nota.findOne({
-                        where: {
-                            userid: req.userdata.userid,
-                            disciplinaid: disc.id,
-                            etapa: 1
-                        }
-                    }).then(resp => {
-                        if (resp) 
-                            etapas.push(1)
-                    }))
-                proms.push(Nota.findOne({
-                        where: {
-                            userid: req.userdata.userid,
-                            disciplinaid: disc.id,
-                            etapa: 2
-                        }
-                    }).then(resp => {
-                        if (resp) 
-                            etapas.push(2)
-                    }))
-            })
-            Promise.all(proms)
-                .then(() => res.json({
-                        success: true,
-                        disciplinas: resultado
-                    }))
-        })
-        .catch(err => {
-            res.status(500).json({
-                success: false,
-                message: 'Erro no servidor, tente novamente mais tarde'
-            })
-        })
-})
+route.get('/', async (req, res) => {
+
+  const userdata = (req as any).userdata as UserData;
+  const { usuario } = userdata.session;
+  const disciplinas = await usuario.$get<Disciplina>('disciplinas') as Disciplina[];
+  Promise.all(
+    disciplinas.map(async disciplina => {
+      const cond = {
+        userid: usuario.id,
+        disciplinaid: disciplina.id,
+      };
+      const etapas = (await Promise.all(
+        [1, 2].map(
+          etapa => Nota.count(
+            { where: { ...cond, etapa } }
+          )
+        )
+      )).filter(val => val > 0);
+      return {
+        id: disciplina.id,
+        nome: disciplina.nome,
+        professor: disciplina.professor,
+        turma: disciplina.turma.codigo,
+        etapas: etapas
+      };
+    })
+  ).then(resultado => {
+    res.json({
+      success: true,
+      disciplinas: resultado
+    });
+  }).catch(_ => {
+    res.status(500).json({
+      success: false,
+      message: 'Erro no servidor, tente novamente mais tarde'
+    });
+  });
+});
 
 export = route;

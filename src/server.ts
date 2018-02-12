@@ -10,11 +10,11 @@ require('./tasks/notas');
 
 const app = express();
 
-app.use(<any> morgan('dev'));
+app.use(<any>morgan('dev'));
 app.use((req, res, next) => {
-    res.removeHeader('x-powered-by');
-    next();
-})
+  res.removeHeader('x-powered-by');
+  next();
+});
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 

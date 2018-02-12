@@ -1,21 +1,13 @@
-import * as Session from '../../models/session';
+import { Session } from '../../models/session';
 
-namespace s {
 
-    export function createSession(userid, instanceid = ''): Promise<string> {
-        return <any> Session.create({
-            instanceid: instanceid,
-            userid: userid
-        }).then((ses: any) => ses.id);
-    }
-
-    export function destroySession(sessionid: string): Promise<void> {
-        return <any> Session.destroy({
-            where: {
-                id: sessionid
-            }
-        });
-    }
-    
+export async function createSession(userid: string, instanceid = ''): Promise<string> {
+  const ses = await Session.create({ instanceid, userid });
+  return ses.id;
 }
-export = s;
+
+export async function destroySession(id: string): Promise<void> {
+  await Session.destroy({
+    where: { id }
+  });
+}
