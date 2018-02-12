@@ -1,6 +1,11 @@
 [logo]: https://circleci.com/gh/Alan-Gomes/qmobile-rest.svg?style=shield&circle-token=664d4999a59f1b774789b0e63b64534aa07388c7 "CircleCI Status"
 
-# QMobile REST [![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-rest)
+
+# QMobile REST
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-rest)
+![Dependencies](https://david-dm.org/Alan-Gomes/qmobile-rest.svg)
+[![GitHub issues](https://img.shields.io/github/issues/Alan-Gomes/qmobile-rest.svg)](https://github.com/Alan-Gomes/qmobile-rest/issues)
 
 Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração REST para leitura dos dados.
 
