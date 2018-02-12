@@ -6,6 +6,8 @@
   "scripts": {
     "lint": "tslint --project .",
     "test": "jasmine-ts ./src/**/*.spec.ts",
+    "test:cov": "nyc -e .ts -x \"*.spec.ts\" npm test",
+    "check:cov": "nyc check-coverage --lines 95 --functions 95 --branches 95",
     "start": "ts-node ./src/qmobile.ts"
   },
   "repository": {
@@ -64,6 +66,7 @@
     "image-size": "^0.6.2",
     "jasmine-spec-reporter": "^4.2.1",
     "jasmine-ts": "^0.2.1",
+    "nyc": "^11.4.1",
     "tslint": "^5.9.1"
   }
 }
