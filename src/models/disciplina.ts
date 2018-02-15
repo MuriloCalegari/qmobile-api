@@ -13,7 +13,9 @@ import {
   AllowNull,
   BelongsToMany,
   ForeignKey,
-  BelongsTo
+  BelongsTo,
+  Default,
+  Sequelize
 } from 'sequelize-typescript';
 
 @Table({
@@ -22,6 +24,7 @@ import {
 export class Disciplina extends Model<Disciplina> {
 
   @IsUUID(4)
+  @Default(Sequelize.UUIDV4)
   @PrimaryKey
   @Column
   id: string;

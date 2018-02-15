@@ -118,7 +118,7 @@ export async function retrieveData(browser: QBrowser, matricula: string): Promis
 export async function atualizaNotas(): Promise<void> {
   const users = await Usuario.all();
   users.forEach(user => {
-    const job = createJob(user.id, user.matricula, cipher.decipher(user.password, configs.cipher_pass), user.endpoint)
+    const job = createJob(user.id, user.matricula, cipher.decrypt(user.password, configs.cipher_pass), user.endpoint)
       .removeOnComplete(true).events(false).ttl(2.4e5 /* 4min */).save();
   });
 }

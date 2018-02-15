@@ -8,7 +8,15 @@ import { Session } from './session';
 import * as configs from '../configs';
 import { Sequelize } from 'sequelize-typescript';
 
-const cfg = configs.db;
+const test = process.env && process.env.NODE_ENV === 'test';
+const cfg = !test ? configs.db : {
+  host: 'localhost',
+  port: 5432,
+  database: 'qmobile_test',
+  username: 'postgres',
+  password: 'postgres',
+  logging: false
+};
 
 const sequelize = new Sequelize({
     database: cfg.database,
@@ -17,7 +25,8 @@ const sequelize = new Sequelize({
     dialect: 'postgres',
     host: cfg.host,
     port: cfg.port,
-    logging: configs.db.logging
+    logging: cfg.logging,
+    operatorsAliases: false
 });
 
 sequelize.addModels([

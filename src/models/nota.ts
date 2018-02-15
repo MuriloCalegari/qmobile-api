@@ -9,7 +9,9 @@ import {
   AllowNull,
   DataType,
   ForeignKey,
-  BelongsTo
+  BelongsTo,
+  Default,
+  Sequelize
 } from 'sequelize-typescript';
 
 @Table({
@@ -18,6 +20,7 @@ import {
 export class Nota extends Model<Nota> {
 
   @IsUUID(4)
+  @Default(Sequelize.UUIDV4)
   @PrimaryKey
   @Column
   id: string;
