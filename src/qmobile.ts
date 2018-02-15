@@ -60,23 +60,6 @@ function bootstrap(): Promise<void> {
         })
     )*/
     .then(() => new Promise<void>((resolve, reject) => {
-      fs.exists(PHOTOS_FOLDER, exists => {
-        if (exists) { return resolve(); }
-        fs.mkdir(PHOTOS_FOLDER, err => {
-          if (err) { reject(err); } else { resolve(); }
-        });
-      });
-    }))
-    .then(() => new Promise<void>((resolve, reject) => {
-      const folder = path.join(PHOTOS_FOLDER, 'users');
-      fs.exists(folder, exists => {
-        if (exists) { return resolve(); }
-        fs.mkdir(folder, err => {
-          if (err) { reject(err); } else { resolve(); }
-        });
-      });
-    }))
-    .then(() => new Promise<void>((resolve, reject) => {
       const configs = require('./configs');
       spin.setSpinnerTitle(colors.blue('%s Inicializando servidor'));
       const server: express.Express = require('./server');
