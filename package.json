@@ -5,9 +5,9 @@
   "main": "dist/qmobile.js",
   "scripts": {
     "lint": "tslint --project .",
-    "test": "jasmine-ts ./src/**/*.spec.ts",
-    "test:cov": "nyc -e .ts -x \"*.spec.ts\" npm test",
-    "check:cov": "nyc check-coverage --lines 95 --functions 95 --branches 95",
+    "test": "cross-env NODE_ENV=test jasmine-ts ./src/**/*.spec.ts",
+    "test:cov": "cross-env NODE_ENV=test nyc -e .ts -x \"*.spec.ts\" npm test",
+    "check:cov": "cross-env NODE_ENV=test nyc check-coverage --lines 95 --functions 95 --branches 95",
     "start": "ts-node ./src/qmobile.ts"
   },
   "repository": {
@@ -63,6 +63,7 @@
     "@types/selenium-webdriver": "^3.0.7",
     "@types/sequelize": "^4.0.75",
     "@types/sharp": "^0.17.4",
+    "cross-env": "^5.1.3",
     "image-size": "^0.6.2",
     "jasmine-spec-reporter": "^4.2.1",
     "jasmine-ts": "^0.2.1",

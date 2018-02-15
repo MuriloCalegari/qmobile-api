@@ -8,7 +8,8 @@ import * as photo from '../photo/photo';
 import * as notasJob from '../../tasks/notas';
 
 async function insereBanco(endpoint: string, matricula: string, nome: string, pass: string): Promise<Usuario> {
-  const password = cipher.cipher(pass, configs.cipher_pass);
+
+  const password = cipher.crypt(pass, configs.cipher_pass);
   return await Usuario.create({
     matricula,
     nome,
@@ -28,14 +29,15 @@ export async function login(endpoint: string, username: string, pass: string): P
     const browser = await qauth.login(endpoint, username, pass);
     const name = await quser.getName(browser);
     user = await insereBanco(endpoint, username, name, pass);
-    const buffer = await quser.getPhoto(browser);
-    await photo.process(buffer);
+    const buffer = await photo.process(
+      await quser.getPhoto(browser)
+    );
     await photo.savePhoto(buffer, user.id);
     await notasJob.retrieveData(browser, username);
     await browser.exit();
   }
-  const hash = cipher.cipher(pass, configs.cipher_pass);
-  if (user.password === hash) {
+  const decrypted = cipher.decrypt(user.password, configs.cipher_pass);
+  if (decrypted === pass) {
     return user;
   } else {
     throw new QError('Senha incorreta');

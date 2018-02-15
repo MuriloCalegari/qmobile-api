@@ -10,7 +10,9 @@ import {
   PrimaryKey,
   IsUUID,
   AllowNull,
-  BelongsToMany
+  BelongsToMany,
+  Default,
+  Sequelize
 } from 'sequelize-typescript';
 
 @Table({
@@ -19,6 +21,7 @@ import {
 export class Usuario extends Model<Usuario> {
 
   @IsUUID(4)
+  @Default(Sequelize.UUIDV4)
   @PrimaryKey
   @Column
   id: string;

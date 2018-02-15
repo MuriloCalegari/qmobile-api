@@ -8,7 +8,9 @@ import {
   AllowNull,
   BelongsTo,
   DataType,
-  ForeignKey
+  ForeignKey,
+  Default,
+  Sequelize
 } from 'sequelize-typescript';
 
 @Table({
@@ -17,6 +19,7 @@ import {
 export class Session extends Model<Session> {
 
   @IsUUID(4)
+  @Default(Sequelize.UUIDV4)
   @PrimaryKey
   @Column
   id: string;

@@ -19,7 +19,7 @@ interface Configuration {
 }
 
 let def: Configuration = {
-  cipher_pass: '123mudar',
+  cipher_pass: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   db: {
     host: 'localhost',
     username: 'postgres',
@@ -45,5 +45,7 @@ if (!fs.existsSync(cfgpath)) {
     def = null as any;
   }
 }
+
+def.cipher_pass = (process.env && process.env.ENCRYPTION_KEY) || def.cipher_pass;
 
 export = def;
