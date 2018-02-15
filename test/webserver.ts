@@ -19,7 +19,7 @@ export class PocketServer {
 
   port: number;
 
-  constructor() {
+  private constructor() {
     this.port = 9595;
     this.state = {
       allowLogin: true,
@@ -104,6 +104,12 @@ export class PocketServer {
         }
       });
     }
+  }
+
+  private static inst?: PocketServer;
+
+  static getInstance(): PocketServer {
+    return this.inst || (this.inst = new PocketServer());
   }
 
 }

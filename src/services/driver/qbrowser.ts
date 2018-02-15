@@ -53,9 +53,6 @@ export class QBrowser {
     } catch (e) { }
     this.endpoint = '';
     if (error) {
-      try {
-        await driver.quit();
-      } catch {}
       this.pool.destroy(this);
     } else {
       this.pool.release(this);

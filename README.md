@@ -20,7 +20,7 @@ Utilizando deste servidor, futuramente o aplicativo mobile será capaz de exibir
 * PostgreSQL
 * Redis
 * TypeScript
-* PhantomJS
+* PhantomJS (=1.9.20)
 
 ## Rodando o servidor
 
