@@ -26,7 +26,6 @@ route.get('/picture', (req, res) => {
           message: 'Foto não encontrada'
         });
     }
-    console.log(file);
     res.sendFile(file);
   });
 });

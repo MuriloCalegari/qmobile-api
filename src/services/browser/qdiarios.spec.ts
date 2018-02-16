@@ -12,7 +12,7 @@ describe('QDiarios', () => {
   beforeAll(async done => {
     server = PocketServer.getInstance();
     browser = await qauth.login('http://localhost:9595', 'test', 'pass');
-    spyOn(browser.getDriver(), 'get').and.callThrough();
+    spyOn(browser.getPage(), 'goto').and.callThrough();
     spyOn(browser, 'exit').and.returnValue(Promise.resolve());
     done();
   });
@@ -20,7 +20,7 @@ describe('QDiarios', () => {
   afterEach(async done => {
     server.reset();
     server.state.loggedIn = true;
-    await browser.getDriver().get('http://localhost:9595/index.asp?t=2000');
+    await browser.getPage().goto('http://localhost:9595/index.asp?t=2000');
     done();
   });
 
@@ -33,7 +33,7 @@ describe('QDiarios', () => {
     it('deve ir para a página dos diários', async done => {
       try {
         await qdiarios.openDiarios(browser);
-        expect(browser.getDriver().get).toHaveBeenCalledWith(
+        expect(browser.getPage().goto).toHaveBeenCalledWith(
           'http://localhost:9595/index.asp?t=2071'
         );
         done();
@@ -44,10 +44,10 @@ describe('QDiarios', () => {
 
     it('não deve navegar se já estiver na página', async done => {
       try {
-        await browser.getDriver().get('http://localhost:9595/index.asp?t=2071');
-        (browser.getDriver().get as jasmine.Spy).calls.reset();
+        await browser.getPage().goto('http://localhost:9595/index.asp?t=2071');
+        (browser.getPage().goto as jasmine.Spy).calls.reset();
         await qdiarios.openDiarios(browser);
-        expect(browser.getDriver().get).not.toHaveBeenCalled();
+        expect(browser.getPage().goto).not.toHaveBeenCalled();
 
         done();
       } catch (e) {
@@ -57,7 +57,7 @@ describe('QDiarios', () => {
 
     it('deve fechar o navegador se houver erro', async done => {
       try {
-        spyOn(browser.getDriver(), 'getCurrentUrl').and.callFake(
+        spyOn(browser.getPage(), 'url').and.callFake(
           () => Promise.reject(new Error('panic'))
         );
         await qdiarios.openDiarios(browser);
@@ -80,10 +80,10 @@ describe('QDiarios', () => {
 
     it('deve abrir a página de diarios', async done => {
       try {
-        await browser.getDriver().get('http://localhost:9595/index.asp?t=2000');
-        (browser.getDriver().get as any).and.callThrough();
+        await browser.getPage().goto('http://localhost:9595/index.asp?t=2000');
+        (browser.getPage().goto as any).and.callThrough();
         await qdiarios.getDisciplinas(browser);
-        expect(browser.getDriver().get).toHaveBeenCalledWith(
+        expect(browser.getPage().goto).toHaveBeenCalledWith(
           'http://localhost:9595/index.asp?t=2071'
         );
         done();
@@ -132,7 +132,7 @@ describe('QDiarios', () => {
 
     it('deve esperar erro no browser', async done => {
       try {
-        spyOn(browser.getDriver(), 'getPageSource').and.callFake(
+        spyOn(browser.getPage(), 'url').and.callFake(
           () => Promise.reject(new Error('panic'))
         );
         await qdiarios.getDisciplinas(browser);

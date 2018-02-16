@@ -1,16 +1,19 @@
-import { ThenableWebDriver, By } from 'selenium-webdriver';
 import { Pool } from 'generic-pool';
+import { Browser, Page } from 'puppeteer';
 
 export class QBrowser {
 
   private endpoint: string | null = '';
 
-  constructor(private driver: ThenableWebDriver | null, private pool: Pool<QBrowser>) {
+  constructor(
+    private driver: Browser | null,
+    private page: Page | null,
+    private pool: Pool<QBrowser>) {
 
   }
 
-  getDriver(): ThenableWebDriver {
-    return this.driver as ThenableWebDriver;
+  getPage(): Page {
+    return this.page as Page;
   }
 
   setEndpoint(str: string): void {
@@ -21,19 +24,12 @@ export class QBrowser {
     return this.endpoint as string;
   }
 
-  elementExists(sel: By): Promise<boolean> {
-    if (!this.driver) {
-      return Promise.resolve(false);
-    }
-    return this.driver.findElement(sel).then(_ => false, _ => true) as any;
-  }
-
   async isValid(): Promise<boolean> {
-    if (this.endpoint === null || !this.driver) {
+    if (this.endpoint === null || !this.page) {
       return false;
     }
     try {
-      await this.driver.getTitle();
+      await this.page.title();
       return true;
     } catch (e) {
       return false;
@@ -42,21 +38,17 @@ export class QBrowser {
 
   async destroy(): Promise<void> {
     if (!this.driver) { return; }
-    const driver = this.getDriver();
-    await driver.quit();
-    this.driver = null;
+    await this.driver.close();
+    this.driver = this.page = null;
   }
 
   async exit(error: boolean = false): Promise<void> {
-    if (!this.driver) { return; }
-    const driver = this.getDriver();
+    if (!this.page) { return; }
+    const page = this.getPage();
     try {
-      const btnSair = await driver.findElement(By.css('a[href*="sair.asp"]'));
-      await btnSair.click();
-      await driver.wait(async () => {
-        const readyState = await driver.executeScript('return document.readyState');
-        return readyState === 'complete';
-      });
+      const btnSair = await page.$('a[href*="sair.asp"]');
+      await btnSair!.click();
+      await page.waitFor(() => document.readyState === 'complete');
     } catch (e) { }
     this.endpoint = '';
     if (error) {

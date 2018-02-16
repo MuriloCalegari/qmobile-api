@@ -16,14 +16,11 @@ describe('AuthService:auth', () => {
 
   beforeEach(done => {
     server = PocketServer.getInstance();
+    server.reset();
+    server.state.loggedIn = true;
     spyOn(notasJob, 'retrieveData').and.returnValue(Promise.resolve());
     Usuario.truncate({ force: true, cascade: true })
       .then(done).catch(done.fail);
-  });
-
-  afterEach(() => {
-    server.reset();
-    server.state.loggedIn = true;
   });
 
   it('deve seguir o fluxo corretamente', async done => {

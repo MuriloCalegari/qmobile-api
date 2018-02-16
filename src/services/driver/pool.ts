@@ -1,23 +1,23 @@
 import { QBrowser } from './qbrowser';
 import * as genericPool from 'generic-pool';
-import { Builder, promise, Capabilities } from 'selenium-webdriver';
+import * as puppeteer from 'puppeteer';
 
 import * as config from '../../configs';
 import { Factory, Pool } from 'generic-pool';
 
-promise.USE_PROMISE_MANAGER = false;
-
-const capabilities = Capabilities.phantomjs();
-capabilities.set('phantomjs.cli.args', ['--web-security=no', '--ssl-protocol=any']);
-
-const builder = new Builder()
-  .withCapabilities(capabilities);
 
 let pool: Pool<QBrowser>;
 
 const factory: Factory<QBrowser> = {
   async create() {
-    return new QBrowser(builder.build(), pool);
+    const driver = await puppeteer.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    });
+    const page = await driver.newPage();
+    return new QBrowser(driver, page, pool);
   },
   validate(client) {
     return client.isValid();

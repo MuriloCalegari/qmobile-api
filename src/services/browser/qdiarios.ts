@@ -6,16 +6,12 @@ import { DIARIOS_PAGE } from '../../constants';
 
 export async function openDiarios(browser: QBrowser): Promise<void> {
   try {
-    const driver = browser.getDriver();
+    const page = browser.getPage();
     const diarios = browser.getEndpoint() + DIARIOS_PAGE;
-    const url = await driver.getCurrentUrl();
+    const url = await page.url();
     if (url !== diarios) {
-      await driver.get(diarios);
+      await page.goto(diarios);
     }
-    await driver.wait(async () => {
-      const readyState = await driver.executeScript('return document.readyState');
-      return readyState === 'complete';
-    });
   } catch (e) {
     await browser.exit(true);
     throw e;
@@ -94,9 +90,9 @@ function readEtapa(dom: CheerioStatic, preelem: CheerioElement): QEtapa | null {
 
 export async function getDisciplinas(browser: QBrowser): Promise<QDisciplina[]> {
   try {
-    const driver = browser.getDriver();
+    const page = browser.getPage();
     await openDiarios(browser);
-    const dom = cheerio.load(await driver.getPageSource());
+    const dom = cheerio.load(await page.content());
     const tabelaNotas = dom(
       `table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) >
         table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody`

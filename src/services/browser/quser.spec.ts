@@ -11,16 +11,16 @@ describe('QUser', () => {
 
   beforeAll(async done => {
     server = PocketServer.getInstance();
+    server.reset();
+    server.state.loggedIn = true;
     browser = await qauth.login('http://localhost:9595', 'test', 'pass');
-    spyOn(browser.getDriver(), 'get').and.callThrough();
+    spyOn(browser.getPage(), 'goto').and.callThrough();
     spyOn(browser, 'exit').and.returnValue(Promise.resolve());
     done();
   });
 
   afterEach(async done => {
-    server.reset();
-    server.state.loggedIn = true;
-    await browser.getDriver().get('http://localhost:9595/index.asp?t=2000');
+    await browser.getPage().goto('http://localhost:9595/index.asp?t=2000');
     done();
   });
 
@@ -33,9 +33,9 @@ describe('QUser', () => {
 
     it('deve navegar para a página inicial se não estiver', async done => {
       try {
-        await browser.getDriver().get('http://localhost:9595/index.asp?t=2071');
+        await browser.getPage().goto('http://localhost:9595/index.asp?t=2071');
         await quser.getName(browser);
-        expect(browser.getDriver().get).toHaveBeenCalledWith(
+        expect(browser.getPage().goto).toHaveBeenCalledWith(
           'http://localhost:9595/index.asp?t=2000'
         );
         done();
@@ -46,7 +46,7 @@ describe('QUser', () => {
 
     it('deve esperar por erro no servidor', async done => {
       try {
-        spyOn(browser.getDriver(), 'getCurrentUrl').and.callFake(() => Promise.reject(new Error('panic')));
+        spyOn(browser.getPage(), 'url').and.callFake(() => Promise.reject(new Error('panic')));
         await quser.getName(browser);
         done.fail();
       } catch (e) {
@@ -69,7 +69,7 @@ describe('QUser', () => {
 
     it('deve falhar se não achar um nome', async done => {
       try {
-        spyOn(browser.getDriver(), 'getPageSource').and.returnValue(
+        spyOn(browser.getPage(), 'content').and.returnValue(
           Promise.resolve('<div class="barraRodape"></div>')
         );
         await quser.getName(browser);
@@ -87,9 +87,9 @@ describe('QUser', () => {
 
     it('deve navegar para a página inicial se não estiver', async done => {
       try {
-        await browser.getDriver().get('http://localhost:9595/index.asp?t=2071');
+        await browser.getPage().goto('http://localhost:9595/index.asp?t=2071');
         await quser.getPhoto(browser);
-        expect(browser.getDriver().get).toHaveBeenCalledWith(
+        expect(browser.getPage().goto).toHaveBeenCalledWith(
           'http://localhost:9595/index.asp?t=2000'
         );
         done();
@@ -100,9 +100,9 @@ describe('QUser', () => {
 
     it('deve injetar script na página', async done => {
       try {
-        spyOn(browser.getDriver(), 'executeScript').and.callThrough();
+        spyOn(browser.getPage(), 'evaluate').and.callThrough();
         await quser.getPhoto(browser);
-        expect(browser.getDriver().executeScript).toHaveBeenCalled();
+        expect(browser.getPage().evaluate).toHaveBeenCalled();
         done();
       } catch (e) {
         done.fail(e);
@@ -111,7 +111,7 @@ describe('QUser', () => {
 
     it('deve ocorrer um erro caso não seja possivel obter a foto', async done => {
       try {
-        spyOn(browser.getDriver(), 'executeScript').and.callFake(() => Promise.reject({}));
+        spyOn(browser.getPage(), 'evaluate').and.callFake(() => Promise.reject({}));
         await quser.getPhoto(browser);
         done.fail();
       } catch (e) {
