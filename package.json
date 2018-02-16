@@ -80,6 +80,11 @@
       "src/**/*.spec.ts",
       "test/**/*"
     ],
+    "temp-directory": "./coverage/.nyc_output",
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
     "extension": [
       ".ts"
     ]
