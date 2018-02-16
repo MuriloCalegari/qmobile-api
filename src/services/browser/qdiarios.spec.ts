@@ -10,13 +10,11 @@ describe('QDiarios', () => {
   let browser: QBrowser;
 
   beforeAll(async done => {
-    server = new PocketServer();
-    server.start().then(async () => {
-      browser = await qauth.login('http://localhost:9595', 'test', 'pass');
-      spyOn(browser.getDriver(), 'get').and.callThrough();
-      spyOn(browser, 'exit').and.returnValue(Promise.resolve());
-      done();
-    }).catch(done.fail);
+    server = PocketServer.getInstance();
+    browser = await qauth.login('http://localhost:9595', 'test', 'pass');
+    spyOn(browser.getDriver(), 'get').and.callThrough();
+    spyOn(browser, 'exit').and.returnValue(Promise.resolve());
+    done();
   });
 
   afterEach(async done => {
@@ -28,10 +26,7 @@ describe('QDiarios', () => {
 
   afterAll(done => {
     (browser.exit as jasmine.Spy).and.callThrough();
-    Promise.all([
-      server.stop(),
-      browser.exit(true)
-    ]).then(done).catch(done.fail);
+    browser.exit(true).then(done).catch(done.fail);
   });
 
   describe('openDiarios()', () => {

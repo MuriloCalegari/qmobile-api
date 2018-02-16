@@ -5,17 +5,12 @@ describe('QAuth', () => {
 
   let server: PocketServer;
 
-  beforeAll(done => {
-    server = new PocketServer();
-    server.start().then(done).catch(done.fail);
+  beforeAll(() => {
+    server = PocketServer.getInstance();
   });
 
   afterEach(() => {
     server.reset();
-  });
-
-  afterAll(done => {
-    server.stop().then(done).catch(done.fail);
   });
 
   describe('login()', () => {
