@@ -6,8 +6,7 @@
   "scripts": {
     "lint": "tslint --project .",
     "test": "cross-env NODE_ENV=test jasmine-ts ./src/**/*.spec.ts",
-    "test:cov": "cross-env NODE_ENV=test nyc -e .ts -x \"*.spec.ts\" npm test",
-    "check:cov": "cross-env NODE_ENV=test nyc check-coverage --lines 95 --functions 95 --branches 95",
+    "test:cov": "cross-env NODE_ENV=test nyc npm test",
     "start": "ts-node ./src/qmobile.ts"
   },
   "repository": {
@@ -69,5 +68,20 @@
     "jasmine-ts": "^0.2.1",
     "nyc": "^11.4.1",
     "tslint": "^5.9.1"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 95,
+    "statements": 95,
+    "functions": 95,
+    "branches": 95,
+    "exclude": [
+      "src/**/*.spec.ts",
+      "test/**/*"
+    ],
+    "extension": [
+      ".ts"
+    ]
   }
 }
