@@ -1,5 +1,5 @@
 import { QBrowser } from './../driver/qbrowser';
-import { By, until } from 'selenium-webdriver';
+import { By, until, ThenableWebDriver, promise } from 'selenium-webdriver';
 import * as webdriver from '../driver/webdriver';
 import { LOGIN_PAGE } from '../../constants';
 import { QError } from '../errors/errors';
@@ -21,7 +21,7 @@ export async function login(endpoint: string, username: string, password: string
     await form.findElement(By.name('SENHA')).sendKeys(password);
     await form.findElement(By.name('Submit')).click();
     await driver.wait(async () =>
-      driver.findElement(By.name('frmLogin')).then(_ => false, _ => true)
+      (browser as QBrowser).elementExists(By.name('frmLogin'))
     );
     await driver.wait(async () =>
       await driver.executeScript('return document.readyState') === 'complete'

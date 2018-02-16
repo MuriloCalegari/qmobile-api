@@ -71,4 +71,22 @@ describe('AuthService:auth', () => {
     }
   });
 
+  it('deve emitir erro com senha incorreta', async done => {
+    try {
+      await authService.login('http://localhost:9595', 'test', 'pass');
+
+      spyOn(qauth, 'login').and.callThrough();
+      spyOn(quser, 'getName').and.callThrough();
+      spyOn(quser, 'getPhoto').and.callThrough();
+
+      await authService.login('http://localhost:9595', 'test', 'anotherpass');
+
+      done.fail();
+    } catch (e) {
+      expect(e).toEqual(jasmine.any(Error));
+      expect(e.message).toBe('Senha incorreta');
+      done();
+    }
+  });
+
 });

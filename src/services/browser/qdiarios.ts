@@ -56,7 +56,7 @@ function extractFloat(val: string): number {
 }
 
 function extractInt(val: string): number {
-  return parseInt(val.replace(/[^0-9]/g, ''), 10) || -1;
+  return parseInt(val.replace(/[^0-9]/g, ''), 10);
 }
 
 function readNota(dom: CheerioStatic, preelem: CheerioElement): QNota {
@@ -132,6 +132,6 @@ export async function getDisciplinas(browser: QBrowser): Promise<QDisciplina[]> 
     return disciplinas;
   } catch (e) {
     await browser.exit(true);
-    throw e;
+    throw new Error(e);
   }
 }

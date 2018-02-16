@@ -21,6 +21,13 @@ export class QBrowser {
     return this.endpoint as string;
   }
 
+  elementExists(sel: By): Promise<boolean> {
+    if (!this.driver) {
+      return Promise.resolve(false);
+    }
+    return this.driver.findElement(sel).then(_ => false, _ => true) as any;
+  }
+
   async isValid(): Promise<boolean> {
     if (this.endpoint === null || !this.driver) {
       return false;
