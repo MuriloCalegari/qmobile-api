@@ -1,7 +1,7 @@
+import { Usuario } from './../../models/usuario';
 import * as notasJob from '../../tasks/notas';
 import * as qauth from '../browser/qauth';
 import * as quser from '../browser/quser';
-import * as orm from '../../models/orm';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
 import * as fs from 'fs';
@@ -16,28 +16,22 @@ describe('AuthService:auth', () => {
 
   beforeAll(async done => {
     server = new PocketServer();
-    Promise.all([
-      orm.sync({ force: true }),
-      server.start()
-    ]).then(done).catch(done.fail);
+    server.start().then(done).catch(done.fail);
   });
 
   beforeEach(done => {
     spyOn(notasJob, 'retrieveData').and.returnValue(Promise.resolve());
-    orm.sync({ force: true }).then(done).catch(done.fail);
+    Usuario.truncate({ force: true, cascade: true })
+      .then(done).catch(done.fail);
   });
 
-  afterEach(async done => {
+  afterEach(() => {
     server.reset();
     server.state.loggedIn = true;
-    done();
   });
 
   afterAll(done => {
-    Promise.all([
-      orm.close(),
-      server.stop()
-    ]).then(done).catch(done.fail);
+    server.stop().then(done).catch(done.fail);
   });
 
   it('deve seguir o fluxo corretamente', async done => {
