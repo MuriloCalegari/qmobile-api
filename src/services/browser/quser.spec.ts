@@ -26,7 +26,7 @@ describe('QUser', () => {
 
   afterAll(done => {
     (browser.exit as jasmine.Spy).and.callThrough();
-    browser.exit(true).then(done).catch(done.fail);
+    browser.exit().then(done).catch(done.fail);
   });
 
   describe('getName()', () => {

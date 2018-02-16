@@ -25,7 +25,7 @@ describe('QAuth', () => {
           SENHA: 'pass',
           TIPO_USU: '1'
         }));
-        await browser.exit(true);
+        await browser.exit();
 
         done();
       } catch (e) {
@@ -38,7 +38,7 @@ describe('QAuth', () => {
       try {
         state.allowLogin = false;
         const browser = await qauth.login('http://localhost:9595', 'test', 'incorreto');
-        await browser.exit(true);
+        await browser.exit();
         done.fail();
       } catch (e) {
         expect(state.loggedIn).toBeFalsy();
