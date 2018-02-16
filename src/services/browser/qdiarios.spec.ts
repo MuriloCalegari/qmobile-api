@@ -130,6 +130,20 @@ describe('QDiarios', () => {
       }
     });
 
+    it('deve esperar erro no browser', async done => {
+      try {
+        spyOn(browser.getDriver(), 'getPageSource').and.callFake(
+          () => Promise.reject(new Error('panic'))
+        );
+        await qdiarios.getDisciplinas(browser);
+        done.fail();
+      } catch (e) {
+        expect(e).toEqual(jasmine.any(Error));
+        expect(browser.exit).toHaveBeenCalledWith(true);
+        done();
+      }
+    });
+
   });
 
 });

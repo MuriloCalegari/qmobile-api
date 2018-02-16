@@ -44,6 +44,19 @@ describe('QUser', () => {
       }
     });
 
+    it('deve esperar por erro no servidor', async done => {
+      try {
+        spyOn(browser.getDriver(), 'getCurrentUrl').and.callFake(() => Promise.reject(new Error('panic')));
+        await quser.getName(browser);
+        done.fail();
+      } catch (e) {
+        expect(browser.exit).toHaveBeenCalledWith(true);
+        expect(e).toEqual(jasmine.any(Error));
+        expect(e.message).toBe('Falha ao buscar os dados');
+        done();
+      }
+    });
+
     it('deve buscar o nome correto do usuario', async done => {
       try {
         const nome = await quser.getName(browser);

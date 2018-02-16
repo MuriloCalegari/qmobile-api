@@ -48,6 +48,22 @@ describe('QAuth', () => {
         done();
       }
     });
+
+    it('deve esperar erro no browser', async done => {
+      const { state } = server;
+      try {
+        state.allowLogin = false;
+        const browser = await qauth.login('http://localhost', 'test', 'incorreto');
+        await browser.exit();
+        done.fail();
+      } catch (e) {
+        expect(state.loggedIn).toBeFalsy();
+        expect(e).toEqual(jasmine.any(Error));
+        expect(e.message).toBeTruthy();
+
+        done();
+      }
+    });
   });
 
 });
