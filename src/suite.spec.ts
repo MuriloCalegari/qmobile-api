@@ -3,7 +3,7 @@ import * as pool from './services/driver/pool';
 import { PocketServer } from '../test/webserver';
 
 beforeAll(done => {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 10e8;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 10e6;
   Promise.all([
     orm.sync({ force: true }),
     PocketServer.getInstance().start()
