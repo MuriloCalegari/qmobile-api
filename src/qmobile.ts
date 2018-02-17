@@ -69,11 +69,6 @@ function bootstrap(): Promise<void> {
     }));
 }
 
-function shutdown(): Promise<void> {
-  return import('./services/driver/webdriver')
-    .then(driver => driver.shutdown());
-}
-
 bootstrap()
   .then(() => {
     const configs = require('./configs');

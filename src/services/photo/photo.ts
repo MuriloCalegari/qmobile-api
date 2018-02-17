@@ -1,5 +1,5 @@
 import * as sharp from 'sharp';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import { PHOTOS_FOLDER } from '../../constants';
 import { promisify } from 'util';
@@ -20,14 +20,13 @@ export function getPath(userid: string): string {
   return path.join(PHOTOS_FOLDER, 'users', `${userid}.jpg`);
 }
 
-export async function savePhoto(buffer: Buffer, userid: string): Promise<Buffer> {
-  if (!await promisify(fs.exists)(PHOTOS_FOLDER)) {
-    await promisify(fs.mkdir)(PHOTOS_FOLDER);
+export async function savePhoto(buffer: Buffer, userid: string): Promise<void> {
+  if (!await fs.pathExists(PHOTOS_FOLDER)) {
+    await fs.mkdir(PHOTOS_FOLDER);
     const users = path.join(PHOTOS_FOLDER, 'users');
-    if (!await promisify(fs.exists)(users)) {
-      await promisify(fs.mkdir)(users);
+    if (!await fs.pathExists(users)) {
+      await fs.mkdir(users);
     }
   }
-  await promisify(fs.writeFile)(getPath(userid), buffer);
-  return buffer;
+  await fs.writeFile(getPath(userid), buffer);
 }

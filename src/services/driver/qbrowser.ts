@@ -25,7 +25,7 @@ export class QBrowser {
   }
 
   async isValid(): Promise<boolean> {
-    if (this.endpoint === null || !this.page) {
+    if (!this.endpoint || !this.page) {
       return false;
     }
     try {
@@ -37,24 +37,24 @@ export class QBrowser {
   }
 
   async destroy(): Promise<void> {
-    if (!this.driver) { return; }
-    await this.driver.close();
+    await this.driver!.close();
     this.driver = this.page = null;
   }
 
   async exit(error: boolean = false): Promise<void> {
-    if (!this.page) { return; }
-    const page = this.getPage();
-    try {
-      const btnSair = await page.$('a[href*="sair.asp"]');
-      await btnSair!.click();
-      await page.waitFor(() => document.readyState === 'complete');
-    } catch (e) { }
-    this.endpoint = '';
-    if (error) {
-      this.pool.destroy(this);
-    } else {
-      this.pool.release(this);
+    if (this.page) {
+      const page = this.getPage();
+      try {
+        const btnSair = await page.$('a[href*="sair.asp"]');
+        await btnSair!.click();
+        await page.waitForNavigation();
+      } catch (e) { }
+      this.endpoint = '';
+      if (error) {
+        this.pool.destroy(this);
+      } else {
+        this.pool.release(this);
+      }
     }
   }
 
