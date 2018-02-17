@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: alekzonder/puppeteer
+      - image: rastasheep/alpine-node-chromium:8-alpine
       - image: redis:3.2
       - image: circleci/postgres:9.6.2-alpine
         environment:
