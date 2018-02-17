@@ -10,7 +10,12 @@ let pool: Pool<QBrowser>;
 
 const factory: Factory<QBrowser> = {
   async create() {
-    const driver = await puppeteer.launch();
+    const driver = await puppeteer.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    });
     const page = await driver.newPage();
     return new QBrowser(driver, page, pool);
   },
