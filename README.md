@@ -2,7 +2,7 @@
 
 
 # QMobile REST
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Alan-Gomes/qmobile-rest/blob/master/LICENSE)
 [![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-rest)
 ![Dependencies](https://david-dm.org/Alan-Gomes/qmobile-rest.svg)
 [![GitHub issues](https://img.shields.io/github/issues/Alan-Gomes/qmobile-rest.svg)](https://github.com/Alan-Gomes/qmobile-rest/issues)
