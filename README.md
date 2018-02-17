@@ -20,11 +20,11 @@ Utilizando deste servidor, futuramente o aplicativo mobile será capaz de exibir
 * PostgreSQL
 * Redis
 * TypeScript
-* PhantomJS (=1.9.20)
+* Puppeteer
 
 ## Rodando o servidor
 
-Antes de começar, certifique-se de que possua PostgreSQL, Redis, PhantomJS e Node.js instalados em sua máquina.
+Antes de começar, certifique-se de que possua PostgreSQL, Redis e Node.js instalados em sua máquina.
 
 Clone o repositório e entre dentro dele:
 
