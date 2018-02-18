@@ -1,5 +1,4 @@
 import { Usuario } from './../../models/usuario';
-import * as notasJob from '../../tasks/notas';
 import * as qauth from '../browser/qauth';
 import * as quser from '../browser/quser';
 import * as cipher from '../cipher/cipher';
@@ -9,6 +8,7 @@ import * as authService from './authenticate';
 
 import { PocketServer } from './../../../test/webserver';
 import * as imageSize from 'image-size';
+import { NotasTask } from '../../tasks/notas';
 
 describe('AuthService:auth', () => {
 
@@ -18,7 +18,7 @@ describe('AuthService:auth', () => {
     server = PocketServer.getInstance();
     server.reset();
     server.state.loggedIn = true;
-    spyOn(notasJob, 'retrieveData').and.returnValue(Promise.resolve());
+    spyOn(NotasTask, 'updateRemote').and.returnValue(Promise.resolve());
     Usuario.truncate({ force: true, cascade: true })
       .then(done).catch(done.fail);
   });
@@ -40,7 +40,7 @@ describe('AuthService:auth', () => {
       expect(qauth.login).toHaveBeenCalledWith('http://localhost:9595', 'test', 'pass');
       expect(quser.getName).toHaveBeenCalled();
       expect(quser.getPhoto).toHaveBeenCalled();
-      expect(notasJob.retrieveData).toHaveBeenCalledWith(jasmine.anything(), 'test');
+      expect(NotasTask.updateRemote).toHaveBeenCalledWith(jasmine.anything(), 'test');
       done();
     } catch (e) {
       done.fail(e);

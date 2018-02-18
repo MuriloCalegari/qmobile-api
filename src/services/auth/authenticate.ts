@@ -5,7 +5,7 @@ import { QError } from '../../services/errors/errors';
 import * as configs from '../../configs';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
-import * as notasJob from '../../tasks/notas';
+import { NotasTask } from '../../tasks/notas';
 
 async function insereBanco(endpoint: string, matricula: string, nome: string, pass: string): Promise<Usuario> {
 
@@ -33,7 +33,7 @@ export async function login(endpoint: string, username: string, pass: string): P
       await quser.getPhoto(browser)
     );
     await photo.savePhoto(buffer, user.id);
-    await notasJob.retrieveData(browser, username);
+    await NotasTask.updateRemote(browser, username);
     await browser.exit();
   }
   const decrypted = cipher.decrypt(user.password, configs.cipher_pass);
