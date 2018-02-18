@@ -2,6 +2,7 @@
 
 
 # QMobile REST
+[![Coverage Status](https://coveralls.io/repos/github/Alan-Gomes/qmobile-rest/badge.svg?branch=master)](https://coveralls.io/github/Alan-Gomes/qmobile-rest?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Alan-Gomes/qmobile-rest/blob/master/LICENSE)
 [![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-rest)
 ![Dependencies](https://david-dm.org/Alan-Gomes/qmobile-rest.svg)
