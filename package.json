@@ -5,7 +5,7 @@
   "main": "dist/qmobile.js",
   "scripts": {
     "lint": "tslint --project .",
-    "test": "cross-env NODE_ENV=test jasmine-ts ./src/**/*.spec.ts",
+    "test": "cross-env NODE_ENV=test jasmine-ts \"./src/**/*.spec.ts\"",
     "test:cov": "cross-env NODE_ENV=test nyc npm test",
     "start": "ts-node ./src/qmobile.ts"
   },
