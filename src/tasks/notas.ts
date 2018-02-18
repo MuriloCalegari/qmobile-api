@@ -6,11 +6,10 @@ import * as queue from './queue';
 import { Job } from 'kue';
 import * as configs from '../configs';
 import * as cipher from '../services/cipher/cipher';
-import * as qauth from '../services/browser/qauth';
 import * as qdiarios from '../services/browser/qdiarios';
 import { Nota } from '../models/nota';
 
-interface JobNota {
+export interface JobNota {
   userid: string;
   matricula: string;
   senha: string;
@@ -24,9 +23,9 @@ export interface JobNotaResult {
   };
 }
 
-type NotaState = 'alterada' | 'nova' | 'normal';
+export type NotaState = 'alterada' | 'nova' | 'normal';
 
-type NotaUpdate = [Nota, NotaState];
+export type NotaUpdate = [Nota, NotaState];
 
 export namespace NotasTask {
 
@@ -132,7 +131,7 @@ export namespace NotasTask {
   }
 
   export async function updateRemote(browser: QBrowser, matricula: string): Promise<JobNotaResult | null> {
-    const aluno = await Usuario.findById(matricula);
+    const aluno = await Usuario.findOne({ where: { matricula } });
 
     if (aluno) {
       const disciplinas = await qdiarios.getDisciplinas(browser);
@@ -155,24 +154,3 @@ export namespace NotasTask {
   }
 
 }
-
-queue.process('readnotas', configs.update_queue_size, async (jobinfo, done) => {
-  let browser: QBrowser | undefined;
-  try {
-
-    const { endpoint, matricula, senha }: JobNota = jobinfo.data;
-
-    browser = await qauth.login(endpoint, matricula, senha);
-    await NotasTask.updateRemote(browser, matricula);
-    await browser.exit();
-    done();
-
-  } catch (e) {
-    try {
-      await browser!.exit(true);
-    } catch { }
-    done(e);
-  }
-});
-
-export { queue };
