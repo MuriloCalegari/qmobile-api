@@ -2,12 +2,12 @@ import { QBrowser } from './../services/driver/qbrowser';
 import { Usuario } from './../models/usuario';
 import { Disciplina } from './../models/disciplina';
 import { Turma } from './../models/turma';
-import * as queue from './queue';
 import { Job } from 'kue';
 import * as configs from '../configs';
 import * as cipher from '../services/cipher/cipher';
 import * as qdiarios from '../services/browser/qdiarios';
 import { Nota } from '../models/nota';
+import { TaskQueue } from './queue';
 
 export interface JobNota {
   userid: string;
@@ -30,7 +30,8 @@ export type NotaUpdate = [Nota, NotaState];
 export namespace NotasTask {
 
   export function createJob(userid: string, matricula: string, senha: string, endpoint: string): Job {
-    return queue.create('readnotas', { userid, matricula, senha, endpoint })
+    return TaskQueue.getQueue()
+      .create('readnotas', { userid, matricula, senha, endpoint })
       .removeOnComplete(true).events(false).ttl(2.4e5 /* 4min */).save();
   }
 

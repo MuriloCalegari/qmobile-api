@@ -44,10 +44,9 @@ describe('PhotoService', () => {
     it('deve criar subpasta de fotos', async done => {
       try {
         let i = 0;
-        (fs.pathExists as jasmine.Spy).and.callFake(() => {
-          i++;
-          return i === 1 ? Promise.resolve(false) : Promise.resolve(true);
-        });
+        (fs.pathExists as jasmine.Spy).and.callFake(() =>
+          ++i === 1 ? Promise.resolve(false) : Promise.resolve(true)
+        );
         await photoService.savePhoto(original, 'test');
 
         expect(fs.mkdir).toHaveBeenCalledWith(path.join(SAVE_FOLDER, '../..'));
