@@ -5,10 +5,10 @@ import { Usuario } from './../models/usuario';
 import * as auth from '../services/auth/authenticate';
 import * as qauth from '../services/browser/qauth';
 import * as qdiarios from '../services/browser/qdiarios';
-import * as queue from './queue';
 import * as cipher from '../services/cipher/cipher';
 import { Turma } from '../models/turma';
 import { NotasTask } from './notas';
+import { TaskQueue } from './queue';
 
 describe('NotasTask', () => {
 
@@ -395,7 +395,7 @@ describe('NotasTask', () => {
   describe('scheduleUpdate()', () => {
 
     beforeEach(() => {
-      spyOn(queue, 'create').and.callThrough();
+      spyOn(TaskQueue.getQueue(), 'create').and.callThrough();
       spyOn(cipher, 'decrypt').and.returnValue('decrypted');
     });
 
@@ -413,6 +413,7 @@ describe('NotasTask', () => {
 
     it('deve criar um job para cada aluno', async done => {
       try {
+        const queue = TaskQueue.getQueue();
         spyOn(Usuario, 'all').and.returnValue(Promise.resolve([
           { id: 'a', matricula: 't1', password: 'p1', endpoint: 'e1' },
           { id: 'b', matricula: 't2', password: 'p2', endpoint: 'e2' },
