@@ -1,7 +1,7 @@
 {
-  "name": "qmobile-rest",
+  "name": "qmobile-api",
   "version": "1.0.0",
-  "description": "Servidor REST do QMobile",
+  "description": "Servidor do QMobile",
   "main": "dist/qmobile.js",
   "scripts": {
     "lint": "tslint --project .",
@@ -12,11 +12,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Alan-Gomes/qmobile-rest.git"
+    "url": "git+https://github.com/Alan-Gomes/qmobile-api.git"
   },
   "keywords": [
     "qmobile",
-    "rest",
+    "api",
     "app",
     "aluno",
     "estudante"
@@ -24,9 +24,9 @@
   "author": "Alan-Gomes",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Alan-Gomes/qmobile-rest/issues"
+    "url": "https://github.com/Alan-Gomes/qmobile-api/issues"
   },
-  "homepage": "https://github.com/Alan-Gomes/qmobile-rest#readme",
+  "homepage": "https://github.com/Alan-Gomes/qmobile-api#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
     "cheerio": "^1.0.0-rc.2",

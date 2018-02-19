@@ -1,14 +1,14 @@
-[logo]: https://circleci.com/gh/Alan-Gomes/qmobile-rest.svg?style=shield&circle-token=664d4999a59f1b774789b0e63b64534aa07388c7 "CircleCI Status"
+[logo]: https://circleci.com/gh/Alan-Gomes/qmobile-api.svg?style=shield&circle-token=664d4999a59f1b774789b0e63b64534aa07388c7 "CircleCI Status"
 
 
-# QMobile REST
-[![Coverage Status](https://coveralls.io/repos/github/Alan-Gomes/qmobile-rest/badge.svg?branch=master)](https://coveralls.io/github/Alan-Gomes/qmobile-rest?branch=master)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Alan-Gomes/qmobile-rest/blob/master/LICENSE)
-[![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-rest)
-![Dependencies](https://david-dm.org/Alan-Gomes/qmobile-rest.svg)
-[![GitHub issues](https://img.shields.io/github/issues/Alan-Gomes/qmobile-rest.svg)](https://github.com/Alan-Gomes/qmobile-rest/issues)
+# QMobile API
+[![Coverage Status](https://coveralls.io/repos/github/Alan-Gomes/qmobile-api/badge.svg?branch=master)](https://coveralls.io/github/Alan-Gomes/qmobile-api?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Alan-Gomes/qmobile-api/blob/master/LICENSE)
+[![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-api)
+![Dependencies](https://david-dm.org/Alan-Gomes/qmobile-api.svg)
+[![GitHub issues](https://img.shields.io/github/issues/Alan-Gomes/qmobile-api.svg)](https://github.com/Alan-Gomes/qmobile-api/issues)
 
-Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração REST para leitura dos dados.
+Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração para leitura dos dados.
 
 Este projeto faz parte do meu trabalho de conclusão de curso, espera-se que esteja pronto no final de 2018 :satisfied:
 
@@ -30,9 +30,9 @@ Antes de começar, certifique-se de que possua PostgreSQL, Redis e Node.js insta
 Clone o repositório e entre dentro dele:
 
 ```bash
-https://github.com/Alan-Gomes/qmobile-rest
+git clone https://github.com/Alan-Gomes/qmobile-api
 
-cd qmobile-rest
+cd qmobile-api
 ```
 
 Para rodar o servidor, é necessário que sejam instaladas todas as dependências, com o comando:
@@ -40,24 +40,10 @@ Para rodar o servidor, é necessário que sejam instaladas todas as dependência
 ```bash
 npm install
 ```
-
-Após isso, instale o gulp globalmente para que possa realizar build:
-
-```bash
-npm install gulp-cli -g
-```
-
-Faça build dos códigos fontes digitando:
+Após instalar as dependencias, execute o projeto:
 
 ```bash
-gulp
-```
-
-Após realizar build, acesse a pasta de saída e execute o projeto:
-
-```bash
-cd dist/
-node qmobile.js
+npm start
 ```
 Quando o comando for executado pela primeira vez, ele avisará que é necessário a configuração do sistema, para fazer isso, volte para a pasta raiz e abra o arquivo **config.json**.
 
