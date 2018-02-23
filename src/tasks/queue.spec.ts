@@ -39,11 +39,11 @@ describe('TaskQueue', () => {
 
   });
 
-  fdescribe('startRunner()', () => {
+  describe('startRunner()', () => {
 
     let runner: Runner;
 
-    fit('deve adicionar um processador de tasks', () => {
+    it('deve adicionar um processador de tasks', () => {
       const queue = TaskQueue.getQueue();
       TaskQueue.startRunner();
 
@@ -68,7 +68,7 @@ describe('TaskQueue', () => {
         spyOn(NotasTask, 'updateRemote').and.returnValue(Promise.resolve());
       });
 
-      fit('deve logar na conta do usuário', done => {
+      it('deve logar na conta do usuário', done => {
         runner(
           {
             data: {
@@ -79,7 +79,7 @@ describe('TaskQueue', () => {
           } as any,
           err => {
             expect(err).toBeFalsy();
-            expect(StrategyFactory.build).toHaveBeenCalledWith(jasmine.any(StrategyType), 'e');
+            expect(StrategyFactory.build).toHaveBeenCalledWith(jasmine.anything(), 'e');
             expect(browser.login).toHaveBeenCalledWith('m', 's');
             done();
           }

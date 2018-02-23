@@ -51,7 +51,6 @@ describe('NotasTask', () => {
 
     it('deve criar disciplina', async done => {
       try {
-        console.log(turma);
         await NotasTask.updateDisciplina(usuario, {
           turma: 'turmatst',
           nome: 'Programação 2',
