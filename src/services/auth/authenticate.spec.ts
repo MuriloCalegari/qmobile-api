@@ -1,6 +1,4 @@
 import { Usuario } from './../../models/usuario';
-import * as qauth from '../browser/qauth';
-import * as quser from '../browser/quser';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
 import * as fs from 'fs';
@@ -9,26 +7,40 @@ import * as authService from './authenticate';
 import { PocketServer } from './../../../test/webserver';
 import * as imageSize from 'image-size';
 import { NotasTask } from '../../tasks/notas';
+import { StrategyFactory, IStrategy, StrategyType } from '../strategy/factory';
 
 describe('AuthService:auth', () => {
 
   let server: PocketServer;
+  let strategy: IStrategy;
+
+  beforeAll(async done => {
+    strategy = (await StrategyFactory.build(StrategyType.QACADEMICO, 'http://localhost:9595'))!;
+    spyOn(StrategyFactory, 'build').and.returnValue(Promise.resolve(strategy));
+    spyOn(strategy, 'login').and.callThrough();
+    spyOn(strategy, 'getProfilePicture').and.callThrough();
+    spyOn(strategy, 'getFullName').and.callThrough();
+    done();
+  });
+
+  afterAll(done => {
+    strategy.release().then(done).catch(done.fail);
+  });
 
   beforeEach(done => {
     server = PocketServer.getInstance();
     server.reset();
     server.state.loggedIn = true;
     spyOn(NotasTask, 'updateRemote').and.returnValue(Promise.resolve());
-    Usuario.truncate({ force: true, cascade: true })
-      .then(done).catch(done.fail);
+    Usuario.truncate({ force: true, cascade: true }).then(done).catch(done.fail);
+  });
+
+  afterEach(done => {
+    strategy.release().then(done).catch(done.fail);
   });
 
   it('deve seguir o fluxo corretamente', async done => {
     try {
-      spyOn(qauth, 'login').and.callThrough();
-      spyOn(quser, 'getName').and.callThrough();
-      spyOn(quser, 'getPhoto').and.callThrough();
-
       const user = await authService.login('http://localhost:9595', 'test', 'pass');
       expect(user.id).toBeTruthy();
       expect(user.nome).toBe('Aluno Teste');
@@ -37,10 +49,10 @@ describe('AuthService:auth', () => {
       expect(user.password).toBeTruthy();
       expect(fs.existsSync(photo.getPath(user.id))).toBeTruthy();
 
-      expect(qauth.login).toHaveBeenCalledWith('http://localhost:9595', 'test', 'pass');
-      expect(quser.getName).toHaveBeenCalled();
-      expect(quser.getPhoto).toHaveBeenCalled();
-      expect(NotasTask.updateRemote).toHaveBeenCalledWith(jasmine.anything(), 'test');
+      expect(strategy.login).toHaveBeenCalledWith('test', 'pass');
+      expect(strategy.getFullName).toHaveBeenCalled();
+      expect(strategy.getProfilePicture).toHaveBeenCalled();
+      expect(NotasTask.updateRemote).toHaveBeenCalledWith(strategy, 'test');
       done();
     } catch (e) {
       done.fail(e);
@@ -51,16 +63,18 @@ describe('AuthService:auth', () => {
     try {
       const user1 = await authService.login('http://localhost:9595', 'test', 'pass');
 
-      spyOn(qauth, 'login').and.callThrough();
-      spyOn(quser, 'getName').and.callThrough();
-      spyOn(quser, 'getPhoto').and.callThrough();
+      [
+        strategy.login,
+        strategy.getFullName,
+        strategy.getProfilePicture as any
+      ].forEach((spy: jasmine.Spy) => spy.calls.reset());
 
       const user2 = await authService.login('http://localhost:9595', 'test', 'pass');
 
       expect(user1.id).toBe(user2.id);
-      expect(qauth.login).not.toHaveBeenCalled();
-      expect(quser.getName).not.toHaveBeenCalled();
-      expect(quser.getPhoto).not.toHaveBeenCalled();
+      expect(strategy.login).not.toHaveBeenCalled();
+      expect(strategy.getFullName).not.toHaveBeenCalled();
+      expect(strategy.getProfilePicture).not.toHaveBeenCalled();
 
       done();
     } catch (e) {
@@ -71,10 +85,6 @@ describe('AuthService:auth', () => {
   it('deve emitir erro com senha incorreta', async done => {
     try {
       await authService.login('http://localhost:9595', 'test', 'pass');
-
-      spyOn(qauth, 'login').and.callThrough();
-      spyOn(quser, 'getName').and.callThrough();
-      spyOn(quser, 'getPhoto').and.callThrough();
 
       await authService.login('http://localhost:9595', 'test', 'anotherpass');
 

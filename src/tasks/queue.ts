@@ -1,6 +1,5 @@
-import * as qauth from '../services/browser/qauth';
+import { IStrategy, StrategyFactory, StrategyType } from './../services/strategy/factory';
 import { JobNota, NotasTask } from './notas';
-import { QBrowser } from './../services/driver/qbrowser';
 import * as kue from 'kue';
 import * as configs from '../configs';
 
@@ -33,19 +32,19 @@ export namespace TaskQueue {
   export function startRunner(): void {
     TaskQueue.getQueue()
       .process('readnotas', configs.update_queue_size, async (jobinfo, done) => {
-        let browser: QBrowser | undefined;
+        let strategy: IStrategy | undefined;
         try {
 
           const { endpoint, matricula, senha }: JobNota = jobinfo.data;
-
-          browser = await qauth.login(endpoint, matricula, senha);
-          await NotasTask.updateRemote(browser, matricula);
-          await browser.exit();
+          strategy = (await StrategyFactory.build(StrategyType.QACADEMICO, endpoint))!;
+          await strategy.login(matricula, senha);
+          await NotasTask.updateRemote(strategy, matricula);
+          await strategy.release();
           done();
 
         } catch (e) {
           try {
-            await browser!.exit(true);
+            await strategy!.release(true);
           } catch { }
           done(e);
         }

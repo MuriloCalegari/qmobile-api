@@ -1,16 +1,26 @@
-import { PocketServer } from './../../../test/webserver';
+import { QAcademicoStrategy } from './index';
+import { PocketServer } from './../../../../test/webserver';
 import * as qauth from './qauth';
+import { StrategyFactory, StrategyType } from '../factory';
 
 describe('QAuth', () => {
 
   let server: PocketServer;
+  let strategy: QAcademicoStrategy;
 
-  beforeAll(() => {
+  beforeAll(async done => {
     server = PocketServer.getInstance();
+    strategy = await StrategyFactory.build(StrategyType.QACADEMICO, 'http://localhost:9595') as any;
+    done();
   });
 
-  afterEach(() => {
+  beforeEach(done => {
+    strategy.init().then(done).catch(done.fail);
+  });
+
+  afterEach(done => {
     server.reset();
+    strategy.release().then(done).catch(done.fail);
   });
 
   describe('login()', () => {
@@ -18,14 +28,13 @@ describe('QAuth', () => {
       const { state } = server;
       try {
 
-        const browser = await qauth.login('http://localhost:9595', 'test', 'pass');
+        await qauth.login(strategy, 'test', 'pass');
         expect(state.loggedIn).toBeTruthy();
         expect(state.loginBody).toEqual(jasmine.objectContaining({
           LOGIN: 'test',
           SENHA: 'pass',
           TIPO_USU: '1'
         }));
-        await browser.exit();
 
         done();
       } catch (e) {
@@ -37,8 +46,7 @@ describe('QAuth', () => {
       const { state } = server;
       try {
         state.allowLogin = false;
-        const browser = await qauth.login('http://localhost:9595', 'test', 'incorreto');
-        await browser.exit();
+        await qauth.login(strategy, 'test', 'incorreto');
         done.fail();
       } catch (e) {
         expect(state.loggedIn).toBeFalsy();
@@ -53,8 +61,8 @@ describe('QAuth', () => {
       const { state } = server;
       try {
         state.allowLogin = false;
-        const browser = await qauth.login('http://localhost', 'test', 'incorreto');
-        await browser.exit();
+        strategy.endpoint = 'http://localhost';
+        await qauth.login(strategy, 'test', 'incorreto');
         done.fail();
       } catch (e) {
         expect(state.loggedIn).toBeFalsy();

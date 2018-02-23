@@ -1,27 +1,26 @@
-import { QBrowser } from './../driver/qbrowser';
-import * as webdriver from '../driver/webdriver';
-import { HOME_PAGE } from '../../constants';
-import { QSiteError } from '../errors/errors';
+import { QSiteError } from './../../errors/errors';
 import * as cheerio from 'cheerio';
+import { QAcademicoStrategy } from './index';
+import { HOME_PAGE } from '../../../constants';
 
-async function openHome(browser: QBrowser): Promise<void> {
+async function openHome(strategy: QAcademicoStrategy): Promise<void> {
   try {
-    const page = browser.getPage();
-    const home = browser.getEndpoint() + HOME_PAGE;
+    const { page, endpoint } = strategy;
+    const home = endpoint + HOME_PAGE;
     const url = await page.url();
     if (url !== home) {
       await page.goto(home);
     }
   } catch (exc) {
-    await browser.exit(true);
+    await strategy.release(true);
     throw new QSiteError(exc, 'Falha ao acessar ao servidor.');
   }
 }
 
-export async function getName(browser: QBrowser): Promise<string> {
+export async function getName(strategy: QAcademicoStrategy): Promise<string> {
   try {
-    const page = browser.getPage();
-    await openHome(browser);
+    const { page } = strategy;
+    await openHome(strategy);
     const dom = cheerio.load(await page.content());
     const nome = dom('.barraRodape').eq(1).text().trim();
     if (!!nome) {
@@ -30,15 +29,15 @@ export async function getName(browser: QBrowser): Promise<string> {
       throw new Error('Name not found');
     }
   } catch (exc) {
-    await browser.exit(true);
+    await strategy.release(true);
     throw new QSiteError(exc, 'Falha ao buscar os dados');
   }
 }
 
-export async function getPhoto(browser: QBrowser): Promise<Buffer> {
+export async function getPhoto(strategy: QAcademicoStrategy): Promise<Buffer> {
   try {
-    const page = browser.getPage();
-    await openHome(browser);
+    const { page } = strategy;
+    await openHome(strategy);
     const base64 = (<string>await page.evaluate(`
 
       const c = document.createElement('canvas');
@@ -52,7 +51,8 @@ export async function getPhoto(browser: QBrowser): Promise<Buffer> {
     `)).replace(/^data:image\/png;base64,/, '');
     return new Buffer(base64, 'base64');
   } catch (exc) {
-    await browser.exit(true);
+    console.error(exc);
+    await strategy.release(true);
     throw new QSiteError(exc, 'Falha ao buscar os dados');
   }
 }

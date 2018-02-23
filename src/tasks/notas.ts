@@ -1,11 +1,17 @@
-import { QBrowser } from './../services/driver/qbrowser';
+import {
+  NumeroEtapa,
+  RemoteNota,
+  RemoteEtapa,
+  RemoteDisciplina,
+  RemoteTurma,
+  IStrategy
+} from './../services/strategy/factory';
 import { Usuario } from './../models/usuario';
 import { Disciplina } from './../models/disciplina';
 import { Turma } from './../models/turma';
 import { Job } from 'kue';
 import * as configs from '../configs';
 import * as cipher from '../services/cipher/cipher';
-import * as qdiarios from '../services/browser/qdiarios';
 import { Nota } from '../models/nota';
 import { TaskQueue } from './queue';
 
@@ -38,7 +44,7 @@ export namespace NotasTask {
 
   export async function updateNota(
     aluno: Usuario, disciplinaid: string,
-    numetapa: qdiarios.NumeroEtapa, { id, ...nota }: qdiarios.QNota
+    numetapa: NumeroEtapa, { id, ...nota }: RemoteNota
   ): Promise<NotaUpdate> {
     const [notadb, created] = await Nota.findOrCreate({
       where: {
@@ -64,7 +70,7 @@ export namespace NotasTask {
     }
   }
 
-  export function updateEtapa(aluno: Usuario, disciplinaid: string, { notas, numero }: qdiarios.QEtapa): Promise<NotaUpdate[]> {
+  export function updateEtapa(aluno: Usuario, disciplinaid: string, { notas, numero }: RemoteEtapa): Promise<NotaUpdate[]> {
     return Promise.all(
       notas.map(
         nota => NotasTask.updateNota(aluno, disciplinaid, numero, nota)
@@ -72,20 +78,14 @@ export namespace NotasTask {
     );
   }
 
-  export async function updateDisciplina(aluno: Usuario, disciplina: qdiarios.QDisciplina): Promise<NotaUpdate[]> {
+  export async function updateDisciplina(aluno: Usuario, disciplina: RemoteDisciplina, turmadb: Turma): Promise<NotaUpdate[]> {
     const { id, etapas, turma, ...rdisc } = disciplina;
-
-    const [turmadb] = await Turma.findOrCreate({
-      where: { codigo: turma },
-      defaults: {
-        codigo: turma,
-        nome: `Turma ${turma}`
-      }
-    });
 
     const [nova] = await Disciplina.findOrCreate({
       where: { ...rdisc },
-      defaults: { ...rdisc }
+      defaults: {
+        ...rdisc
+      }
     });
     await Promise.all([
       (async () => {
@@ -110,11 +110,28 @@ export namespace NotasTask {
     return all.reduce((ac, val) => ac.concat(val), []);
   }
 
-  export async function updateAll(aluno: Usuario, disciplinas: qdiarios.QDisciplina[]): Promise<JobNotaResult> {
+  export async function updateTurma(aluno: Usuario, turma: RemoteTurma): Promise<NotaUpdate[]> {
+    const [turmadb] = await Turma.findOrCreate({
+      where: { codigo: turma },
+      defaults: {
+        codigo: turma,
+        nome: `Turma ${turma}`
+      }
+    });
+    const changes: NotaUpdate[][] = await Promise.all(
+      turma.disciplinas.map(async disciplina =>
+        NotasTask.updateDisciplina(aluno, disciplina, turmadb)
+      )
+    );
+
+    return changes.reduce((ac, val) => ac.concat(val), []);
+  }
+
+  export async function updateAll(aluno: Usuario, turmas: RemoteTurma[]): Promise<JobNotaResult> {
 
     const changes: NotaUpdate[][] = await Promise.all(
-      disciplinas.map(disciplina =>
-        NotasTask.updateDisciplina(aluno, disciplina)
+      turmas.map(turma =>
+        NotasTask.updateTurma(aluno, turma)
       )
     );
 
@@ -131,12 +148,12 @@ export namespace NotasTask {
     };
   }
 
-  export async function updateRemote(browser: QBrowser, matricula: string): Promise<JobNotaResult | null> {
+  export async function updateRemote(strategy: IStrategy, matricula: string): Promise<JobNotaResult | null> {
     const aluno = await Usuario.findOne({ where: { matricula } });
 
     if (aluno) {
-      const disciplinas = await qdiarios.getDisciplinas(browser);
-      return await NotasTask.updateAll(aluno, disciplinas);
+      const turmas = await strategy.getTurmas();
+      return await NotasTask.updateAll(aluno, turmas);
     }
 
     return null;

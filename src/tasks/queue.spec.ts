@@ -1,7 +1,8 @@
+import { StrategyType } from './../services/strategy/factory';
 import { TaskQueue } from './queue';
 import * as kue from 'kue';
-import * as qauth from '../services/browser/qauth';
 import { NotasTask } from './notas';
+import { StrategyFactory } from '../services/strategy/factory';
 
 type Runner = (jobinfo: kue.Job, done: (err?: Error) => void) => void;
 
@@ -38,11 +39,11 @@ describe('TaskQueue', () => {
 
   });
 
-  describe('startRunner()', () => {
+  fdescribe('startRunner()', () => {
 
     let runner: Runner;
 
-    it('deve adicionar um processador de tasks', () => {
+    fit('deve adicionar um processador de tasks', () => {
       const queue = TaskQueue.getQueue();
       TaskQueue.startRunner();
 
@@ -57,16 +58,17 @@ describe('TaskQueue', () => {
       let browser: any;
 
       beforeEach(() => {
-        browser = jasmine.createSpyObj('browser', {
-          exit: Promise.resolve()
+        browser = jasmine.createSpyObj('strategy', {
+          release: Promise.resolve(),
+          login: Promise.resolve()
         });
-        spyOn(qauth, 'login').and.returnValue(
+        spyOn(StrategyFactory, 'build').and.returnValue(
           Promise.resolve(browser)
         );
-        spyOn(NotasTask, 'updateRemote');
+        spyOn(NotasTask, 'updateRemote').and.returnValue(Promise.resolve());
       });
 
-      it('deve logar na conta do usuário', done => {
+      fit('deve logar na conta do usuário', done => {
         runner(
           {
             data: {
@@ -77,7 +79,8 @@ describe('TaskQueue', () => {
           } as any,
           err => {
             expect(err).toBeFalsy();
-            expect(qauth.login).toHaveBeenCalledWith('e', 'm', 's');
+            expect(StrategyFactory.build).toHaveBeenCalledWith(jasmine.any(StrategyType), 'e');
+            expect(browser.login).toHaveBeenCalledWith('m', 's');
             done();
           }
         );
@@ -111,7 +114,7 @@ describe('TaskQueue', () => {
           } as any,
           err => {
             expect(err).toBeFalsy();
-            expect(browser.exit).toHaveBeenCalledWith();
+            expect(browser.release).toHaveBeenCalledWith();
             done();
           }
         );
@@ -130,7 +133,7 @@ describe('TaskQueue', () => {
           err => {
             expect(err).toBeTruthy();
             expect(err as any).toEqual({ err: 1 });
-            expect(browser.exit).toHaveBeenCalledWith(true);
+            expect(browser.release).toHaveBeenCalledWith(true);
             done();
           }
         );

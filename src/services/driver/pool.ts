@@ -1,4 +1,4 @@
-import { QBrowser } from './qbrowser';
+import { Browser } from 'puppeteer';
 import * as genericPool from 'generic-pool';
 import * as puppeteer from 'puppeteer';
 
@@ -6,24 +6,30 @@ import * as config from '../../configs';
 import { Factory, Pool } from 'generic-pool';
 
 
-let pool: Pool<QBrowser>;
+let pool: Pool<Browser>;
 
-const factory: Factory<QBrowser> = {
-  async create() {
-    const driver = await puppeteer.launch({
+const factory: Factory<Browser> = {
+  create() {
+    return puppeteer.launch({
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox'
       ]
     });
-    const page = await driver.newPage();
-    return new QBrowser(driver, page, pool);
   },
-  validate(client) {
-    return client.isValid();
+  async validate(client) {
+    try {
+      const pages = await client.pages();
+      for (const page of pages) {
+        await page.title();
+      }
+      return true;
+    } catch {
+      return false;
+    }
   },
   async destroy(client) {
-    await client.destroy();
+    await client.close();
     return undefined;
   }
 };
