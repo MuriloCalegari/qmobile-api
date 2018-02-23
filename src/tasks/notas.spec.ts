@@ -293,6 +293,52 @@ describe('NotasTask', () => {
 
   });
 
+  describe('updateTurma()', () => {
+
+    it('deve filtrar os resultados retornados pelo updateDisciplina()', async done => {
+      try {
+        let i = 0;
+        spyOn(NotasTask, 'updateDisciplina').and.callFake(async () => {
+          i++;
+          switch (i) {
+            case 1:
+              return [[{ tst: 1 }, 'nova'], [{ tst: 4 }, 'normal']];
+            case 2:
+              return [[{ tst: 2 }, 'alterada'], [{ tst: 5 }, 'nova']];
+            case 3:
+              return [[{ tst: 3 }, 'normal'], [{ tst: 6 }, 'alterada']];
+          }
+        });
+
+        const ret = await NotasTask.updateTurma(usuario, {
+          nome: turma.codigo,
+          disciplinas: [
+            { disciplina: 1 },
+            { disciplina: 2 },
+            { disciplina: 3 },
+          ]
+        } as any);
+        expect(NotasTask.updateDisciplina).toHaveBeenCalledTimes(3);
+        expect(NotasTask.updateDisciplina).toHaveBeenCalledWith(usuario, { disciplina: 1 }, jasmine.any(Turma));
+        expect(NotasTask.updateDisciplina).toHaveBeenCalledWith(usuario, { disciplina: 2 }, jasmine.any(Turma));
+        expect(NotasTask.updateDisciplina).toHaveBeenCalledWith(usuario, { disciplina: 3 }, jasmine.any(Turma));
+        expect(ret).toEqual([
+          [{ tst: 1 }, 'nova'],
+          [{ tst: 4 }, 'normal'],
+          [{ tst: 2 }, 'alterada'],
+          [{ tst: 5 }, 'nova'],
+          [{ tst: 3 }, 'normal'],
+          [{ tst: 6 }, 'alterada']
+        ] as any);
+        done();
+      } catch (e) {
+        console.error(e);
+        done.fail(e);
+      }
+    });
+
+  });
+
   describe('updateAll()', () => {
 
     it('deve filtrar os resultados retornados pelo updateTurma()', async done => {
@@ -349,7 +395,7 @@ describe('NotasTask', () => {
 
     beforeEach(() => {
       spyOn(NotasTask, 'updateAll').and.returnValue(Promise.resolve({ tst: 1 }));
-      spyOn(strategy, 'getTurmas').and.returnValue(Promise.resolve([{ tst: 2 }]));
+      spyOn(strategy, 'getTurmas').and.callThrough();
     });
 
     afterAll(done => {
@@ -363,7 +409,7 @@ describe('NotasTask', () => {
 
         expect(Usuario.findOne).toHaveBeenCalledWith({ where: { matricula: 'test' } });
         expect(strategy.getTurmas).toHaveBeenCalled();
-        expect(NotasTask.updateAll).toHaveBeenCalledWith(jasmine.any(Usuario), [{ tst: 2 }]);
+        expect(NotasTask.updateAll).toHaveBeenCalledWith(jasmine.any(Usuario), jasmine.any(Array));
         done();
       } catch (e) {
         done.fail(e);

@@ -112,9 +112,9 @@ export namespace NotasTask {
 
   export async function updateTurma(aluno: Usuario, turma: RemoteTurma): Promise<NotaUpdate[]> {
     const [turmadb] = await Turma.findOrCreate({
-      where: { codigo: turma },
+      where: { codigo: turma.nome },
       defaults: {
-        codigo: turma,
+        codigo: turma.nome,
         nome: `Turma ${turma}`
       }
     });

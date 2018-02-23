@@ -58,7 +58,7 @@ export namespace StrategyFactory {
 
   export async function build(type: StrategyType, endpoint: string): Promise<IStrategy | null> {
     switch (type) {
-      case 0:
+      case StrategyType.QACADEMICO:
         return new QAcademicoStrategy(endpoint);
     }
     return null;
