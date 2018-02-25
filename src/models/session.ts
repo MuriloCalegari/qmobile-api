@@ -25,6 +25,7 @@ export class Session extends Model<Session> {
   id: string;
 
   @AllowNull(false)
+  @Default(Sequelize.NOW)
   @Column(DataType.DATE)
   startdate: Date;
 

@@ -98,7 +98,7 @@ export namespace QDiarios {
               break;
             }
           }
-          return { turma, nome, professor, etapas };
+          return { turma, nome, professor: professor || '', etapas };
         }
 
       }).filter(d => !!d) as RemoteDisciplina[];

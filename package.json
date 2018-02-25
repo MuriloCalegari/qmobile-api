@@ -8,7 +8,7 @@
     "test": "cross-env NODE_ENV=test jasmine-ts \"./src/**/*.spec.ts\"",
     "test:cov": "cross-env NODE_ENV=test nyc npm test",
     "test:ci": "npm run test:cov && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "start": "ts-node ./src/qmobile.ts"
+    "start": "ts-node ./src/api/index.ts"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "graphql": "^0.13.1",
     "graphql-tools": "^2.21.0",
     "kue": "^0.11.6",
+    "lodash": "^4.17.5",
     "morgan": "^1.9.0",
     "node-cron": "^1.2.1",
     "pg": "^7.3.0",
@@ -62,6 +63,8 @@
     "@types/image-size": "0.0.29",
     "@types/jasmine": "^2.8.6",
     "@types/kue": "^0.11.6",
+    "@types/lodash": "^4.14.104",
+    "@types/lodash.uniqby": "^4.7.3",
     "@types/morgan": "^1.7.35",
     "@types/node-cron": "^1.2.0",
     "@types/puppeteer": "^1.0.0",

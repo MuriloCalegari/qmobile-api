@@ -115,7 +115,7 @@ export namespace NotasTask {
       where: { codigo: turma.nome },
       defaults: {
         codigo: turma.nome,
-        nome: `Turma ${turma}`
+        nome: `Turma ${turma.nome}`
       }
     });
     const changes: NotaUpdate[][] = await Promise.all(
