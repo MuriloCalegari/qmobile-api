@@ -1,3 +1,4 @@
+import { PeriodoCompleto } from './../factory';
 import { QAcademicoStrategy } from './index';
 import * as cheerio from 'cheerio';
 import { DIARIOS_PAGE } from '../../../constants';
@@ -6,8 +7,9 @@ import {
   RemoteEtapa,
   RemoteDisciplina,
   NumeroEtapa,
-  RemoteTurma
+  PeriodoInfo
 } from '../factory';
+import { ElementHandle } from 'puppeteer';
 
 export namespace QDiarios {
 
@@ -16,6 +18,7 @@ export namespace QDiarios {
       const { endpoint, page } = strategy;
       const diarios = endpoint + DIARIOS_PAGE;
       const url = await page.url();
+      console.log(url);
       if (url !== diarios) {
         await page.goto(diarios);
       }
@@ -103,26 +106,60 @@ export namespace QDiarios {
 
       }).filter(d => !!d) as RemoteDisciplina[];
 
+      disciplinas.forEach(
+        disciplina => disciplina.etapas.forEach(
+          etapa => etapa.notas.forEach(
+            nota => {
+              nota.periodo = dom('span.dado_cabecalho').text();
+            }
+          )
+        )
+      );
+
       return disciplinas;
     } catch (e) {
+      console.error(e);
       await strategy.release(true);
       throw new Error(e);
     }
   }
 
-  export async function getTurmas(strategy: QAcademicoStrategy): Promise<RemoteTurma[]> {
-    const disciplinas = await getDisciplinas(strategy);
-    const names = disciplinas.reduce((arr, { turma }) => {
-      if (!arr.includes(turma)) {
-        arr.push(turma);
-      }
-      return arr;
-    }, [] as string[]);
-    return names.map(nome => ({
-      nome,
-      disciplinas: disciplinas
-        .filter(({ turma }) => turma === nome)
-    }));
+  async function openSelect(strategy: QAcademicoStrategy): Promise<void> {
+    await QDiarios.openDiarios(strategy);
+    const { page } = strategy;
+    const atual = await page.$('span.dado_cabecalho');
+    const parent = (await atual!.getProperty('parentElement')).asElement()!;
+    await (await parent.$('a'))!.click();
+  }
+
+  export async function getPeriodos(strategy: QAcademicoStrategy): Promise<PeriodoInfo[]> {
+    await openSelect(strategy);
+    const { page } = strategy;
+    const form = (await page.$('#frmConsultar'))!;
+    const options = (await form.$$('select option'))!;
+    return Promise.all(
+      options.map(async option => {
+        const codigo = (await option.getProperty('value')).toString();
+        const nome = (await option.getProperty('innerText')).toString();
+        return { nome, codigo };
+      })
+    );
+  }
+
+  export async function getPeriodo(strategy: QAcademicoStrategy, { codigo, nome }: PeriodoInfo): Promise<PeriodoCompleto> {
+    await openSelect(strategy);
+    const { page } = strategy;
+    const form = (await page.$('#frmConsultar'))!;
+    const select = (await form.$('#frmConsultar'))!;
+    await page.evaluate(`(() => {
+      const element = document.querySelector('#frmConsultar select');
+      element.querySelector('option[value="${codigo}"]').selected = true;
+    })()`);
+    await (await form.$('[type=submit]'))!.click();
+    return {
+      nome, codigo,
+      disciplinas: await getDisciplinas(strategy)
+    };
   }
 
 }

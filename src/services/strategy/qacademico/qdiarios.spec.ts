@@ -73,7 +73,9 @@ describe('QDiarios', () => {
     });
   });
 
-  describe('getTurmas()', () => {
+  describe('getPeriodo()', () => {
+
+    const periodo = { codigo: '2017_1', nome: '2017/1' };
 
     beforeEach(done =>
       QDiarios.openDiarios(strategy).then(done).catch(done.fail)
@@ -83,7 +85,7 @@ describe('QDiarios', () => {
       try {
         await strategy.page.goto('http://localhost:9595/index.asp?t=2000');
         (strategy.page.goto as any).and.callThrough();
-        await QDiarios.getTurmas(strategy);
+        await QDiarios.getPeriodo(strategy, periodo);
         expect(strategy.page.goto).toHaveBeenCalledWith(
           'http://localhost:9595/index.asp?t=2071'
         );
@@ -95,44 +97,38 @@ describe('QDiarios', () => {
 
     it('deve ler todas as notas listadas', async done => {
       try {
-        const turmas = await QDiarios.getTurmas(strategy);
+        const { disciplinas } = await QDiarios.getPeriodo(strategy, periodo);
+        expect(disciplinas.some(({ etapas }) => etapas.length > 0)).toBeTruthy();
+        expect(disciplinas.some(({ etapas }) => etapas.length === 0)).toBeTruthy();
+        expect(disciplinas
+          .some(({ etapas }) =>
+            etapas.every(({ notas }) => notas.length > 0)
+          )).toBeTruthy();
+        expect(disciplinas.every(disc => disc.etapas.length < 5)).toBeTruthy();
 
-        expect(turmas.length).toBe(1);
-        turmas.forEach(({ disciplinas, nome }) => {
+        disciplinas.forEach(disciplina => {
 
-          expect(nome).toBeTruthy();
-          expect(disciplinas.some(({ etapas }) => etapas.length > 0)).toBeTruthy();
-          expect(disciplinas.some(({ etapas }) => etapas.length === 0)).toBeTruthy();
-          expect(disciplinas
-            .some(({ etapas }) =>
-              etapas.every(({ notas }) => notas.length > 0)
-            )).toBeTruthy();
-          expect(disciplinas.every(disc => disc.etapas.length < 5)).toBeTruthy();
+          expect(disciplina.turma).toBe('00001.TS.TII_I.4M');
+          expect(disciplina.nome).toBeTruthy();
+          expect(disciplina.professor).toBeTruthy();
 
-          disciplinas.forEach(disciplina => {
+          disciplina.etapas.forEach(etapa => {
 
-            expect(disciplina.turma).toBe('00001.TS.TII_I.4M');
-            expect(disciplina.nome).toBeTruthy();
-            expect(disciplina.professor).toBeTruthy();
+            expect([
+              NumeroEtapa.ETAPA1,
+              NumeroEtapa.ETAPA2,
+              NumeroEtapa.RP_ETAPA1,
+              NumeroEtapa.RP_ETAPA2
+            ]).toContain(etapa.numero);
+            etapa.notas.forEach(nota => {
 
-            disciplina.etapas.forEach(etapa => {
-
-              expect([
-                NumeroEtapa.ETAPA1,
-                NumeroEtapa.ETAPA2,
-                NumeroEtapa.RP_ETAPA1,
-                NumeroEtapa.RP_ETAPA2
-              ]).toContain(etapa.numero);
-              etapa.notas.forEach(nota => {
-
-                expect(nota.descricao).toBeTruthy();
-                expect(nota.nota).toBeDefined();
-                expect(nota.notamaxima).toBeDefined();
-                expect(nota.peso).toBeDefined();
-
-              });
+              expect(nota.descricao).toBeTruthy();
+              expect(nota.nota).toBeDefined();
+              expect(nota.notamaxima).toBeDefined();
+              expect(nota.peso).toBeDefined();
 
             });
+
           });
         });
         done();
@@ -146,7 +142,7 @@ describe('QDiarios', () => {
         spyOn(strategy.page, 'url').and.callFake(
           () => Promise.reject(new Error('panic'))
         );
-        await QDiarios.getTurmas(strategy);
+        await QDiarios.getPeriodo(strategy, periodo);
         done.fail();
       } catch (e) {
         expect(e).toEqual(jasmine.any(Error));

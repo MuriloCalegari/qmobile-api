@@ -3,12 +3,10 @@ import {
   RemoteNota,
   RemoteEtapa,
   RemoteDisciplina,
-  RemoteTurma,
   IStrategy
 } from './../services/strategy/factory';
 import { Usuario } from './../models/usuario';
 import { Disciplina } from './../models/disciplina';
-import { Turma } from './../models/turma';
 import { Job } from 'kue';
 import * as configs from '../configs';
 import * as cipher from '../services/cipher/cipher';
@@ -44,7 +42,7 @@ export namespace NotasTask {
 
   export async function updateNota(
     aluno: Usuario, disciplinaid: string,
-    numetapa: NumeroEtapa, { id, ...nota }: RemoteNota
+    numetapa: NumeroEtapa, { id, periodo, ...nota }: RemoteNota
   ): Promise<NotaUpdate> {
     const [notadb, created] = await Nota.findOrCreate({
       where: {
@@ -78,8 +76,8 @@ export namespace NotasTask {
     );
   }
 
-  export async function updateDisciplina(aluno: Usuario, disciplina: RemoteDisciplina, turmadb: Turma): Promise<NotaUpdate[]> {
-    const { id, etapas, turma, ...rdisc } = disciplina;
+  export async function updateDisciplina(aluno: Usuario, disciplina: RemoteDisciplina): Promise<NotaUpdate[]> {
+    const { id, etapas, ...rdisc } = disciplina;
 
     const [nova] = await Disciplina.findOrCreate({
       where: { ...rdisc },
@@ -87,18 +85,9 @@ export namespace NotasTask {
         ...rdisc
       }
     });
-    await Promise.all([
-      (async () => {
-        if (!await aluno.$has('disciplinas', nova)) {
-          await aluno.$add('disciplinas', nova);
-        }
-      })(),
-      (async () => {
-        if (!await turmadb.$has('disciplinas', nova)) {
-          await turmadb.$add('disciplinas', nova);
-        }
-      })()
-    ]);
+    if (!await aluno.$has('disciplinas', nova)) {
+      await aluno.$add('disciplinas', nova);
+    }
 
     disciplina.id = nova.id;
     const all = await Promise.all(
@@ -110,28 +99,11 @@ export namespace NotasTask {
     return all.reduce((ac, val) => ac.concat(val), []);
   }
 
-  export async function updateTurma(aluno: Usuario, turma: RemoteTurma): Promise<NotaUpdate[]> {
-    const [turmadb] = await Turma.findOrCreate({
-      where: { codigo: turma.nome },
-      defaults: {
-        codigo: turma.nome,
-        nome: `Turma ${turma.nome}`
-      }
-    });
-    const changes: NotaUpdate[][] = await Promise.all(
-      turma.disciplinas.map(async disciplina =>
-        NotasTask.updateDisciplina(aluno, disciplina, turmadb)
-      )
-    );
-
-    return changes.reduce((ac, val) => ac.concat(val), []);
-  }
-
-  export async function updateAll(aluno: Usuario, turmas: RemoteTurma[]): Promise<JobNotaResult> {
+  export async function updateAll(aluno: Usuario, disciplinas: RemoteDisciplina[]): Promise<JobNotaResult> {
 
     const changes: NotaUpdate[][] = await Promise.all(
-      turmas.map(turma =>
-        NotasTask.updateTurma(aluno, turma)
+      disciplinas.map(disc =>
+        NotasTask.updateDisciplina(aluno, disc)
       )
     );
 
@@ -148,12 +120,21 @@ export namespace NotasTask {
     };
   }
 
-  export async function updateRemote(strategy: IStrategy, matricula: string): Promise<JobNotaResult | null> {
+  export async function updateRemote(strategy: IStrategy, matricula: string, updatePast: boolean = false): Promise<JobNotaResult | null> {
     const aluno = await Usuario.findOne({ where: { matricula } });
+    console.log({ aluno });
 
     if (aluno) {
-      const turmas = await strategy.getTurmas();
-      return await NotasTask.updateAll(aluno, turmas);
+      const periodos = await strategy.getPeriodos();
+      if (updatePast) {
+        for (const periodo of periodos) {
+          const { disciplinas } = await strategy.getPeriodo(periodo);
+          await updateAll(aluno, disciplinas);
+        }
+      } else {
+        const { disciplinas } = await strategy.getPeriodo(periodos[0]);
+        await updateAll(aluno, disciplinas);
+      }
     }
 
     return null;

@@ -27,10 +27,15 @@ export interface RemoteNota {
   peso: number;
   notamaxima: number;
   nota: number;
+  periodo?: string;
 }
 
-export interface RemoteTurma {
+export interface PeriodoInfo {
   nome: string;
+  codigo: string;
+}
+
+export interface PeriodoCompleto extends PeriodoInfo {
   disciplinas: RemoteDisciplina[];
 }
 
@@ -44,7 +49,9 @@ export interface IStrategy {
 
   isLoggedIn(): boolean;
 
-  getTurmas(): Promise<RemoteTurma[]>;
+  getPeriodos(): Promise<PeriodoInfo[]>;
+
+  getPeriodo(info: PeriodoInfo): Promise<PeriodoCompleto>;
 
   getFullName(): Promise<string>;
 

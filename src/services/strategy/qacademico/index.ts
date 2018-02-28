@@ -1,9 +1,9 @@
 import { Page, Browser } from 'puppeteer';
-import { IStrategy, RemoteTurma } from './../factory';
+import { IStrategy, PeriodoInfo, PeriodoCompleto } from './../factory';
 import * as qauth from './qauth';
 import * as quser from './quser';
-import * as pool from '../../driver/pool';
 import { QDiarios } from './qdiarios';
+import { PoolService } from '../../driver/pool';
 
 export class QAcademicoStrategy implements IStrategy {
 
@@ -15,6 +15,7 @@ export class QAcademicoStrategy implements IStrategy {
 
   async init(): Promise<void> {
     if (!this.isLoggedIn()) {
+      const pool = await PoolService.getPool();
       this.browser = await pool.acquire();
       this.page = await this.browser.newPage();
     }
@@ -27,12 +28,16 @@ export class QAcademicoStrategy implements IStrategy {
     }
   }
 
-  isLoggedIn(): boolean {
-    return !!this.page;
+  async getPeriodos(): Promise<PeriodoInfo[]> {
+    return QDiarios.getPeriodos(this);
   }
 
-  getTurmas(): Promise<RemoteTurma[]> {
-    return QDiarios.getTurmas(this);
+  async getPeriodo(info: PeriodoInfo): Promise<PeriodoCompleto> {
+    return QDiarios.getPeriodo(this, info);
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.page;
   }
 
   getFullName(): Promise<string> {
@@ -46,6 +51,7 @@ export class QAcademicoStrategy implements IStrategy {
   async release(errored?: boolean): Promise<void> {
     const { page, browser } = this;
     if (page && browser) {
+      const pool = await PoolService.getPool();
       try {
         const btnSair = await page.$('a[href*="sair.asp"]');
         await btnSair!.click();

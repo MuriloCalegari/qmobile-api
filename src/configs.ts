@@ -1,51 +1,56 @@
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 
 interface DatabaseConfiguration {
   host: string;
-  username: string;
-  password: string;
-  port: number;
+  username?: string;
+  password?: string;
+  port?: number;
   database: string;
   logging?: boolean;
 }
 
 interface Configuration {
   cipher_pass: string;
-  db: DatabaseConfiguration;
+  database: DatabaseConfiguration;
   serverport: number;
   update_queue_size: number;
-  maxinstances: number;
+  max_instances: number;
 }
 
-let def: Configuration = {
-  cipher_pass: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  db: {
+const DEFAULT_CONFIG: Configuration = {
+  cipher_pass: '0'.repeat(32),
+  database: {
     host: 'localhost',
-    username: 'postgres',
-    password: '12345',
-    port: 5432,
+    port: 27017,
     database: 'qmobile',
     logging: false
   },
   serverport: 3010,
   update_queue_size: 50,
-  maxinstances: 40
+  max_instances: 40
 };
 
+export namespace ConfigurationService {
 
-const cfgpath = path.join(__dirname, '../config.json');
+  export const CONFIG_PATH = path.join(__dirname, '../config.json');
+  let configPromise: Promise<Configuration>;
 
-if (!fs.existsSync(cfgpath)) {
-  fs.writeFileSync(cfgpath, JSON.stringify(def, null, 4), 'utf8');
-} else {
-  try {
-    def = JSON.parse(fs.readFileSync(cfgpath, 'utf8'));
-  } catch (e) {
-    def = null as any;
+  export async function getConfig(): Promise<Configuration> {
+    return configPromise || (configPromise = (async () => {
+
+      let config = DEFAULT_CONFIG;
+
+      if (!await fs.pathExists(CONFIG_PATH)) {
+        await fs.writeFile(CONFIG_PATH, JSON.stringify(DEFAULT_CONFIG, null, 4), 'utf8');
+      } else {
+        config = JSON.parse(await fs.readFile(CONFIG_PATH, 'utf8'));
+      }
+
+      config.cipher_pass = (process.env && process.env.ENCRYPTION_KEY) || config.cipher_pass;
+      return config;
+
+    })());
   }
+
 }
-
-def.cipher_pass = (process.env && process.env.ENCRYPTION_KEY) || def.cipher_pass;
-
-export = def;

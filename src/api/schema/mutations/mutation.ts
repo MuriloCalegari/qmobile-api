@@ -1,6 +1,5 @@
-import { Usuario } from './../../../models/usuario';
-import { Session } from './../../../models/session';
 import * as auth from '../../../services/auth/authenticate';
+import { SessionService } from '../../../database/session';
 
 interface LoginInput {
   endpoint: string;
@@ -30,11 +29,11 @@ export = {
       async login(_, { input }: { input: LoginInput }, c): Promise<string> {
         const { endpoint, matricula, password, instance } = input;
         const user = await auth.login(endpoint, matricula, password);
-        const session = await Session.create({
-          instanceid: instance,
-          usuarioId: user.id
+        const id = await SessionService.createSession({
+          usuario: user._id!,
+          instance_id: instance
         });
-        return session.id;
+        return id.toHexString();
       }
     }
 
