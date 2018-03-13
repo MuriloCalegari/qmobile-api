@@ -2,6 +2,7 @@ import { EndpointDto, EndpointService } from './../../../database/endpoint';
 import { BaseContext, PeriodoContext } from './../index';
 import * as moment from 'moment';
 import { DatabaseService } from '../../../database/database';
+import { NotaDto } from '../../../database/nota';
 
 export = {
 
@@ -18,6 +19,7 @@ export = {
     endpoint: Endpoint!
     periodos: [Periodo!]!
     periodo(nome: String!): Periodo
+    nota(id: ID!): Nota
   }
   `,
 
@@ -66,6 +68,27 @@ export = {
             ...context,
             periodo: res.periodo
           }
+        };
+      },
+      async nota({ context }: BaseContext, { id }, _): Promise<(NotaDto & PeriodoContext) | null> {
+        if (typeof id !== 'string' || id.length !== 36) {
+          return null;
+        }
+        const db = await DatabaseService.getDatabase();
+        const [{ periodo, ...res }] = await db.query(`
+        SELECT nota.*, disciplina_professor.periodo FROM nota
+          LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
+          LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+            WHERE nota.id = ?
+            AND usuario_disciplina.usuario = ?
+            LIMIT 1;
+        `, [id, context.usuario.id!.toString()]);
+        return res && {
+          context: {
+            ...context,
+            periodo
+          },
+          ...res
         };
       }
     }

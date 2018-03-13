@@ -8,6 +8,7 @@ export = {
   schema: `type Periodo {
     nome: ID!
     disciplinas(nome: String): [Disciplina!]!
+    disciplina(id: ID!): Disciplina
   }`,
 
   resolvers: {
@@ -31,6 +32,23 @@ export = {
           context
         }));
       },
+      async disciplina({ context }: PeriodoContext, { id }, c
+      ): Promise<DisciplinaDto & PeriodoContext> {
+        const db = await DatabaseService.getDatabase();
+        const [res] = await db.query(`
+        SELECT disciplina.*, disciplina_professor.turma FROM usuario_disciplina
+          LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
+          LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
+          WHERE disciplina_professor.periodo = ?
+              AND disciplina_professor.disciplina = ?
+              AND usuario_disciplina.usuario = ?
+          LIMIT 1;
+        `, [context.periodo, id, context.usuario.id!.toString()]);
+        return res && {
+          ...res,
+          context
+        };
+      }
     }
 
   }

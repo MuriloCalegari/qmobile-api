@@ -1,0 +1,14 @@
+{
+    "cipher_pass": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "db": {
+        "host": "localhost",
+        "username": "root",
+        "password": "12345",
+        "port": 3306,
+        "database": "qmobile",
+        "logging": false
+    },
+    "serverport": 3010,
+    "update_queue_size": 50,
+    "maxinstances": 40
+}
