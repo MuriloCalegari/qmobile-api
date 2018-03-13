@@ -77,16 +77,15 @@ export namespace DisciplinaService {
     return convert(res);
   }
 
-  export async function getDisciplinaByUD(usuario_disciplina: number, periodo: Date): Promise<DisciplinaDto & { turma: string }> {
+  export async function getDisciplinaByUD(usuario_disciplina: number): Promise<DisciplinaDto & { turma: string }> {
     const db = await DatabaseService.getDatabase();
     const [res] = await db.query(`
     SELECT disciplina.*, disciplina_professor.turma FROM usuario_disciplina
       LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
       LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
-      WHERE disciplina_professor.periodo = ?
-          AND usuario_disciplina.id = ?
+      WHERE usuario_disciplina.id = ?
       LIMIT 1;
-    `, [periodo, usuario_disciplina]);
+    `, [usuario_disciplina]);
     return convert(res) as any;
   }
 

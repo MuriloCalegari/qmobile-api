@@ -47,7 +47,7 @@ export = {
       },
       async disciplina({ context, usuario_disciplina }: NotaDto & PeriodoContext, _, c
       ): Promise<DisciplinaDto & PeriodoContext> {
-        const res = await DisciplinaService.getDisciplinaByUD(usuario_disciplina, context.periodo);
+        const res = await DisciplinaService.getDisciplinaByUD(usuario_disciplina);
         return res && {
           ...res,
           context
