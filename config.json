@@ -5,7 +5,7 @@
         "username": "root",
         "password": "12345",
         "port": 3306,
-        "database": "qmobile",
+        "database": "qmobile_test",
         "logging": false
     },
     "serverport": 3010,

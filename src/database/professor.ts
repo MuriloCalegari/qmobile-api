@@ -47,4 +47,16 @@ export namespace ProfessorService {
     return [false, dto];
   }
 
+  export async function getProfessor(periodo: Date, disciplina: UUID): Promise<ProfessorDto> {
+    const db = await DatabaseService.getDatabase();
+    const [res] = await db.query(`
+    SELECT professor.* FROM disciplina_professor
+      LEFT JOIN professor ON professor.id = disciplina_professor.professor
+      WHERE disciplina_professor.periodo = ?
+        AND disciplina_professor.disciplina = ?
+      LIMIT 1;
+    `, [periodo, disciplina.toString()]);
+    return convert(res);
+  }
+
 }
