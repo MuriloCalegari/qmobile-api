@@ -1,3 +1,4 @@
+import { StrategyType } from './../services/strategy/factory';
 import { UUID } from './uuid';
 import { DatabaseService } from './database';
 import { URL } from 'url';
@@ -6,6 +7,7 @@ export interface EndpointDto {
   id?: UUID;
   nome: string;
   url: string;
+  strategy: StrategyType;
 }
 
 export namespace EndpointService {
@@ -17,17 +19,18 @@ export namespace EndpointService {
     };
   }
 
-  export async function create(url: string): Promise<EndpointDto> {
+  export async function create(url: string, strategy?: StrategyType): Promise<EndpointDto> {
     const id = UUID.random();
     const connection = await DatabaseService.getDatabase();
     const endpoint: EndpointDto = {
       url,
       nome: EndpointService.getNameByUrl(url),
-      id
+      id,
+      strategy: strategy || StrategyType.QACADEMICO
     };
     await connection.query(
-      'INSERT INTO endpoint VALUES(?, ?, ?)',
-      [endpoint.id!.toString(), endpoint.nome, endpoint.url]
+      'INSERT INTO endpoint VALUES(?, ?, ?, ?)',
+      [endpoint.id!.toString(), endpoint.nome, endpoint.url, strategy]
     );
     return convert(endpoint);
   }
@@ -44,10 +47,10 @@ export namespace EndpointService {
     return convert(dto);
   }
 
-  export async function findOrCreate(url: string): Promise<[boolean, EndpointDto]> {
+  export async function findOrCreate(url: string, strategy?: StrategyType): Promise<[boolean, EndpointDto]> {
     const dto = await EndpointService.getEndpointByUrl(url);
     if (!dto) {
-      return [true, await EndpointService.create(url)];
+      return [true, await EndpointService.create(url, strategy)];
     }
     return [false, convert(dto)];
   }

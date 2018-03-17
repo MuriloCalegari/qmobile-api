@@ -42,7 +42,7 @@ export namespace NotasTask {
 
   export async function updateNota(
     usuario_disciplina: number,
-    etapa: NumeroEtapa, { id, ...nota }: RemoteNota
+    etapa: NumeroEtapa, nota: RemoteNota
   ): Promise<NotaUpdate> {
     const [created, notadb] = await NotaService.findOrCreate({
       ...nota,
@@ -70,7 +70,7 @@ export namespace NotasTask {
   }
 
   export async function updateDisciplina(
-    usuario: UUID, endpoint: UUID, { id: _, etapas, ...disciplina }: RemoteDisciplina
+    usuario: UUID, endpoint: UUID, { etapas, ...disciplina }: RemoteDisciplina
   ): Promise<NotaUpdate[]> {
 
     const [, disciplinaDto] = await DisciplinaService.findOrCreate({

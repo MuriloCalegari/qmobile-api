@@ -22,7 +22,9 @@ const DEFAULT_CONFIG: Configuration = {
   cipher_pass: '0'.repeat(32),
   database: {
     host: 'localhost',
-    port: 27017,
+    username: 'root',
+    password: '12345',
+    port: 3306,
     database: 'qmobile',
     logging: false
   },

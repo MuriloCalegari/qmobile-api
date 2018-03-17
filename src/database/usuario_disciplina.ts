@@ -21,7 +21,7 @@ export namespace UsuarioDisciplinaService {
     const res = await connection.query(
       'INSERT INTO usuario_disciplina VALUES (?, ?, ?)',
       [
-        null, uddto.disciplina_professor, uddto.usuario.toString()
+        0, uddto.disciplina_professor, uddto.usuario.toString()
       ]
     );
     return convert({

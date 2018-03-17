@@ -29,7 +29,7 @@ export namespace UsuarioService {
     };
     await connection.query(
       'INSERT INTO usuario VALUES (?, ?, ?, ?, ?)',
-      [usuario.id, usuario.nome, usuario.matricula, usuario.password, usuario.endpoint.toString()]
+      [usuario.id!.toString(), usuario.nome, usuario.matricula, usuario.password, usuario.endpoint.toString()]
     );
     return convert(usuario);
   }

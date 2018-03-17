@@ -18,7 +18,6 @@ export namespace QDiarios {
       const { endpoint, page } = strategy;
       const diarios = endpoint + DIARIOS_PAGE;
       const url = await page.url();
-      console.log(url);
       if (url !== diarios) {
         await page.goto(diarios);
       }

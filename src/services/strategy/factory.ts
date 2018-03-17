@@ -8,7 +8,6 @@ export enum NumeroEtapa {
 }
 
 export interface RemoteDisciplina {
-  id?: string;
   turma: string;
   nome: string;
   professor: string;
@@ -23,7 +22,6 @@ export interface RemoteEtapa {
 
 export interface RemoteNota {
   [key: string]: any;
-  id?: string;
   descricao: string;
   peso: number;
   notamaxima: number;

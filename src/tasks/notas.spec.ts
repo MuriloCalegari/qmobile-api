@@ -1,36 +1,40 @@
+import { UsuarioDto } from './../database/usuario';
 import { StrategyType } from './../services/strategy/factory';
-import { Disciplina } from './../models/disciplina';
-import { Nota } from './../models/nota';
-import { Usuario } from './../models/usuario';
 import * as auth from '../services/auth/authenticate';
 import * as cipher from '../services/cipher/cipher';
 import { NotasTask } from './notas';
 import { TaskQueue } from './queue';
 import { QAcademicoStrategy } from '../services/strategy/qacademico';
 import { StrategyFactory } from '../services/strategy/factory';
+import { DatabaseService } from '../database/database';
+import { asyncTest } from '../test-utils';
+import { DisciplinaService } from '../database/disciplina';
+import { ProfessorService } from '../database/professor';
+import { DisciplinaProfessorService } from '../database/disciplina_professor';
 
-describe('NotasTask', () => {
+import * as moment from 'moment';
+import { UsuarioDisciplinaService } from '../database/usuario_disciplina';
 
-  let usuario: Usuario;
+fdescribe('NotasTask', () => {
 
-  function limpar() {
-    return Promise.all(
-      [
-        Nota,
-        Disciplina
-      ].map(mod => mod.truncate({ force: true, cascade: true }))
-    );
-  }
+  let usuario: UsuarioDto;
 
-  beforeAll(async done => {
+  let limpar = () => DatabaseService.truncate(
+    ['nota', 'disciplina', 'professor', 'disciplina_professor', 'usuario_disciplina']
+  );
+
+  beforeAll(asyncTest(async () => {
     spyOn(NotasTask, 'updateRemote').and.returnValue(
       Promise.resolve()
     );
     await limpar();
-
     usuario = await auth.login('http://localhost:9595', 'test', 'pass');
     (NotasTask.updateRemote as jasmine.Spy).and.callThrough();
-    done();
+  }));
+
+  afterAll(() => {
+    usuario =
+      limpar = null as any;
   });
 
   describe('updateDisciplina()', () => {
@@ -41,93 +45,133 @@ describe('NotasTask', () => {
       );
     });
 
-    it('deve criar disciplina', async done => {
-      try {
-        await NotasTask.updateDisciplina(usuario, {
-          turma: 'turmatst',
+    it('deve criar relações', asyncTest(async () => {
+      const now = new Date();
+      await NotasTask.updateDisciplina(
+        usuario.id!,
+        usuario.endpoint,
+        {
+          etapas: [],
+          turma: '20174M',
           nome: 'Programação 2',
-          professor: 'John Doe',
-          etapas: []
-        });
-        const disciplina = (await Disciplina.find({ where: { nome: 'Programação 2' } }))!;
-        expect(disciplina).toBeTruthy();
-        expect(disciplina.nome).toBe('Programação 2');
-        expect(disciplina.professor).toBe('John Doe');
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
-    });
+          professor: 'Jubileu',
+          periodo: now
+        }
+      );
 
-    it('deve fazer as relações', async done => {
-      try {
-        await NotasTask.updateDisciplina(usuario, {
-          turma: 'turmatst2',
-          nome: 'Programação 3',
-          professor: 'John Doe',
-          etapas: []
-        });
+      const disciplina = (await DisciplinaService.findByNome(usuario.endpoint, 'Programação 2'))!;
+      expect(disciplina).toBeTruthy();
+      expect(disciplina.nome).toBe('Programação 2');
 
-        const disciplina = (await Disciplina.find({ where: { nome: 'Programação 3' } }))!;
+      const professor = (await ProfessorService.findByNome(usuario.endpoint, 'Jubileu'))!;
+      expect(professor).toBeTruthy();
+      expect(professor.nome).toBe('Jubileu');
+      expect(professor.endpoint.toString()).toBe(usuario.endpoint.toString());
 
-        expect(await usuario.$has('disciplinas', disciplina)).toBeTruthy('Usuário não tem a disciplina');
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
-    });
+      const dp = (await DisciplinaProfessorService.find({
+        professor: professor.id!,
+        disciplina: disciplina.id!,
+        turma: '20174M',
+        periodo: new Date()
+      }))!;
+      expect(dp).toBeTruthy();
+      expect(moment(dp.periodo).isSame(now, 'day')).toBeTruthy();
 
-    it('deve manter apenas uma relação', async done => {
-      try {
-        await limpar();
-        const disc = {
-          turma: 'turmatst2',
-          nome: 'Programação',
-          professor: 'John Doe',
-          etapas: []
-        };
-        await NotasTask.updateDisciplina(usuario, disc);
-        await NotasTask.updateDisciplina(usuario, disc);
+      const ud = (await UsuarioDisciplinaService.find({
+        disciplina_professor: dp.id!,
+        usuario: usuario.id!
+      }));
 
-        const disciplina = (await Disciplina.find({ where: { nome: 'Programação' } }))!;
+      expect(ud).toBeTruthy();
+    }));
 
-        expect(await usuario.$count('disciplinas') as any).toBe(1);
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
-    });
 
-    it('deve atualizar as etapas', async done => {
-      try {
-        await NotasTask.updateDisciplina(usuario, {
-          turma: 'turmatst2',
-          nome: 'Programação 4',
-          professor: 'John Doe',
-          etapas: [{ numero: 1, notas: [] }, { numero: 2, notas: [] }]
-        });
+    it('deve manter apenas uma relação', asyncTest(async () => {
+      await limpar();
 
-        const disciplina = (await Disciplina.find({ where: { nome: 'Programação 4' } }))!;
+      const disc = {
+        etapas: [],
+        turma: '20174M',
+        nome: 'Programação 2',
+        professor: 'Jubileu',
+        periodo: new Date()
+      };
 
-        expect(NotasTask.updateEtapa).toHaveBeenCalledWith(
-          usuario,
-          disciplina.id,
-          { numero: 1, notas: [] }
-        );
-        expect(NotasTask.updateEtapa).toHaveBeenCalledWith(
-          usuario,
-          disciplina.id,
-          { numero: 2, notas: [] }
-        );
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
-    });
+      await NotasTask.updateDisciplina(usuario.id!, usuario.endpoint, disc);
+      await NotasTask.updateDisciplina(usuario.id!, usuario.endpoint, disc);
+      const db = await DatabaseService.getDatabase();
+
+      const disciplinas = await db.query('SELECT * FROM disciplina');
+      expect(disciplinas.length).toBe(1);
+
+      const professores = await db.query('SELECT * FROM professor');
+      expect(professores.length).toBe(1);
+
+      const dps = await db.query('SELECT * FROM disciplina_professor');
+      expect(dps.length).toBe(1);
+
+      const uds = await db.query('SELECT * FROM usuario_disciplina');
+      expect(uds.length).toBe(1);
+    }));
+
+    it('deve criar duas disciplinas', asyncTest(async () => {
+      await limpar();
+
+      const disc = {
+        etapas: [],
+        turma: '20174M',
+        nome: 'Programação 2',
+        professor: 'Jubileu',
+        periodo: new Date()
+      };
+
+      await NotasTask.updateDisciplina(usuario.id!, usuario.endpoint, disc);
+      await NotasTask.updateDisciplina(usuario.id!, usuario.endpoint, { ...disc, nome: 'Programação 3' });
+      const db = await DatabaseService.getDatabase();
+
+      const disciplinas = await db.query('SELECT * FROM disciplina');
+      expect(disciplinas.length).toBe(2);
+
+      const professores = await db.query('SELECT * FROM professor');
+      expect(professores.length).toBe(1);
+
+      const dps = await db.query('SELECT * FROM disciplina_professor');
+      expect(dps.length).toBe(2);
+
+      const uds = await db.query('SELECT * FROM usuario_disciplina');
+      expect(uds.length).toBe(2);
+    }));
+
+    it('deve atualizar as etapas', asyncTest(async () => {
+      const disc = {
+        turma: '20174M',
+        nome: 'Programação 4',
+        professor: 'Jubileu',
+        periodo: new Date()
+      };
+
+      await NotasTask.updateDisciplina(
+        usuario.id!,
+        usuario.endpoint,
+        {
+          ...disc,
+          etapas: [{ numero: 1, notas: [] }, { numero: 2, notas: [] }] as any
+        }
+      );
+
+      expect(NotasTask.updateEtapa).toHaveBeenCalledWith(
+        jasmine.any(Number),
+        { numero: 1, notas: [] }
+      );
+      expect(NotasTask.updateEtapa).toHaveBeenCalledWith(
+        jasmine.any(Number),
+        { numero: 2, notas: [] }
+      );
+    }));
 
   });
 
-  describe('updateEtapa()', () => {
+  /*describe('updateEtapa()', () => {
 
     beforeEach(() => {
       spyOn(NotasTask, 'updateNota').and.returnValue(
@@ -316,7 +360,7 @@ describe('NotasTask', () => {
 
   });
 
-  fdescribe('updateRemote()', () => {
+  describe('updateRemote()', () => {
 
     let strategy: QAcademicoStrategy;
     beforeAll(async done => {
@@ -458,6 +502,6 @@ describe('NotasTask', () => {
       }
     });
 
-  });
+  });*/
 
 });

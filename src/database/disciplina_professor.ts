@@ -1,4 +1,5 @@
 import { UUID } from './uuid';
+import * as moment from 'moment';
 import { DatabaseService } from './database';
 
 export interface DisciplinaProfessorDto {
@@ -24,7 +25,7 @@ export namespace DisciplinaProfessorService {
     const res = await connection.query(
       'INSERT INTO disciplina_professor VALUES (?, ?, ?, ?, ?)',
       [
-        null, dpdto.periodo, dpdto.turma,
+        0, dpdto.periodo, dpdto.turma,
         dpdto.disciplina.toString(), dpdto.professor.toString()
       ]
     );
@@ -43,12 +44,12 @@ export namespace DisciplinaProfessorService {
     return convert(dto);
   }
 
-  export async function find(dpdto: DisciplinaProfessorDto): Promise<DisciplinaProfessorDto> {
+  export async function find(dpdto: DisciplinaProfessorDto): Promise<DisciplinaProfessorDto | null> {
     const connection = await DatabaseService.getDatabase();
     const [dto] = await connection.query(
       'SELECT * FROM disciplina_professor WHERE periodo=? AND turma=? AND disciplina=? AND professor=? LIMIT 1',
       [
-        dpdto.periodo, dpdto.turma,
+        moment(dpdto.periodo).format('YYYY-MM-DD'), dpdto.turma,
         dpdto.disciplina.toString(), dpdto.professor.toString()
       ]
     );
