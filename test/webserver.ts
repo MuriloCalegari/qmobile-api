@@ -59,7 +59,7 @@ export class PocketServer {
     const { app } = this;
     if (app) {
       app.use(bodyParser.urlencoded({ extended: false }));
-      app.get('/index.asp', (req, res) => {
+      app.use('/index.asp', (req, res) => {
         const type = parseInt(req.query.t, 10) || 0;
         switch (type) {
           case 1:

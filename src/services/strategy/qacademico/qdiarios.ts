@@ -119,7 +119,7 @@ export namespace QDiarios {
     } catch (e) {
       console.error(e);
       await strategy.release(true);
-      throw new Error(e);
+      throw e;
     }
   }
 
@@ -136,13 +136,15 @@ export namespace QDiarios {
     const { page } = strategy;
     const form = (await page.$('#frmConsultar'))!;
     const options = (await form.$$('select option'))!;
-    return Promise.all(
-      options.map(async option => {
-        const codigo = (await option.getProperty('value')).toString();
-        const nome = (await option.getProperty('innerText')).toString();
-        return { nome, codigo };
-      })
-    );
+    const periodos: PeriodoInfo[] = [];
+    for (const option of options) {
+      const codigo = await (await option.getProperty('value')).jsonValue();
+      const nome = await (await option.getProperty('innerText')).jsonValue();
+      if (!!nome.trim()) {
+        periodos.push({ nome, codigo });
+      }
+    }
+    return periodos;
   }
 
   export async function getPeriodo(strategy: QAcademicoStrategy, { codigo, nome }: PeriodoInfo): Promise<PeriodoCompleto> {
@@ -155,6 +157,7 @@ export namespace QDiarios {
       element.querySelector('option[value="${codigo}"]').selected = true;
     })()`);
     await (await form.$('[type=submit]'))!.click();
+    await page.waitForNavigation();
     return {
       nome, codigo,
       disciplinas: await getDisciplinas(strategy)

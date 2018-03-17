@@ -131,11 +131,11 @@ export namespace NotasTask {
       if (updatePast) {
         for (const periodo of periodos) {
           const { disciplinas } = await strategy.getPeriodo(periodo);
-          await updateAll(usuario, disciplinas);
+          await NotasTask.updateAll(usuario, disciplinas);
         }
       } else {
         const { disciplinas } = await strategy.getPeriodo(periodos[0]);
-        await updateAll(usuario, disciplinas);
+        await NotasTask.updateAll(usuario, disciplinas);
       }
     }
 
