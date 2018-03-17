@@ -1,31 +1,37 @@
+import { UUID } from './uuid';
 import { EndpointService } from './endpoint';
 import { DatabaseService } from './database';
-import * as uuid from 'uuid/v4';
 
 export interface UsuarioDto {
-  id?: string;
+  id?: UUID;
   matricula: string;
   nome: string;
   password: string;
+  endpoint: UUID;
 }
 
 export namespace UsuarioService {
 
-  type UsuarioEndpoint = UsuarioDto & { endpoint: string };
+  function convert(dto: UsuarioDto): UsuarioDto {
+    return dto && {
+      ...dto,
+      id: dto.id && UUID.from(dto.id),
+      endpoint: UUID.from(dto.endpoint),
+    };
+  }
 
-  export async function create({ endpoint, ...usuario }: UsuarioEndpoint): Promise<UsuarioDto> {
+  export async function create(usuario: UsuarioDto): Promise<UsuarioDto> {
     const connection = await DatabaseService.getDatabase();
-    const endpointDto = await await EndpointService.findOrCreate(endpoint);
 
     usuario = {
       ...usuario,
-      id: uuid()
+      id: UUID.random()
     };
     await connection.query(
       'INSERT INTO usuario VALUES (?, ?, ?, ?, ?)',
-      [usuario.id, usuario.nome, usuario.matricula, usuario.password, endpointDto.id]
+      [usuario.id, usuario.nome, usuario.matricula, usuario.password, usuario.endpoint.toString()]
     );
-    return usuario;
+    return convert(usuario);
   }
 
   export async function findByMatricula(matricula: string): Promise<UsuarioDto | null> {
@@ -34,15 +40,15 @@ export namespace UsuarioService {
       'SELECT * FROM usuario WHERE matricula=? LIMIT 1',
       [matricula]
     );
-    return dto;
+    return convert(dto);
   }
 
-  export async function findOrCreate(usuario: UsuarioEndpoint): Promise<UsuarioDto> {
+  export async function findOrCreate(usuario: UsuarioDto): Promise<UsuarioDto> {
     const dto = await UsuarioService.findByMatricula(usuario.matricula);
     if (!dto) {
       return UsuarioService.create(usuario);
     }
-    return dto;
+    return convert(dto);
   }
 
 }

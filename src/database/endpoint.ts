@@ -1,17 +1,24 @@
+import { UUID } from './uuid';
 import { DatabaseService } from './database';
-import * as uuid from 'uuid/v4';
 import { URL } from 'url';
 
 export interface EndpointDto {
-  id?: string;
+  id?: UUID;
   nome: string;
   url: string;
 }
 
 export namespace EndpointService {
 
+  function convert(dto: EndpointDto): EndpointDto {
+    return dto && {
+      ...dto,
+      id: dto.id && UUID.from(dto.id)
+    };
+  }
+
   export async function create(url: string): Promise<EndpointDto> {
-    const id = uuid();
+    const id = UUID.random();
     const connection = await DatabaseService.getDatabase();
     const endpoint: EndpointDto = {
       url,
@@ -20,21 +27,21 @@ export namespace EndpointService {
     };
     await connection.query(
       'INSERT INTO endpoint VALUES(?, ?, ?)',
-      [endpoint.id, endpoint.nome, endpoint.url]
+      [endpoint.id!.toString(), endpoint.nome, endpoint.url]
     );
-    return endpoint;
+    return convert(endpoint);
   }
 
   export async function getEndpointByUrl(url: string): Promise<EndpointDto | null> {
     const connection = await DatabaseService.getDatabase();
-    const [dto] = await connection.query('SELECT * FROM endpoint WHERE url=?', [url]);
-    return dto;
+    const [dto] = await connection.query('SELECT * FROM endpoint WHERE url=? LIMIT 1', [url]);
+    return convert(dto);
   }
 
-  export async function getEndpointById(id: string): Promise<EndpointDto | null> {
+  export async function getEndpointById(id: UUID): Promise<EndpointDto | null> {
     const connection = await DatabaseService.getDatabase();
-    const [dto] = await connection.query('SELECT * FROM endpoint WHERE id=?', [id]);
-    return dto;
+    const [dto] = await connection.query('SELECT * FROM endpoint WHERE id=? LIMIT 1', [id.toString()]);
+    return convert(dto);
   }
 
   export async function findOrCreate(url: string): Promise<EndpointDto> {
@@ -42,7 +49,7 @@ export namespace EndpointService {
     if (!dto) {
       return EndpointService.create(url);
     }
-    return dto;
+    return convert(dto);
   }
 
   export function getNameByUrl(endpoint_url: string): string {
