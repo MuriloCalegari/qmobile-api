@@ -1,3 +1,5 @@
+import { UsuarioDto, UsuarioService } from './../database/usuario';
+import { UUID } from './../database/uuid';
 import {
   NumeroEtapa,
   RemoteNota,
@@ -5,105 +7,106 @@ import {
   RemoteDisciplina,
   IStrategy
 } from './../services/strategy/factory';
-import { Usuario } from './../models/usuario';
-import { Disciplina } from './../models/disciplina';
 import { Job } from 'kue';
-import * as configs from '../configs';
-import * as cipher from '../services/cipher/cipher';
-import { Nota } from '../models/nota';
 import { TaskQueue } from './queue';
+import { NotaService } from '../database/nota';
+import { DisciplinaService } from '../database/disciplina';
+import { DisciplinaProfessorService } from '../database/disciplina_professor';
+import { ProfessorService } from '../database/professor';
+import { UsuarioDisciplinaService } from '../database/usuario_disciplina';
 
 export interface JobNota {
   userid: string;
-  matricula: string;
-  senha: string;
-  endpoint: string;
 }
 
 export interface JobNotaResult {
   notas: {
-    alteradas: Nota[],
-    novas: Nota[]
+    alteradas: UUID[],
+    novas: UUID[]
   };
 }
 
 export type NotaState = 'alterada' | 'nova' | 'normal';
 
-export type NotaUpdate = [Nota, NotaState];
+export type NotaUpdate = [UUID, NotaState];
 
 export namespace NotasTask {
 
-  export function createJob(userid: string, matricula: string, senha: string, endpoint: string): Job {
-    return TaskQueue.getQueue()
-      .create('readnotas', { userid, matricula, senha, endpoint })
+  export async function createJob(userid: string): Promise<Job> {
+    const queue = await TaskQueue.getQueue();
+
+    return queue.create('readnotas', { userid })
       .removeOnComplete(true).events(false).ttl(2.4e5 /* 4min */).save();
   }
 
 
   export async function updateNota(
-    aluno: Usuario, disciplinaid: string,
-    numetapa: NumeroEtapa, { id, periodo, ...nota }: RemoteNota
+    usuario_disciplina: number,
+    etapa: NumeroEtapa, { id, ...nota }: RemoteNota
   ): Promise<NotaUpdate> {
-    const [notadb, created] = await Nota.findOrCreate({
-      where: {
-        descricao: nota.descricao
-      },
-      defaults: {
-        etapa: numetapa,
-        ...nota,
-        disciplinaid,
-        userid: aluno.id
-      }
+    const [created, notadb] = await NotaService.findOrCreate({
+      ...nota,
+      etapa,
+      usuario_disciplina
     });
     const diffs = ['peso', 'notamaxima', 'nota'];
     if (created) {
-      await aluno.$add('notas', notadb);
-      return [notadb, 'nova'];
-    } else if (diffs.some(key => nota[key] !== notadb.get(key))) {
+      return [notadb.id!, 'nova'];
+    } else if (diffs.some(key => nota[key] !== notadb[key])) {
       const { descricao, ...update } = nota;
-      await notadb.update({ ...update });
-      return [notadb, 'alterada'];
+      await NotaService.update(notadb.id!, update);
+      return [notadb.id!, 'alterada'];
     } else {
-      return [notadb, 'normal'];
+      return [notadb.id!, 'normal'];
     }
   }
 
-  export function updateEtapa(aluno: Usuario, disciplinaid: string, { notas, numero }: RemoteEtapa): Promise<NotaUpdate[]> {
+  export function updateEtapa(usuario_disciplina: number, { notas, numero }: RemoteEtapa): Promise<NotaUpdate[]> {
     return Promise.all(
       notas.map(
-        nota => NotasTask.updateNota(aluno, disciplinaid, numero, nota)
+        nota => NotasTask.updateNota(usuario_disciplina, numero, nota)
       )
     );
   }
 
-  export async function updateDisciplina(aluno: Usuario, disciplina: RemoteDisciplina): Promise<NotaUpdate[]> {
-    const { id, etapas, ...rdisc } = disciplina;
+  export async function updateDisciplina(
+    usuario: UUID, endpoint: UUID, { id: _, etapas, ...disciplina }: RemoteDisciplina
+  ): Promise<NotaUpdate[]> {
 
-    const [nova] = await Disciplina.findOrCreate({
-      where: { ...rdisc },
-      defaults: {
-        ...rdisc
-      }
+    const [, disciplinaDto] = await DisciplinaService.findOrCreate({
+      nome: disciplina.nome,
+      endpoint
     });
-    if (!await aluno.$has('disciplinas', nova)) {
-      await aluno.$add('disciplinas', nova);
-    }
+    const [, professorDto] = await ProfessorService.findOrCreate({
+      nome: disciplina.professor,
+      endpoint
+    });
+    const [, dpDto] = await DisciplinaProfessorService.findOrCreate({
+      professor: professorDto.id!,
+      disciplina: disciplinaDto.id!,
+      turma: disciplina.turma,
+      periodo: disciplina.periodo
+    });
 
-    disciplina.id = nova.id;
+    const [, udDto] = await UsuarioDisciplinaService.findOrCreate({
+      disciplina_professor: dpDto.id!,
+      usuario
+    });
+
     const all = await Promise.all(
       etapas.map(
-        etapa => NotasTask.updateEtapa(aluno, disciplina.id!, etapa)
+        etapa => NotasTask.updateEtapa(udDto.id!, etapa)
       )
     );
 
     return all.reduce((ac, val) => ac.concat(val), []);
   }
 
-  export async function updateAll(aluno: Usuario, disciplinas: RemoteDisciplina[]): Promise<JobNotaResult> {
+  export async function updateAll(usuario: UsuarioDto, disciplinas: RemoteDisciplina[]): Promise<JobNotaResult> {
 
     const changes: NotaUpdate[][] = await Promise.all(
       disciplinas.map(disc =>
-        NotasTask.updateDisciplina(aluno, disc)
+        NotasTask.updateDisciplina(usuario.id!, usuario.endpoint!, disc)
       )
     );
 
@@ -121,19 +124,18 @@ export namespace NotasTask {
   }
 
   export async function updateRemote(strategy: IStrategy, matricula: string, updatePast: boolean = false): Promise<JobNotaResult | null> {
-    const aluno = await Usuario.findOne({ where: { matricula } });
-    console.log({ aluno });
+    const usuario = await UsuarioService.findByMatricula(matricula);
 
-    if (aluno) {
+    if (usuario) {
       const periodos = await strategy.getPeriodos();
       if (updatePast) {
         for (const periodo of periodos) {
           const { disciplinas } = await strategy.getPeriodo(periodo);
-          await updateAll(aluno, disciplinas);
+          await updateAll(usuario, disciplinas);
         }
       } else {
         const { disciplinas } = await strategy.getPeriodo(periodos[0]);
-        await updateAll(aluno, disciplinas);
+        await updateAll(usuario, disciplinas);
       }
     }
 
@@ -141,15 +143,8 @@ export namespace NotasTask {
   }
 
   export async function scheduleUpdate(): Promise<void> {
-    const users = await Usuario.all();
-    users.forEach(({ id, matricula, password, endpoint }) => {
-      const job = createJob(
-        id,
-        matricula,
-        cipher.decrypt(password, configs.cipher_pass),
-        endpoint
-      );
-    });
+    const users = await UsuarioService.findAll();
+    users.forEach(({ id }) => createJob(id!.toString()));
   }
 
 }

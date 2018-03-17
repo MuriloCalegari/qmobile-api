@@ -33,18 +33,18 @@ export namespace DisciplinaService {
   export async function findByNome(endpoint: UUID, nome: string): Promise<DisciplinaDto | null> {
     const connection = await DatabaseService.getDatabase();
     const [dto] = await connection.query(
-      'SELECT * from disciplina WHERE nome=? AND endpoint=? LIMIT 1',
+      'SELECT * FROM disciplina WHERE nome=? AND endpoint=? LIMIT 1',
       [nome, endpoint.toString()]
     );
     return convert(dto);
   }
 
-  export async function findOrCreate(disciplina: DisciplinaDto): Promise<DisciplinaDto> {
+  export async function findOrCreate(disciplina: DisciplinaDto): Promise<[boolean, DisciplinaDto]> {
     const dto = await DisciplinaService.findByNome(disciplina.endpoint, disciplina.nome);
     if (!dto) {
-      return DisciplinaService.create(disciplina);
+      return [true, await DisciplinaService.create(disciplina)];
     }
-    return dto;
+    return [false, dto];
   }
 
 }

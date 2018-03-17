@@ -12,6 +12,7 @@ export interface RemoteDisciplina {
   turma: string;
   nome: string;
   professor: string;
+  periodo: Date;
   etapas: RemoteEtapa[];
 }
 
@@ -27,7 +28,6 @@ export interface RemoteNota {
   peso: number;
   notamaxima: number;
   nota: number;
-  periodo?: string;
 }
 
 export interface PeriodoInfo {

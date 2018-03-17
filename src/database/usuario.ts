@@ -43,12 +43,27 @@ export namespace UsuarioService {
     return convert(dto);
   }
 
-  export async function findOrCreate(usuario: UsuarioDto): Promise<UsuarioDto> {
+  export async function findById(id: UUID): Promise<UsuarioDto | null> {
+    const connection = await DatabaseService.getDatabase();
+    const [dto] = await connection.query(
+      'SELECT * FROM usuario WHERE id=? LIMIT 1',
+      [id.toString()]
+    );
+    return convert(dto);
+  }
+
+  export async function findOrCreate(usuario: UsuarioDto): Promise<[boolean, UsuarioDto]> {
     const dto = await UsuarioService.findByMatricula(usuario.matricula);
     if (!dto) {
-      return UsuarioService.create(usuario);
+      return [true, await UsuarioService.create(usuario)];
     }
-    return convert(dto);
+    return [false, convert(dto)];
+  }
+
+  export async function findAll(): Promise<UsuarioDto[]> {
+    const connection = await DatabaseService.getDatabase();
+    const res: UsuarioDto[] = await connection.query('SELECT * FROM usuario');
+    return res.map(dto => convert(dto));
   }
 
 }

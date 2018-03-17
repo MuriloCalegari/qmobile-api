@@ -44,12 +44,12 @@ export namespace EndpointService {
     return convert(dto);
   }
 
-  export async function findOrCreate(url: string): Promise<EndpointDto> {
+  export async function findOrCreate(url: string): Promise<[boolean, EndpointDto]> {
     const dto = await EndpointService.getEndpointByUrl(url);
     if (!dto) {
-      return EndpointService.create(url);
+      return [true, await EndpointService.create(url)];
     }
-    return convert(dto);
+    return [false, convert(dto)];
   }
 
   export function getNameByUrl(endpoint_url: string): string {

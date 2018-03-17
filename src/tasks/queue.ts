@@ -1,26 +1,33 @@
 import { IStrategy, StrategyFactory, StrategyType } from './../services/strategy/factory';
 import { JobNota, NotasTask } from './notas';
 import * as kue from 'kue';
-import * as configs from '../configs';
+import { ConfigurationService } from '../configs';
+import { UsuarioService } from '../database/usuario';
+import { UUID } from '../database/uuid';
+import { EndpointService } from '../database/endpoint';
+import * as cipher from '../services/cipher/cipher';
 
 export namespace TaskQueue {
 
-  let queue: kue.Queue | null;
+  let queuePromise: Promise<kue.Queue>;
 
-  export function getQueue(): kue.Queue {
-    if (!queue) {
-      queue = kue.createQueue();
-      queue.setMaxListeners(configs.update_queue_size + 5);
-    }
-    return queue;
+  export async function getQueue(): Promise<kue.Queue> {
+    return queuePromise || (queuePromise = (async () => {
+      const config = await ConfigurationService.getConfig();
+
+      const queue = kue.createQueue();
+      queue.setMaxListeners(config.update_queue_size + 5);
+      return queue;
+    })());
   }
 
   export function shutdown(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (queue) {
+    return new Promise(async (resolve, reject) => {
+      if (queuePromise) {
+        const queue = await queuePromise;
         queue.shutdown(2000, (err?: Error) => {
           if (err) { return reject(err); }
-          queue = null;
+          queuePromise = null as any;
           resolve();
         });
       } else {
@@ -29,26 +36,32 @@ export namespace TaskQueue {
     });
   }
 
-  export function startRunner(): void {
-    TaskQueue.getQueue()
-      .process('readnotas', configs.update_queue_size, async (jobinfo, done) => {
-        let strategy: IStrategy | undefined;
+  export async function startRunner(): Promise<void> {
+    const queue = await TaskQueue.getQueue();
+    const config = await ConfigurationService.getConfig();
+
+    queue.process('readnotas', config.update_queue_size, async (jobinfo, done) => {
+      let strategy: IStrategy | undefined;
+      try {
+
+        const { userid }: JobNota = jobinfo.data;
+        const usuario = (await UsuarioService.findById(UUID.from(userid)))!;
+        const endpoint = (await EndpointService.getEndpointById(usuario.endpoint))!;
+        const password = cipher.decrypt(usuario.password, config.cipher_pass);
+
+        strategy = (await StrategyFactory.build(StrategyType.QACADEMICO, endpoint!.url))!;
+        await strategy.login(usuario.matricula, password);
+        await NotasTask.updateRemote(strategy, usuario.matricula);
+        await strategy.release();
+        done();
+
+      } catch (e) {
         try {
-
-          const { endpoint, matricula, senha }: JobNota = jobinfo.data;
-          strategy = (await StrategyFactory.build(StrategyType.QACADEMICO, endpoint))!;
-          await strategy.login(matricula, senha);
-          await NotasTask.updateRemote(strategy, matricula);
-          await strategy.release();
-          done();
-
-        } catch (e) {
-          try {
-            await strategy!.release(true);
-          } catch { }
-          done(e);
-        }
-      });
+          await strategy!.release(true);
+        } catch { }
+        done(e);
+      }
+    });
   }
 
 }
