@@ -1,6 +1,7 @@
 import { PeriodoCompleto } from './../factory';
 import { QAcademicoStrategy } from './index';
 import * as cheerio from 'cheerio';
+import * as moment from 'moment';
 import { DIARIOS_PAGE } from '../../../constants';
 import {
   RemoteNota,
@@ -78,6 +79,7 @@ export namespace QDiarios {
         table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody`
       );
       const trs = tabelaNotas.children('tr').toArray();
+      const periodo = moment(dom('span.dado_cabecalho').text(), 'YYYY/MM').toDate();
 
       const disciplinas: RemoteDisciplina[] = trs.map((elem, i) => {
 
@@ -100,20 +102,16 @@ export namespace QDiarios {
               break;
             }
           }
-          return { turma, nome, professor: professor || '', etapas };
+          return {
+            turma,
+            nome,
+            professor: professor || '',
+            etapas,
+            periodo
+          };
         }
 
-      }).filter(d => !!d) as RemoteDisciplina[];
-
-      disciplinas.forEach(
-        disciplina => disciplina.etapas.forEach(
-          etapa => etapa.notas.forEach(
-            nota => {
-              nota.periodo = dom('span.dado_cabecalho').text();
-            }
-          )
-        )
-      );
+      }).filter(d => !!d) as any;
 
       return disciplinas;
     } catch (e) {
