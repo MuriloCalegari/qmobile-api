@@ -1,37 +1,48 @@
-import { ObjectID } from 'bson';
-import { DatabaseService } from './index';
+import { EndpointService } from './endpoint';
+import { DatabaseService } from './database';
+import * as uuid from 'uuid/v4';
 
-export interface Usuario {
-  _id?: ObjectID;
+export interface UsuarioDto {
+  id?: string;
   matricula: string;
   nome: string;
   password: string;
-  endpoint: string;
 }
 
 export namespace UsuarioService {
 
-  export async function createUser(user: Usuario): Promise<ObjectID> {
-    const db = await DatabaseService.getDatabase();
-    const res = await db.collection('usuarios').insertOne(user);
-    return res && res.insertedId;
+  type UsuarioEndpoint = UsuarioDto & { endpoint: string };
+
+  export async function create({ endpoint, ...usuario }: UsuarioEndpoint): Promise<UsuarioDto> {
+    const connection = await DatabaseService.getDatabase();
+    const endpointDto = await await EndpointService.findOrCreate(endpoint);
+
+    usuario = {
+      ...usuario,
+      id: uuid()
+    };
+    await connection.query(
+      'INSERT INTO usuario VALUES (?, ?, ?, ?, ?)',
+      [usuario.id, usuario.nome, usuario.matricula, usuario.password, endpointDto.id]
+    );
+    return usuario;
   }
 
-  export async function getUserById(id: string | ObjectID): Promise<Usuario | null> {
-    if (typeof id === 'string') {
-      id = ObjectID.createFromHexString(id);
+  export async function findByMatricula(matricula: string): Promise<UsuarioDto | null> {
+    const connection = await DatabaseService.getDatabase();
+    const [dto] = await connection.query(
+      'SELECT * FROM usuario WHERE matricula=? LIMIT 1',
+      [matricula]
+    );
+    return dto;
+  }
+
+  export async function findOrCreate(usuario: UsuarioEndpoint): Promise<UsuarioDto> {
+    const dto = await UsuarioService.findByMatricula(usuario.matricula);
+    if (!dto) {
+      return UsuarioService.create(usuario);
     }
-    const db = await DatabaseService.getDatabase();
-    return await db.collection('usuarios').findOne({
-      id
-    });
-  }
-
-  export async function getUserByMatricula(matricula: string): Promise<Usuario | null> {
-    const db = await DatabaseService.getDatabase();
-    return await db.collection('usuarios').findOne({
-      matricula
-    });
+    return dto;
   }
 
 }
