@@ -51,7 +51,6 @@ export async function getPhoto(strategy: QAcademicoStrategy): Promise<Buffer> {
     `)).replace(/^data:image\/png;base64,/, '');
     return new Buffer(base64, 'base64');
   } catch (exc) {
-    console.error(exc);
     await strategy.release(true);
     throw new QSiteError(exc, 'Falha ao buscar os dados');
   }

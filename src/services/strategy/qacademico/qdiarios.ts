@@ -117,7 +117,6 @@ export namespace QDiarios {
 
       return disciplinas;
     } catch (e) {
-      console.error(e);
       await strategy.release(true);
       throw e;
     }

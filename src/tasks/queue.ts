@@ -49,7 +49,7 @@ export namespace TaskQueue {
         const endpoint = (await EndpointService.getEndpointById(usuario.endpoint))!;
         const password = cipher.decrypt(usuario.password, config.cipher_pass);
 
-        strategy = (await StrategyFactory.build(StrategyType.QACADEMICO, endpoint!.url))!;
+        strategy = (await StrategyFactory.build(endpoint.strategy, endpoint!.url))!;
         await strategy.login(usuario.matricula, password);
         await NotasTask.updateRemote(strategy, usuario.matricula);
         await strategy.release();
