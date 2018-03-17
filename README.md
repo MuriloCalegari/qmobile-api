@@ -18,14 +18,14 @@ Utilizando deste servidor, futuramente o aplicativo mobile será capaz de exibir
 
 * Node.js
 * Express
-* PostgreSQL
+* MariaDB
 * Redis
 * TypeScript
 * Puppeteer
 
 ## Rodando o servidor
 
-Antes de começar, certifique-se de que possua PostgreSQL, Redis e Node.js instalados em sua máquina.
+Antes de começar, certifique-se de que possua MariaDB, Redis e Node.js instalados em sua máquina.
 
 Clone o repositório e entre dentro dele:
 
@@ -51,17 +51,21 @@ O arquivo se parecerá com:
 
 ```json
 {
-    "cipher_pass": "123mudar",
-    "db": {
+    "cipher_pass": "00000000000000000000000000000000",
+    "database": {
         "host": "localhost",
-        "username": "postgres",
-        "password": "postgres",
-        "port": 5432,
-        "database": "qmobile"
-    }
+        "username": "root",
+        "password": "12345",
+        "port": 3306,
+        "database": "qmobile",
+        "logging": false
+    },
+    "serverport": 3010,
+    "update_queue_size": 50,
+    "max_instances": 40
 }
 ```
 
-A opção **cipher_pass** se refere a chave da cifra que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
+A opção **cipher_pass** se refere a chave da cifra (exatamente 32 caracteres) que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
 
 As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta PostgreSQL.
