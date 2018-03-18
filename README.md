@@ -60,7 +60,6 @@ O arquivo se parecerá com:
         "database": "qmobile",
         "logging": false
     },
-    "serverport": 3010,
     "update_queue_size": 50,
     "max_instances": 40
 }
@@ -68,4 +67,4 @@ O arquivo se parecerá com:
 
 A opção **cipher_pass** se refere a chave da cifra (exatamente 32 caracteres) que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
 
-As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta PostgreSQL.
+As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta MariaDB.
