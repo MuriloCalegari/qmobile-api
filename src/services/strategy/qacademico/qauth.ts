@@ -1,4 +1,3 @@
-import { QError } from './../../errors/errors';
 import { QAcademicoStrategy } from './index';
 import { LOGIN_PAGE } from '../../../constants';
 
@@ -17,10 +16,10 @@ export async function login(strategy: QAcademicoStrategy, username: string, pass
 
     const titulo = await page.title();
     if (!titulo.toLowerCase().includes('bem vindo')) {
-      throw new QError('Senha incorreta');
+      throw new Error('Senha incorreta');
     }
   } catch (e) {
-    if (e instanceof QError === false) {
+    if (e.message !== 'Senha incorreta') {
       try {
         await strategy.release(true);
       } catch { }

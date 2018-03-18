@@ -1,4 +1,3 @@
-import { QSiteError } from './../../errors/errors';
 import * as cheerio from 'cheerio';
 import { QAcademicoStrategy } from './index';
 import { HOME_PAGE } from '../../../constants';
@@ -13,7 +12,7 @@ async function openHome(strategy: QAcademicoStrategy): Promise<void> {
     }
   } catch (exc) {
     await strategy.release(true);
-    throw new QSiteError(exc, 'Falha ao acessar ao servidor.');
+    throw new Error('Falha ao acessar ao servidor.');
   }
 }
 
@@ -30,7 +29,7 @@ export async function getName(strategy: QAcademicoStrategy): Promise<string> {
     }
   } catch (exc) {
     await strategy.release(true);
-    throw new QSiteError(exc, 'Falha ao buscar os dados');
+    throw new Error('Falha ao buscar os dados');
   }
 }
 
@@ -52,6 +51,6 @@ export async function getPhoto(strategy: QAcademicoStrategy): Promise<Buffer> {
     return new Buffer(base64, 'base64');
   } catch (exc) {
     await strategy.release(true);
-    throw new QSiteError(exc, 'Falha ao buscar os dados');
+    throw new Error('Falha ao buscar os dados');
   }
 }

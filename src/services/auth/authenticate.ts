@@ -1,6 +1,5 @@
 import { UsuarioDto } from './../../database/usuario';
 import { StrategyType } from './../strategy/factory';
-import { QError } from '../../services/errors/errors';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
 import { StrategyFactory } from '../strategy/factory';
@@ -43,6 +42,6 @@ export async function login(endpoint: string, matricula: string, password: strin
   if (decrypted === password) {
     return [novo, user];
   } else {
-    throw new QError('Senha incorreta');
+    throw new Error('Senha incorreta');
   }
 }
