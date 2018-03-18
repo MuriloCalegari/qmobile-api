@@ -10,7 +10,7 @@
 
 Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração para leitura dos dados.
 
-Este projeto faz parte do meu trabalho de conclusão de curso, espera-se que esteja pronto no final de 2018 :satisfied:
+Este projeto faz parte do meu trabalho de conclusão de curso, que será entregue no final de 2018 :satisfied:
 
 Utilizando deste servidor, futuramente o aplicativo mobile será capaz de exibir e gerenciar os dados recolhidos.
 
