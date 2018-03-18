@@ -13,7 +13,6 @@ interface DatabaseConfiguration {
 interface Configuration {
   cipher_pass: string;
   database: DatabaseConfiguration;
-  serverport: number;
   update_queue_size: number;
   max_instances: number;
 }
@@ -28,14 +27,13 @@ const DEFAULT_CONFIG: Configuration = {
     database: 'qmobile',
     logging: false
   },
-  serverport: 3010,
   update_queue_size: 50,
   max_instances: 40
 };
 
 export namespace ConfigurationService {
 
-  export const CONFIG_PATH = path.join(__dirname, '../config.json');
+  export const CONFIG_PATH = path.join(__dirname, '../data/config.json');
   let configPromise: Promise<Configuration>;
 
   export async function getConfig(): Promise<Configuration> {

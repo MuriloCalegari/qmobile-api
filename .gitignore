@@ -1,6 +1,5 @@
 dist/
-photos/
+data/
 node_modules/
-config.json
 .nyc_output/
 coverage/
