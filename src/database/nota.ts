@@ -1,6 +1,7 @@
 import { NumeroEtapa } from './../services/strategy/factory';
 import { UUID } from './uuid';
 import { DatabaseService } from './database';
+import * as moment from 'moment';
 
 export interface NotaUpdate {
   peso: number;
@@ -44,11 +45,11 @@ export namespace NotaService {
     return convert(nota);
   }
 
-  export async function findByDescricao(ud: number, descricao: string): Promise<NotaDto | null> {
+  export async function find(nota: NotaDto): Promise<NotaDto | null> {
     const connection = await DatabaseService.getDatabase();
     const [dto] = await connection.query(
-      'SELECT * FROM nota WHERE usuario_disciplina=? AND descricao=? LIMIT 1',
-      [ud, descricao]
+      'SELECT * FROM nota WHERE usuario_disciplina=? AND descricao=? AND etapa=? AND data=? LIMIT 1',
+      [nota.usuario_disciplina, nota.descricao, nota.etapa, moment(nota.data).format('YYYY-MM-DD')]
     );
     return convert(dto);
   }
@@ -62,7 +63,7 @@ export namespace NotaService {
   }
 
   export async function findOrCreate(nota: NotaDto): Promise<[boolean, NotaDto]> {
-    const dto = await NotaService.findByDescricao(nota.usuario_disciplina, nota.descricao);
+    const dto = await NotaService.find(nota);
     if (!dto) {
       return [true, await NotaService.create(nota)];
     }
@@ -76,6 +77,20 @@ export namespace NotaService {
       [id.toString()]
     );
     return convert(dto);
+  }
+
+  export function getMedia(notaDto: NotaDto): number {
+    const nota = Math.max(0, notaDto.nota as any);
+    if (nota <= 0) {
+      return Number(notaDto.nota);
+    }
+    const notaMaxima = Math.max(0, notaDto.notamaxima as any);
+    let maximo = Math.max(notaDto.peso as any, notaMaxima);
+    if (maximo <= 0 || nota > maximo) {
+      maximo = 10;
+    }
+    const media = (nota / maximo) * 10;
+    return Math.round(media * 100) / 100;
   }
 
 }

@@ -36,9 +36,9 @@ describe('E2E', () => {
               disciplina.professor.id = jasmine.any(String);
             disciplina.notas.forEach(nota => {
               nota.id = jasmine.any(String);
-              nota.nota =
-                nota.peso =
-                nota.notamaxima =
+              // nota.nota =
+              //   nota.peso =
+              //   nota.notamaxima =
                 nota.media = jasmine.any(Number);
             });
           });
@@ -237,6 +237,28 @@ describe('E2E', () => {
           professor: {
             nome: 'ROGER CAMPBELL'
           }
+        }
+      ]);
+    }));
+
+    it('deve calcular média da disciplina', asyncTest(async () => {
+      const query = `query {
+        session(id: "${session}") {
+          periodos {
+            disciplinas(nome: "matematica") {
+              media
+            }
+          }
+        }
+      }`;
+      const { data, errors } = await graphql(schema, query);
+      expect(data!.session).toBeTruthy();
+      expect(data!.session!.periodos).toBeTruthy();
+
+      const { session: { periodos } } = data!;
+      expect(periodos[0].disciplinas).toEqual([
+        {
+          media: 7.4
         }
       ]);
     }));

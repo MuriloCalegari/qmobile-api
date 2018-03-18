@@ -1,4 +1,4 @@
-import { NotaDto } from './../../../database/nota';
+import { NotaDto, NotaService } from './../../../database/nota';
 import { ProfessorDto } from './../../../database/professor';
 import { PeriodoContext } from './../index';
 import { DisciplinaDto } from './../../../database/disciplina';
@@ -15,6 +15,7 @@ export = {
     id: ID!
     nome: String!
     turma: String!
+    media(etapa: NumeroEtapa): Float!
     professor: Professor!
     notas: [Nota!]!
   }
@@ -42,15 +43,34 @@ export = {
           LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
           WHERE disciplina_professor.disciplina = ?
               AND disciplina_professor.periodo = ?
+              AND usuario_disciplina.usuario = ?
           ORDER BY
             nota.data DESC,
             nota.descricao DESC,
             nota.etapa DESC;
-        `, [id!.toString(), context.periodo]);
+        `, [id!.toString(), context.periodo, context.usuario.id!.toString()]);
         return res.map(dado => ({
           ...dado,
           context
         }));
+      },
+      async media({ context, id }: DisciplinaDto & PeriodoContext, { etapa }, c): Promise<number> {
+        const db = await DatabaseService.getDatabase();
+        const res = await db.query(`
+        SELECT nota.nota, nota.peso, nota.notamaxima FROM nota
+          LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
+          LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+          WHERE disciplina_professor.disciplina = ?
+              AND disciplina_professor.periodo = ?
+              AND nota.nota >= 0
+              AND usuario_disciplina.usuario = ?
+              ${!!etapa ? 'AND nota.etapa = ?' : ''}
+        `, [id!.toString(), context.periodo, context.usuario.id!.toString(), etapa]);
+        const medias = res
+          .map((nota: NotaDto) => NotaService.getMedia(nota)) as number[];
+        const mediaTotal = medias
+          .reduce((a, b) => a + b, 0) / medias.length;
+        return (Math.round(mediaTotal * 100) / 100) || 0;
       }
     }
 

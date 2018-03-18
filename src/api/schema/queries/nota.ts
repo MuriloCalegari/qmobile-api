@@ -1,4 +1,4 @@
-import { NotaDto } from './../../../database/nota';
+import { NotaDto, NotaService } from './../../../database/nota';
 import { ProfessorDto } from './../../../database/professor';
 import { PeriodoContext } from './../index';
 import { DisciplinaDto } from './../../../database/disciplina';
@@ -39,16 +39,7 @@ export = {
 
     Nota: {
       media(notaDto: NotaDto & PeriodoContext, _, c): number {
-        const nota = Math.max(0, notaDto.nota as any);
-        if (nota <= 0) {
-          return Number(notaDto.nota);
-        }
-        const notaMaxima = Math.max(0, notaDto.notamaxima as any);
-        let maximo = Math.max(notaDto.peso as any, notaMaxima);
-        if (maximo <= 0 || nota > maximo) {
-          maximo = 10;
-        }
-        return (nota / maximo) * 10;
+        return NotaService.getMedia(notaDto);
       },
       data(notaDto: NotaDto & PeriodoContext, _, c): string {
         return moment(notaDto.data).format('DD/MM/YYYY');
