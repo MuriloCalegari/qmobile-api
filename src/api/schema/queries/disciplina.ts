@@ -41,7 +41,11 @@ export = {
           LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
           LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
           WHERE disciplina_professor.disciplina = ?
-              AND disciplina_professor.periodo = ?;
+              AND disciplina_professor.periodo = ?
+          ORDER BY
+            nota.data DESC,
+            nota.descricao DESC,
+            nota.etapa DESC;
         `, [id!.toString(), context.periodo]);
         return res.map(dado => ({
           ...dado,

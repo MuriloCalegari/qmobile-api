@@ -18,17 +18,21 @@ export function asyncTest(fn: TestFn): TestFn {
   };
 }
 
+export async function clearDatabase() {
+  await DatabaseService.truncate([
+    'nota', 'disciplina', 'endpoint', 'usuario',
+    'professor', 'disciplina_professor', 'usuario_disciplina',
+    'session'
+  ]);
+  await EndpointService.findOrCreate('http://localhost:9595', StrategyType.QACADEMICO);
+}
+
 beforeAll(asyncTest(async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 10e6;
   await Promise.all([
     (async () => {
       await DatabaseService.createTables();
-      await DatabaseService.truncate([
-        'nota', 'disciplina', 'endpoint', 'usuario',
-        'professor', 'disciplina_professor', 'usuario_disciplina',
-        'session'
-      ]);
-      await EndpointService.findOrCreate('http://localhost:9595', StrategyType.QACADEMICO);
+      await clearDatabase();
     })(),
     PocketServer.getInstance().start()
   ]);
