@@ -10,6 +10,8 @@ services:
     depends_on:
       - mariadb
       - redis
+    volumes:
+      - /home/qmobile/data:/opt/app/data
   redis:
     image: "redis:alpine"
   mariadb:
