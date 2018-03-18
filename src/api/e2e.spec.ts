@@ -36,9 +36,9 @@ describe('E2E', () => {
               disciplina.professor.id = jasmine.any(String);
             disciplina.notas.forEach(nota => {
               nota.id = jasmine.any(String);
-              nota.nota =
-                nota.peso =
-                nota.notamaxima =
+              // nota.nota =
+              //   nota.peso =
+              //   nota.notamaxima =
                 nota.media = jasmine.any(Number);
             });
           });
