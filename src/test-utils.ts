@@ -12,6 +12,7 @@ export function asyncTest(fn: TestFn): TestFn {
       await fn();
       done!();
     } catch (e) {
+      console.error(e);
       done!.fail(e);
     }
   };

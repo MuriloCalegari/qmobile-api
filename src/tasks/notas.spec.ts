@@ -30,7 +30,7 @@ describe('NotasTask', () => {
       Promise.resolve()
     );
     await limpar();
-    usuario = await auth.login('http://localhost:9595', 'test', 'pass');
+    [, usuario] = await auth.login('http://localhost:9595', 'test', 'pass');
     (NotasTask.updateRemote as jasmine.Spy).and.callThrough();
   }));
 
@@ -233,7 +233,7 @@ describe('NotasTask', () => {
         notamaxima: 10,
         nota: 9
       };
-      await NotasTask.updateNota(usuario_disciplina, 1, dados);
+      await NotasTask.updateNota(usuario_disciplina, 1, { ...dados, data: new Date() });
       const nota = (await NotaService.findByDescricao(usuario_disciplina, 'prova'))!;
       expect(nota).toBeTruthy();
       expect(nota).toEqual(jasmine.objectContaining(dados as any));
@@ -247,7 +247,8 @@ describe('NotasTask', () => {
           descricao: 'prova 2',
           peso: 10,
           notamaxima: 10,
-          nota: 9
+          nota: 9,
+          data: new Date()
         }
       );
       await criar();
@@ -267,7 +268,8 @@ describe('NotasTask', () => {
           descricao: 'prova 4',
           peso: 10,
           notamaxima: 10,
-          nota
+          nota,
+          data: new Date()
         }
       );
       const ret1 = await criar(6);
