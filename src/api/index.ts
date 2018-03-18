@@ -50,5 +50,6 @@ import { NotasTask } from '../tasks/notas';
 })().catch(err => {
   console.log(colors.red('Oh não! Houve um erro ao inicializar!'));
   console.error(err);
+  process.exit(1);
 });
 

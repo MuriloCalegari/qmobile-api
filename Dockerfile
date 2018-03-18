@@ -2,17 +2,19 @@ FROM adimit/docker-node-chromium
 
 USER root
 
-WORKDIR /home/app
-RUN mkdir /home/app/data
-
-COPY package*.json ./
-
 RUN npm set progress=false && npm config set depth 0 && npm cache clean --force
 
-RUN npm i
-COPY . .
+COPY package.json /tmp/package.json
+RUN cd /tmp && npm install
+RUN mkdir -p /opt/app && cp -a /tmp/node_modules /opt/app/
 
-EXPOSE 3002 3306
-VOLUME [ "/home/app/data" ]
+WORKDIR /opt/app
+
+COPY . /opt/app
+
+RUN mkdir /opt/app/data
+
+EXPOSE 3002
+VOLUME [ "/opt/app/data" ]
 
 CMD [ "npm", "start" ]

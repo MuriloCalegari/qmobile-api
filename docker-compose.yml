@@ -1,0 +1,26 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+     - "3002:3002"
+    environment:
+      MYSQL_HOST: mariadb
+      REDIS_HOST: redis
+    depends_on:
+      - mariadb
+      - redis
+  redis:
+    image: "redis:alpine"
+  mariadb:
+    image: "mariadb:10.2.13"
+    environment:
+      MYSQL_ROOT_PASSWORD: '12345'
+      MYSQL_DATABASE: qmobile
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3306"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+    - /home/qmobile/db:/var/lib/mysql
