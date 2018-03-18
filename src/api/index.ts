@@ -1,15 +1,44 @@
+import * as colors from 'colors/safe';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import { schema } from './schema';
+import { DatabaseService } from '../database/database';
+import { TaskQueue } from '../tasks/queue';
+import * as cron from 'node-cron';
+import { NotasTask } from '../tasks/notas';
 
-const PORT = 3002;
+(async () => {
+  console.log(colors.green(`
+    ___  __  __       _     _ _
+   / _ \\|  \\/  | ___ | |__ (_) | ___
+  | | | | |\\/| |/ _ \\| '_ \\| | |/ _ \\
+  | |_| | |  | | (_) | |_) | | |  __/
+   \\__\\_\\_|  |_|\\___/|_.__/|_|_|\\___|
 
-const app = express();
+ `));
+ console.log(colors.green('Iniciando...'));
 
+  await DatabaseService.createTables();
+  await TaskQueue.startRunner();
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+  const PORT = 3002;
 
-app.get('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+  const app = express();
 
-app.listen(PORT);
+  app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+
+  app.get('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+
+  cron.schedule('*/2 * * * *', () => {
+    NotasTask.scheduleUpdate();
+  });
+
+  app.listen(PORT, () => {
+    console.log(colors.white('Here we go :)'));
+  });
+})().catch(err => {
+  console.log(colors.red('Oh não! Houve um erro ao inicializar!'));
+  console.error(err);
+});
+
