@@ -15,7 +15,9 @@ export namespace TaskQueue {
     return queuePromise || (queuePromise = (async () => {
       const config = await ConfigurationService.getConfig();
 
-      const queue = kue.createQueue();
+      const queue = kue.createQueue({
+        redis: config.redis
+      });
       queue.setMaxListeners(config.update_queue_size + 5);
       return queue;
     })());

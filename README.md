@@ -23,9 +23,9 @@ Utilizando deste servidor, futuramente o aplicativo mobile será capaz de exibir
 * TypeScript
 * Puppeteer
 
-## Rodando o servidor
+## Subindo um container com docker
 
-Antes de começar, certifique-se de que possua MariaDB, Redis e Node.js instalados em sua máquina.
+Antes de começar, certifique-se de que possua docker-compose instalado.
 
 Clone o repositório e entre dentro dele:
 
@@ -35,36 +35,15 @@ git clone https://github.com/Alan-Gomes/qmobile-api
 cd qmobile-api
 ```
 
-Para rodar o servidor, é necessário que sejam instaladas todas as dependências, com o comando:
-
+Para iniciar o sistema, execute o comando:
 ```bash
-npm install
-```
-Após instalar as dependencias, execute o projeto:
-
-```bash
-npm start
-```
-Quando o comando for executado pela primeira vez, ele avisará que é necessário a configuração do sistema, para fazer isso, volte para a pasta raiz e abra o arquivo **config.json**.
-
-O arquivo se parecerá com:
-
-```json
-{
-    "cipher_pass": "00000000000000000000000000000000",
-    "database": {
-        "host": "localhost",
-        "username": "root",
-        "password": "12345",
-        "port": 3306,
-        "database": "qmobile",
-        "logging": false
-    },
-    "update_queue_size": 50,
-    "max_instances": 40
-}
+sudo docker-compose up -d
 ```
 
-A opção **cipher_pass** se refere a chave da cifra (exatamente 32 caracteres) que é utilizada para guardar as senhas dos usuários no banco de dados, é de extrema importância que ela seja alterada para maior segurança.
-
-As opções contidas em **db** são as configurações do banco de dados, o sistema atualmente só suporta MariaDB.
+Caso a saída seja a seguinte, tudo está correto:
+```
+Starting qmobileapi_mariadb_1 ... 
+Starting qmobileapi_redis_1 ... done
+Starting qmobileapi_web_1 ... done
+```
+Agora só acessar http://localhost:3002/graphiql para interagir com a API.
