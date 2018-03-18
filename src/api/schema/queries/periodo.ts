@@ -23,7 +23,8 @@ export = {
           WHERE disciplina_professor.periodo = ?
               AND usuario_disciplina.usuario = ?
               ${!!nome ? 'AND disciplina.nome LIKE ?' : ''}
-          GROUP BY id;
+          GROUP BY id
+          ORDER BY disciplina.nome DESC;
         `, [context.periodo, context.usuario.id!.toString(), nome && `%${nome}%`]);
         return res.map(dado => ({
           ...dado,
