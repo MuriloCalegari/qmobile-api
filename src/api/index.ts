@@ -11,6 +11,9 @@ import * as cron from 'node-cron';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { NotasTask } from '../tasks/notas';
+import { EndpointService } from '../database/endpoint';
+
+const def_endpoint = 'http://qacademico.ifsul.edu.br/qacademico';
 
 (async () => {
   console.log(colors.green(`
@@ -28,6 +31,8 @@ import { NotasTask } from '../tasks/notas';
   }
   await DatabaseService.createTables();
   await TaskQueue.startRunner();
+  // TODO arrumar um modo melhor de inicializar o endpoint
+  await EndpointService.findOrCreate(def_endpoint);
   const PORT = 3002;
 
   const app = express();
