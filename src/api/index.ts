@@ -1,3 +1,4 @@
+import { photo_router } from './photo';
 import { DATA_FOLDER } from './../constants';
 import * as colors from 'colors/safe';
 import * as express from 'express';
@@ -34,6 +35,8 @@ import { NotasTask } from '../tasks/notas';
   app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
 
   app.get('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+
+  app.use(photo_router);
 
   cron.schedule('*/2 * * * *', () => {
     NotasTask.scheduleUpdate();
