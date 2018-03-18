@@ -30,7 +30,7 @@ export namespace EndpointService {
     };
     await connection.query(
       'INSERT INTO endpoint VALUES(?, ?, ?, ?)',
-      [endpoint.id!.toString(), endpoint.nome, endpoint.url, strategy]
+      [endpoint.id!.toString(), endpoint.nome, endpoint.url, endpoint.strategy]
     );
     return convert(endpoint);
   }
