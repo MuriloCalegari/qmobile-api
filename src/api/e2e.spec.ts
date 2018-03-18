@@ -241,6 +241,28 @@ describe('E2E', () => {
       ]);
     }));
 
+    it('deve calcular média da disciplina', asyncTest(async () => {
+      const query = `query {
+        session(id: "${session}") {
+          periodos {
+            disciplinas(nome: "matematica") {
+              media
+            }
+          }
+        }
+      }`;
+      const { data, errors } = await graphql(schema, query);
+      expect(data!.session).toBeTruthy();
+      expect(data!.session!.periodos).toBeTruthy();
+
+      const { session: { periodos } } = data!;
+      expect(periodos[0].disciplinas).toEqual([
+        {
+          media: 7.4
+        }
+      ]);
+    }));
+
     it('deve buscar periodo por nome', asyncTest(async () => {
       const query = `query {
         session(id: "${session}") {

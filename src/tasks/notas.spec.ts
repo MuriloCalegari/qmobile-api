@@ -1,6 +1,6 @@
 import { UUID } from './../database/uuid';
 import { UsuarioDto, UsuarioService } from './../database/usuario';
-import { StrategyType } from './../services/strategy/factory';
+import { StrategyType, NumeroEtapa } from './../services/strategy/factory';
 import * as auth from '../services/auth/authenticate';
 import * as cipher from '../services/cipher/cipher';
 import { NotasTask } from './notas';
@@ -233,8 +233,14 @@ describe('NotasTask', () => {
         notamaxima: 10,
         nota: 9
       };
-      await NotasTask.updateNota(usuario_disciplina, 1, { ...dados, data: new Date() });
-      const nota = (await NotaService.findByDescricao(usuario_disciplina, 'prova'))!;
+      const now = new Date();
+      await NotasTask.updateNota(usuario_disciplina, 1, { ...dados, data: now });
+      const nota = (await NotaService.find({
+        ...dados,
+        data: now,
+        etapa: 1,
+        usuario_disciplina
+      }))!;
       expect(nota).toBeTruthy();
       expect(nota).toEqual(jasmine.objectContaining(dados as any));
     }));
@@ -261,6 +267,7 @@ describe('NotasTask', () => {
 
 
     it('deve atualizar a nota', asyncTest(async () => {
+      const now = new Date();
       const criar = (nota: number) => NotasTask.updateNota(
         usuario_disciplina,
         1,
@@ -275,7 +282,12 @@ describe('NotasTask', () => {
       const ret1 = await criar(6);
       const ret2 = await criar(9);
       const ret3 = await criar(9);
-      const notadb = (await NotaService.findByDescricao(usuario_disciplina, 'prova 4'))!;
+      const notadb = (await NotaService.find({
+        descricao: 'prova 4',
+        data: now,
+        etapa: NumeroEtapa.ETAPA1,
+        usuario_disciplina
+      }))!;
 
       expect(notadb.nota).toBe(9);
       expect(ret1).toEqual([jasmine.any(UUID), 'nova'] as any);

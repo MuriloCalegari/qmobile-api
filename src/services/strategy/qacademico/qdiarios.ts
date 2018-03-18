@@ -22,6 +22,7 @@ export namespace QDiarios {
       if (url !== diarios) {
         await page.goto(diarios);
       }
+      await page.waitForFunction(`(() => document.readyState === 'ready' || document.readyState === 'complete')()`);
     } catch (e) {
       await strategy.release(true);
       throw e;
