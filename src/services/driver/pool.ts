@@ -1,38 +1,52 @@
-import { QBrowser } from './qbrowser';
+import { Browser } from 'puppeteer';
 import * as genericPool from 'generic-pool';
 import * as puppeteer from 'puppeteer';
 
-import * as config from '../../configs';
 import { Factory, Pool } from 'generic-pool';
+import { ConfigurationService } from '../../configs';
 
+export namespace PoolService {
 
-let pool: Pool<QBrowser>;
+  let pool: Pool<Browser>;
 
-const factory: Factory<QBrowser> = {
-  async create() {
-    const driver = await puppeteer.launch({
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox'
-      ]
-    });
-    const page = await driver.newPage();
-    return new QBrowser(driver, page, pool);
-  },
-  validate(client) {
-    return client.isValid();
-  },
-  async destroy(client) {
-    await client.destroy();
-    return undefined;
+  const FACTORY: Factory<Browser> = {
+    create() {
+      return puppeteer.launch({
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox'
+        ]
+      });
+    },
+    async validate(client) {
+      try {
+        const pages = await client.pages();
+        for (const page of pages) {
+          await page.title();
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    async destroy(client) {
+      await client.close();
+      return undefined;
+    }
+  };
+
+  export async function getPool(): Promise<Pool<Browser>> {
+    if (!pool) {
+      const { max_instances } = await ConfigurationService.getConfig();
+
+      return pool = genericPool.createPool(FACTORY, {
+        min: 1,
+        max: max_instances,
+        testOnBorrow: true,
+        autostart: false
+      });
+    }
+    return pool;
   }
-};
 
-pool = genericPool.createPool(factory, {
-  min: 1,
-  max: config.maxinstances || 2,
-  testOnBorrow: true,
-  autostart: false
-});
-
-export = pool;
+}

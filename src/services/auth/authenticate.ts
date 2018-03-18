@@ -1,44 +1,47 @@
-import { Usuario } from './../../models/usuario';
-import * as qauth from '../../services/browser/qauth';
-import * as quser from '../../services/browser/quser';
+import { UsuarioDto } from './../../database/usuario';
+import { StrategyType } from './../strategy/factory';
 import { QError } from '../../services/errors/errors';
-import * as configs from '../../configs';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
-import { NotasTask } from '../../tasks/notas';
+import { StrategyFactory } from '../strategy/factory';
+import { ConfigurationService } from '../../configs';
+import { UsuarioService } from '../../database/usuario';
+import { EndpointService } from '../../database/endpoint';
 
-async function insereBanco(endpoint: string, matricula: string, nome: string, pass: string): Promise<Usuario> {
-
-  const password = cipher.crypt(pass, configs.cipher_pass);
-  return await Usuario.create({
-    matricula,
-    nome,
-    password,
-    endpoint
-  });
-}
-
-export async function login(endpoint: string, username: string, pass: string): Promise<Usuario> {
-
-  let user = await Usuario.findOne({
-    where: {
-      matricula: username
-    }
-  });
-  if (!user) {
-    const browser = await qauth.login(endpoint, username, pass);
-    const name = await quser.getName(browser);
-    user = await insereBanco(endpoint, username, name, pass);
-    const buffer = await photo.process(
-      await quser.getPhoto(browser)
-    );
-    await photo.savePhoto(buffer, user.id);
-    await NotasTask.updateRemote(browser, username);
-    await browser.exit();
+export async function login(endpoint: string, matricula: string, password: string): Promise<[boolean, UsuarioDto]> {
+  const { cipher_pass } = await ConfigurationService.getConfig();
+  const endpointDto = await EndpointService.getEndpointByUrl(endpoint);
+  if (!endpointDto) {
+    throw new Error('Endpoint não homologado');
   }
-  const decrypted = cipher.decrypt(user.password, configs.cipher_pass);
-  if (decrypted === pass) {
-    return user;
+
+  let user = await UsuarioService.findByMatricula(matricula);
+  let novo = false;
+  if (!user) {
+    novo = true;
+    const strategy = (await StrategyFactory.build(endpointDto.strategy, endpoint))!;
+    await strategy.login(matricula, password);
+
+    const nome = await strategy.getFullName();
+    const ciphered = cipher.crypt(password, cipher_pass);
+    user = await UsuarioService.create({
+      matricula,
+      nome,
+      password: ciphered,
+      endpoint: endpointDto.id!
+    });
+
+    const buffer = await photo.process(
+      await strategy.getProfilePicture()
+    );
+    await photo.savePhoto(buffer, user.id!.toString());
+
+    await strategy.release();
+
+  }
+  const decrypted = cipher.decrypt(user.password, cipher_pass);
+  if (decrypted === password) {
+    return [novo, user];
   } else {
     throw new QError('Senha incorreta');
   }
