@@ -1,8 +1,10 @@
+import { DATA_FOLDER } from './constants';
 import { StrategyType } from './services/strategy/factory';
 import { PocketServer } from '../test/webserver';
 import { DatabaseService } from './database/database';
 import { PoolService } from './services/driver/pool';
 import { EndpointService } from './database/endpoint';
+import * as fs from 'fs-extra';
 
 type TestFn = (done?: DoneFn) => Promise<void> | void;
 
@@ -29,6 +31,9 @@ export async function clearDatabase() {
 
 beforeAll(asyncTest(async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 10e6;
+  if (!(await fs.pathExists(DATA_FOLDER))) {
+    await fs.mkdir(DATA_FOLDER);
+  }
   await Promise.all([
     (async () => {
       await DatabaseService.createTables();
