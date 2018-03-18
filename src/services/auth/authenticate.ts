@@ -3,13 +3,12 @@ import { StrategyType } from './../strategy/factory';
 import { QError } from '../../services/errors/errors';
 import * as cipher from '../cipher/cipher';
 import * as photo from '../photo/photo';
-import { NotasTask } from '../../tasks/notas';
 import { StrategyFactory } from '../strategy/factory';
 import { ConfigurationService } from '../../configs';
 import { UsuarioService } from '../../database/usuario';
 import { EndpointService } from '../../database/endpoint';
 
-export async function login(endpoint: string, matricula: string, password: string): Promise<UsuarioDto> {
+export async function login(endpoint: string, matricula: string, password: string): Promise<[boolean, UsuarioDto]> {
   const { cipher_pass } = await ConfigurationService.getConfig();
   const endpointDto = await EndpointService.getEndpointByUrl(endpoint);
   if (!endpointDto) {
@@ -17,8 +16,9 @@ export async function login(endpoint: string, matricula: string, password: strin
   }
 
   let user = await UsuarioService.findByMatricula(matricula);
+  let novo = false;
   if (!user) {
-
+    novo = true;
     const strategy = (await StrategyFactory.build(endpointDto.strategy, endpoint))!;
     await strategy.login(matricula, password);
 
@@ -36,13 +36,12 @@ export async function login(endpoint: string, matricula: string, password: strin
     );
     await photo.savePhoto(buffer, user.id!.toString());
 
-    await NotasTask.updateRemote(strategy, matricula);
     await strategy.release();
 
   }
   const decrypted = cipher.decrypt(user.password, cipher_pass);
   if (decrypted === password) {
-    return user;
+    return [novo, user];
   } else {
     throw new QError('Senha incorreta');
   }

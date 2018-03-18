@@ -8,6 +8,7 @@ export interface UsuarioDto {
   nome: string;
   password: string;
   endpoint: UUID;
+  inicializado?: boolean;
 }
 
 export namespace UsuarioService {
@@ -17,6 +18,7 @@ export namespace UsuarioService {
       ...dto,
       id: dto.id && UUID.from(dto.id),
       endpoint: UUID.from(dto.endpoint),
+      inicializado: !!dto.inicializado
     };
   }
 
@@ -28,8 +30,11 @@ export namespace UsuarioService {
       id: UUID.random()
     };
     await connection.query(
-      'INSERT INTO usuario VALUES (?, ?, ?, ?, ?)',
-      [usuario.id!.toString(), usuario.nome, usuario.matricula, usuario.password, usuario.endpoint.toString()]
+      'INSERT INTO usuario VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        usuario.id!.toString(), usuario.nome, usuario.matricula,
+        usuario.password, Number(!!usuario.inicializado), usuario.endpoint.toString()
+      ]
     );
     return convert(usuario);
   }
@@ -64,6 +69,14 @@ export namespace UsuarioService {
     const connection = await DatabaseService.getDatabase();
     const res: UsuarioDto[] = await connection.query('SELECT * FROM usuario');
     return res.map(dto => convert(dto));
+  }
+
+  export async function setInicializado(id: UUID, state: boolean): Promise<void> {
+    const connection = await DatabaseService.getDatabase();
+    await connection.query(
+      'UPDATE usuario SET inicializado=? WHERE id=?',
+      [Number(state), id.toString()]
+    );
   }
 
 }

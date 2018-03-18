@@ -8,9 +8,19 @@ interface LoginInput {
   instance?: string;
 }
 
+interface LoginResult {
+  novo: boolean;
+  session: string;
+}
+
 export = {
 
   schema: `
+  type LoginResult {
+    novo: Boolean!
+    session: String!
+  }
+
   input LoginInput {
     endpoint: String!
     matricula: String!
@@ -19,24 +29,27 @@ export = {
   }
 
   type Mutation {
-    login(input: LoginInput!): String!
+    login(input: LoginInput!): LoginResult!
   }
   `,
 
   resolvers: {
 
     Mutation: {
-      async login(_, { input }: { input: LoginInput }, c): Promise<string> {
+      async login(_, { input }: { input: LoginInput }, c): Promise<LoginResult> {
         const { endpoint, matricula, password, instance } = input;
-        const user = await auth.login(endpoint, matricula, password);
-        const id = await SessionService.createSession({
-          usuario: user._id!,
-          instance_id: instance
+        const [novo, user] = await auth.login(endpoint, matricula, password);
+        const session = await SessionService.create({
+          usuario: user.id!,
+          instance: input.instance
         });
-        return id.toHexString();
+        return {
+          novo: novo,
+          session: session.id!.toString()
+        };
       }
     }
 
-  }
+  },
 
 };

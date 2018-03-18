@@ -7,7 +7,6 @@ import * as authService from './authenticate';
 
 import { PocketServer } from './../../../test/webserver';
 import * as imageSize from 'image-size';
-import { NotasTask } from '../../tasks/notas';
 import { StrategyFactory, IStrategy, StrategyType } from '../strategy/factory';
 import { DatabaseService } from '../../database/database';
 
@@ -39,7 +38,6 @@ describe('AuthService:auth', () => {
     server = PocketServer.getInstance();
     server.reset();
     server.state.loggedIn = true;
-    spyOn(NotasTask, 'updateRemote').and.returnValue(Promise.resolve());
   }));
 
   afterEach(asyncTest(async () => {
@@ -47,7 +45,7 @@ describe('AuthService:auth', () => {
   }));
 
   it('deve seguir o fluxo corretamente', asyncTest(async () => {
-    const user = await authService.login('http://localhost:9595', 'test', 'pass');
+    const [, user] = await authService.login('http://localhost:9595', 'test', 'pass');
     expect(user.id).toBeTruthy();
     expect(user.nome).toBe('Aluno Teste');
     expect(user.matricula).toBe('test');
@@ -58,11 +56,10 @@ describe('AuthService:auth', () => {
     expect(strategy.login).toHaveBeenCalledWith('test', 'pass');
     expect(strategy.getFullName).toHaveBeenCalled();
     expect(strategy.getProfilePicture).toHaveBeenCalled();
-    expect(NotasTask.updateRemote).toHaveBeenCalledWith(strategy, 'test');
   }));
 
   it('não deve buscar informacoes se ja houver no banco', asyncTest(async () => {
-    const user1 = await authService.login('http://localhost:9595', 'test', 'pass');
+    const [, user1] = await authService.login('http://localhost:9595', 'test', 'pass');
 
     [
       strategy.login,
@@ -70,7 +67,7 @@ describe('AuthService:auth', () => {
       strategy.getProfilePicture as any
     ].forEach((spy: jasmine.Spy) => spy.calls.reset());
 
-    const user2 = await authService.login('http://localhost:9595', 'test', 'pass');
+    const [, user2] = await authService.login('http://localhost:9595', 'test', 'pass');
 
     expect(user1.id!.toString()).toBe(user2.id!.toString());
     expect(strategy.login).not.toHaveBeenCalled();

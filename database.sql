@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `usuario` (
   `nome` VARCHAR(45) NOT NULL,
   `matricula` VARCHAR(45) NOT NULL,
   `password` VARCHAR(70) NOT NULL,
+  `inicializado` INT(1) NOT NULL,
   `endpoint` CHAR(36) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`endpoint`) REFERENCES `endpoint` (`id`)
@@ -34,8 +35,8 @@ CREATE TABLE IF NOT EXISTS `usuario` (
 
 CREATE TABLE IF NOT EXISTS `session` (
   `id` CHAR(36) NOT NULL,
-  `instance` VARCHAR(100),
   `usuario` CHAR(36) NOT NULL,
+  `instance` VARCHAR(100),
   PRIMARY KEY (`id`),
   FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
 );
@@ -51,14 +52,6 @@ CREATE TABLE IF NOT EXISTS `disciplina_professor` (
   FOREIGN KEY (`professor`) REFERENCES `professor` (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `session` (
-  `id` VARCHAR(36) NOT NULL,
-  `usuario` CHAR(36) NOT NULL,
-  `instance` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`, `usuario`),
-  FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-);
-
 CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `disciplina_professor` INT NOT NULL,
@@ -71,11 +64,12 @@ CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
 CREATE TABLE IF NOT EXISTS `nota` (
   `id` CHAR(36) NOT NULL,
   `usuario_disciplina` INT NOT NULL,
-  `descricao` VARCHAR(60) NOT NULL,
+  `descricao` VARCHAR(255) NOT NULL,
+  `data` DATE NOT NULL,
   `etapa` INT NOT NULL,
-  `peso` INT,
-  `notamaxima` INT,
-  `nota` INT,
+  `peso` FLOAT,
+  `notamaxima` FLOAT,
+  `nota` FLOAT,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`usuario_disciplina`) REFERENCES `usuario_disciplina` (`id`)
 );

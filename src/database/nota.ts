@@ -12,6 +12,7 @@ export interface NotaDto {
   id?: UUID;
   usuario_disciplina: number;
   descricao: string;
+  data: Date;
   etapa: NumeroEtapa;
   peso?: number | null;
   notamaxima?: number | null;
@@ -34,10 +35,10 @@ export namespace NotaService {
       id: UUID.random()
     };
     await connection.query(
-      'INSERT INTO nota VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO nota VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [
-        nota.id!.toString(), nota.usuario_disciplina,
-        nota.descricao, nota.etapa, nota.peso, nota.notamaxima, nota.nota
+        nota.id!.toString(), nota.usuario_disciplina, nota.descricao,
+        nota.data, nota.etapa, nota.peso, nota.notamaxima, nota.nota
       ]
     );
     return convert(nota);

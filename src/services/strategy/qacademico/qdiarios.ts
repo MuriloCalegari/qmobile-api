@@ -45,10 +45,22 @@ export namespace QDiarios {
       notamaxima,
       nota
     ] = element.children('td').toArray().map(e => dom(e).text());
+
+    let desc = descricao
+      .replace(/\([a-zA-Z0-9]+\)/g, '')
+      .replace(/\s\s+/g, ' ')
+      .trim();
+
+    let data: moment.Moment | null = moment(desc, 'DD/MM/YYYY');
+    if (data.isValid() && data.isBefore(moment())) {
+      desc = desc.substring(12).trim();
+    } else {
+      data = moment();
+    }
+
     return {
-      descricao: (
-        descricao
-      ).replace(/\([a-zA-Z0-9]+\)/g, '').replace(/\s\s+/g, ' ').trim(),
+      descricao: desc,
+      data: data.toDate(),
       peso: extractFloat(peso),
       notamaxima: extractFloat(notamaxima),
       nota: extractFloat(nota),
@@ -111,7 +123,7 @@ export namespace QDiarios {
           };
         }
 
-      }).filter(d => !!d) as any;
+      }).filter(d => !!d && !(!d.professor && d.etapas.length === 0)) as any;
 
       return disciplinas;
     } catch (e) {

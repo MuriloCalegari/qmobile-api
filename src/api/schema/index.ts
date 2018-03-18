@@ -1,19 +1,20 @@
-import { Turma } from './../../models/turma';
-import { Disciplina } from './../../models/disciplina';
-import { Usuario } from './../../models/usuario';
+import { SessionDto } from './../../database/session';
+import { UsuarioDto } from './../../database/usuario';
 import { makeExecutableSchema } from 'graphql-tools';
 import { IResolvers } from 'graphql-tools/dist/Interfaces';
-import { Session } from '../../models/session';
 
-export interface DisciplinaContext {
-  user: Usuario;
-  disciplina: Disciplina;
+export interface BaseContext {
+  context: {
+    usuario: UsuarioDto;
+    session: SessionDto;
+  };
 }
 
-export interface TurmaContext {
-  user: Usuario;
-  turma: Turma;
-}
+export type PeriodoContext = BaseContext & {
+  context: {
+    periodo: Date;
+  }
+};
 
 interface GType {
   schema: string;
@@ -23,7 +24,8 @@ interface GType {
 const types: GType[] = [
   require('./mutations/mutation'),
   require('./queries/disciplina'),
-  require('./queries/turma'),
+  require('./queries/nota'),
+  require('./queries/periodo'),
   require('./queries/user'),
   require('./queries/query')
 ];

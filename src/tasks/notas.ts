@@ -61,12 +61,13 @@ export namespace NotasTask {
     }
   }
 
-  export function updateEtapa(usuario_disciplina: number, { notas, numero }: RemoteEtapa): Promise<NotaUpdate[]> {
-    return Promise.all(
+  export async function updateEtapa(usuario_disciplina: number, { notas, numero }: RemoteEtapa): Promise<NotaUpdate[]> {
+    const ret = await Promise.all(
       notas.map(
         nota => NotasTask.updateNota(usuario_disciplina, numero, nota)
       )
     );
+    return ret;
   }
 
   export async function updateDisciplina(
@@ -104,11 +105,12 @@ export namespace NotasTask {
 
   export async function updateAll(usuario: UsuarioDto, disciplinas: RemoteDisciplina[]): Promise<JobNotaResult> {
 
-    const changes: NotaUpdate[][] = await Promise.all(
-      disciplinas.map(disc =>
-        NotasTask.updateDisciplina(usuario.id!, usuario.endpoint!, disc)
-      )
-    );
+    const changes: NotaUpdate[][] = [];
+    for (const disc of disciplinas) {
+      changes.push(
+        await NotasTask.updateDisciplina(usuario.id!, usuario.endpoint!, disc)
+      );
+    }
 
     const flatten = changes.reduce((ac, val) => ac.concat(val), []);
     return {
@@ -128,14 +130,15 @@ export namespace NotasTask {
 
     if (usuario) {
       const periodos = await strategy.getPeriodos();
+      const { disciplinas } = await strategy.getPeriodo(periodos[0]);
+      await NotasTask.updateAll(usuario, disciplinas);
+
       if (updatePast) {
-        for (const periodo of periodos) {
-          const { disciplinas } = await strategy.getPeriodo(periodo);
-          await NotasTask.updateAll(usuario, disciplinas);
+        const [, ...resto] = periodos;
+        for (const periodo of resto) {
+          const { disciplinas: disc } = await strategy.getPeriodo(periodo);
+          await NotasTask.updateAll(usuario, disc);
         }
-      } else {
-        const { disciplinas } = await strategy.getPeriodo(periodos[0]);
-        await NotasTask.updateAll(usuario, disciplinas);
       }
     }
 
