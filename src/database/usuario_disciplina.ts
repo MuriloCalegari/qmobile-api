@@ -59,4 +59,28 @@ export namespace UsuarioDisciplinaService {
     return [false, dto];
   }
 
+  export async function getPeriodos(usuario: UUID): Promise<{ periodo: Date }[]> {
+    const db = await DatabaseService.getDatabase();
+    const res = await db.query(`
+    SELECT disciplina_professor.periodo FROM usuario_disciplina
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      WHERE usuario_disciplina.usuario = ?
+      GROUP BY periodo;
+    `, [usuario.toString()]);
+    return res;
+  }
+
+  export async function getPeriodo(usuario: UUID, periodo: Date): Promise<{ periodo: Date } | null> {
+    const db = await DatabaseService.getDatabase();
+    const [res] = await db.query(`
+    SELECT disciplina_professor.periodo FROM usuario_disciplina
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      WHERE usuario_disciplina.usuario = ?
+        AND disciplina_professor.periodo = ?
+      GROUP BY periodo
+      LIMIT 1;
+    `, [usuario.toString(), periodo]);
+    return res;
+  }
+
 }

@@ -93,4 +93,49 @@ export namespace NotaService {
     return Math.round(media * 100) / 100;
   }
 
+  export async function getNotas(usuario: UUID, disciplina: UUID, periodo: Date): Promise<NotaDto[]> {
+    const db = await DatabaseService.getDatabase();
+    const res = await db.query(`
+    SELECT nota.* FROM nota
+      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      WHERE disciplina_professor.disciplina = ?
+        AND disciplina_professor.periodo = ?
+        AND usuario_disciplina.usuario = ?
+      ORDER BY
+        nota.data DESC,
+        nota.descricao DESC,
+        nota.etapa DESC;
+    `, [disciplina.toString(), periodo, usuario.toString()]);
+    return res.map(dado => convert(dado));
+  }
+
+  export async function getNotasValidas(usuario: UUID, disciplina: UUID, periodo: Date, etapa?: NumeroEtapa): Promise<NotaDto[]> {
+    const db = await DatabaseService.getDatabase();
+    const res = await db.query(`
+    SELECT nota.nota, nota.peso, nota.notamaxima FROM nota
+      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      WHERE disciplina_professor.disciplina = ?
+        AND disciplina_professor.periodo = ?
+        AND nota.nota >= 0
+        AND usuario_disciplina.usuario = ?
+        ${!!etapa ? 'AND nota.etapa = ?' : ''}
+    `, [disciplina.toString(), periodo, usuario.toString(), etapa]);
+    return res.map(dado => convert(dado));
+  }
+
+  export async function getNota(usuario: UUID, id: UUID): Promise<(NotaDto & { periodo: Date }) | null> {
+    const db = await DatabaseService.getDatabase();
+    const [res] = await db.query(`
+    SELECT nota.*, disciplina_professor.periodo FROM nota
+      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+        WHERE nota.id = ?
+        AND usuario_disciplina.usuario = ?
+        LIMIT 1;
+    `, [id.toString(), usuario.toString()]);
+    return convert(res) as any;
+  }
+
 }

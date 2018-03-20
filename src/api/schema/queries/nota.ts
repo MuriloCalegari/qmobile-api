@@ -1,7 +1,7 @@
 import { NotaDto, NotaService } from './../../../database/nota';
 import { ProfessorDto } from './../../../database/professor';
 import { PeriodoContext } from './../index';
-import { DisciplinaDto } from './../../../database/disciplina';
+import { DisciplinaDto, DisciplinaService } from './../../../database/disciplina';
 import { DatabaseService } from '../../../database/database';
 
 import * as moment from 'moment';
@@ -25,6 +25,7 @@ export = {
     peso: Float
     nota: Float
     notamaxima: Float
+    disciplina: Disciplina!
   }
   `,
 
@@ -43,7 +44,15 @@ export = {
       },
       data(notaDto: NotaDto & PeriodoContext, _, c): string {
         return moment(notaDto.data).format('DD/MM/YYYY');
-      }
+      },
+      async disciplina({ context, usuario_disciplina }: NotaDto & PeriodoContext, _, c
+      ): Promise<DisciplinaDto & PeriodoContext> {
+        const res = await DisciplinaService.getDisciplinaByUD(usuario_disciplina);
+        return res && {
+          ...res,
+          context
+        } as any;
+      },
     }
 
   }

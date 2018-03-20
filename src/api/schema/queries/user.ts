@@ -2,6 +2,9 @@ import { EndpointDto, EndpointService } from './../../../database/endpoint';
 import { BaseContext, PeriodoContext } from './../index';
 import * as moment from 'moment';
 import { DatabaseService } from '../../../database/database';
+import { NotaDto, NotaService } from '../../../database/nota';
+import { UsuarioDisciplinaService } from '../../../database/usuario_disciplina';
+import { UUID } from '../../../database/uuid';
 
 export = {
 
@@ -18,6 +21,7 @@ export = {
     endpoint: Endpoint!
     periodos: [Periodo!]!
     periodo(nome: String!): Periodo
+    nota(id: ID!): Nota
   }
   `,
 
@@ -28,13 +32,7 @@ export = {
         return (await EndpointService.getEndpointById(usuario.endpoint))!;
       },
       async periodos({ context }: BaseContext, _, c): Promise<(PeriodoContext & { nome: string })[]> {
-        const db = await DatabaseService.getDatabase();
-        const res = await db.query(`
-        SELECT disciplina_professor.periodo FROM usuario_disciplina
-          LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
-          WHERE usuario_disciplina.usuario = ?
-          GROUP BY periodo;
-        `, [context.usuario.id!.toString()]);
+        const res = await UsuarioDisciplinaService.getPeriodos(context.usuario.id!);
         return res.map(dado => ({
           nome: moment(dado.periodo).format('YYYY/M'),
           context: {
@@ -48,24 +46,33 @@ export = {
         if (!date.isValid()) {
           return null;
         }
-        const db = await DatabaseService.getDatabase();
-        const [res] = await db.query(`
-        SELECT disciplina_professor.periodo FROM usuario_disciplina
-          LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
-          WHERE usuario_disciplina.usuario = ?
-            AND disciplina_professor.periodo = ?
-          GROUP BY periodo
-          LIMIT 1;
-        `, [context.usuario.id!.toString(), date.toDate()]);
+        const res = await UsuarioDisciplinaService.getPeriodo(context.usuario.id!, date.toDate());
         if (!res) {
           return null;
         }
-        return res && {
+        return {
           nome: moment(res.periodo).format('YYYY/M'),
           context: {
             ...context,
             periodo: res.periodo
           }
+        };
+      },
+      async nota({ context }: BaseContext, { id }, _): Promise<(NotaDto & PeriodoContext) | null> {
+        if (typeof id !== 'string' || id.length !== 36) {
+          return null;
+        }
+        const res = await NotaService.getNota(context.usuario.id!, UUID.from(id));
+        if (!res) {
+          return null;
+        }
+        const { periodo, ...nota } = res;
+        return {
+          context: {
+            ...context,
+            periodo
+          },
+          ...nota
         };
       }
     }

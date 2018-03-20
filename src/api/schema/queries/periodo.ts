@@ -1,36 +1,35 @@
-import { DisciplinaDto } from './../../../database/disciplina';
+import { DisciplinaDto, DisciplinaService } from './../../../database/disciplina';
 import { PeriodoContext } from './../index';
-import { DatabaseService } from '../../../database/database';
-import * as moment from 'moment';
+import { UUID } from '../../../database/uuid';
 
 export = {
 
   schema: `type Periodo {
     nome: ID!
     disciplinas(nome: String): [Disciplina!]!
+    disciplina(id: ID!): Disciplina
   }`,
 
   resolvers: {
 
     Periodo: {
-      async disciplinas({ context }: PeriodoContext, { nome }, c
-      ): Promise<(DisciplinaDto & PeriodoContext)[]> {
-        const db = await DatabaseService.getDatabase();
-        const res = await db.query(`
-        SELECT disciplina.*, disciplina_professor.turma FROM usuario_disciplina
-          LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
-          LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
-          WHERE disciplina_professor.periodo = ?
-              AND usuario_disciplina.usuario = ?
-              ${!!nome ? 'AND disciplina.nome LIKE ?' : ''}
-          GROUP BY id
-          ORDER BY disciplina.nome DESC;
-        `, [context.periodo, context.usuario.id!.toString(), nome && `%${nome}%`]);
-        return res.map(dado => ({
+      async disciplinas({ context }: PeriodoContext, { nome }, c): Promise<(DisciplinaDto & PeriodoContext)[]> {
+        const disciplinas = await DisciplinaService.getDisciplinas(context.usuario, context.periodo, nome);
+        return disciplinas.map(dado => ({
           ...dado,
           context
         }));
       },
+      async disciplina({ context }: PeriodoContext, { id }, c): Promise<(DisciplinaDto & PeriodoContext) | null> {
+        if (typeof id !== 'string' || id.length !== 36) {
+          return null;
+        }
+        const res = await DisciplinaService.getDisciplina(context.usuario, context.periodo, UUID.from(id));
+        return res && {
+          ...res,
+          context
+        };
+      }
     }
 
   }
