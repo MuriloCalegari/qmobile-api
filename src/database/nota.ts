@@ -134,8 +134,8 @@ export namespace NotaService {
         WHERE nota.id = ?
         AND usuario_disciplina.usuario = ?
         LIMIT 1;
-    `, [id, usuario.toString()]);
-    return res;
+    `, [id.toString(), usuario.toString()]);
+    return convert(res) as any;
   }
 
 }

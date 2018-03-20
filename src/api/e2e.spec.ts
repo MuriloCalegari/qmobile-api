@@ -39,7 +39,7 @@ describe('E2E', () => {
               // nota.nota =
               //   nota.peso =
               //   nota.notamaxima =
-                nota.media = jasmine.any(Number);
+              nota.media = jasmine.any(Number);
             });
           });
         });
@@ -211,11 +211,14 @@ describe('E2E', () => {
       expect(periodos[0].disciplinas).toEqual(disciplinas);
     }));
 
+    let disciplina_id: string;
+
     it('deve buscar disciplina por nome', asyncTest(async () => {
       const query = `query {
         session(id: "${session}") {
           periodos {
             disciplinas(nome: "programacao") {
+              id
               nome
               turma
               professor {
@@ -232,6 +235,7 @@ describe('E2E', () => {
       const { session: { periodos } } = data!;
       expect(periodos[0].disciplinas).toEqual([
         {
+          id: jasmine.any(String),
           nome: 'Lógica de Programação',
           turma: '00001.TS.TII_I.4M',
           professor: {
@@ -239,6 +243,107 @@ describe('E2E', () => {
           }
         }
       ]);
+      disciplina_id = periodos[0].disciplinas[0].id;
+    }));
+
+    it('deve buscar disciplina por id', asyncTest(async () => {
+      const query = `query {
+        session(id: "${session}") {
+          periodo(nome: "2015/1") {
+            correto: disciplina(id: "${disciplina_id}") {
+              nome
+              turma
+              professor {
+                nome
+              }
+            }
+            incorreto: disciplina(id: "1234") {
+              nome
+            }
+          }
+        }
+      }`;
+      const { data, errors } = await graphql(schema, query);
+      expect(data!.session).toBeTruthy();
+
+      const { session: { periodo } } = data!;
+      expect(periodo.incorreto).toBeFalsy();
+      expect(periodo.correto).toEqual({
+        nome: 'Lógica de Programação',
+        turma: '00001.TS.TII_I.4M',
+        professor: {
+          nome: 'ROGER CAMPBELL'
+        }
+      });
+    }));
+
+    let nota: any;
+
+    it('deve buscar disciplina pela nota', asyncTest(async () => {
+      const query = `query {
+        session(id: "${session}") {
+          periodo(nome: "2015/1") {
+            disciplina(id: "${disciplina_id}") {
+              notas {
+                id
+                descricao
+                disciplina {
+                  nome
+                  turma
+                  professor {
+                    nome
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`;
+      const { data, errors } = await graphql(schema, query);
+      console.log(errors);
+      expect(data!.session).toBeTruthy();
+      expect(data!.session!.periodo).toBeTruthy();
+
+      const { session: { periodo } } = data!;
+      expect(periodo.disciplina.notas.length > 0).toBeTruthy();
+      nota = periodo.disciplina.notas[0];
+      expect(nota.disciplina).toEqual({
+        nome: 'Lógica de Programação',
+        turma: '00001.TS.TII_I.4M',
+        professor: {
+          nome: 'ROGER CAMPBELL'
+        }
+      });
+    }));
+
+    it('deve buscar nota pelo id', asyncTest(async () => {
+      const query = `query {
+        session(id: "${session}") {
+          correto: nota(id: "${nota.id}") {
+            id
+            descricao
+            disciplina {
+              nome
+              turma
+              professor {
+                nome
+              }
+            }
+          }
+          incorreto1: nota(id: "123") {
+            id
+          }
+          incorreto2: nota(id: "${'0'.repeat(36)}") {
+            id
+          }
+        }
+      }`;
+      const { data, errors } = await graphql(schema, query);
+      expect(data!.session).toBeTruthy();
+
+      expect(data!.session.incorreto1).toBeFalsy();
+      expect(data!.session.incorreto2).toBeFalsy();
+      expect(data!.session.correto).toEqual(nota);
     }));
 
     it('deve calcular média da disciplina', asyncTest(async () => {
@@ -266,17 +371,25 @@ describe('E2E', () => {
     it('deve buscar periodo por nome', asyncTest(async () => {
       const query = `query {
         session(id: "${session}") {
-          periodo(nome: "2015/1") {
+          correto: periodo(nome: "2015/1") {
+            nome
+          }
+          incorreto1: periodo(nome: "0000_0000000000") {
+            nome
+          }
+          incorreto2: periodo(nome: "1999/3") {
             nome
           }
         }
       }`;
       const { data, errors } = await graphql(schema, query);
       expect(data!.session).toBeTruthy();
-      expect(data!.session!.periodo).toBeTruthy();
+      expect(data!.session!.correto).toBeTruthy();
+      expect(data!.session!.incorreto1).toBeFalsy();
+      expect(data!.session!.incorreto2).toBeFalsy();
 
-      const { session: { periodo } } = data!;
-      expect(periodo).toEqual({
+      const { session: { correto } } = data!;
+      expect(correto).toEqual({
         nome: '2015/1'
       });
     }));
