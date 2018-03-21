@@ -53,6 +53,23 @@ describe('E2E', () => {
       payload = null as any;
   });
 
+  it('deve retornar os endpoints', asyncTest(async () => {
+    const query = `query {
+      endpoints {
+        nome
+        url
+      }
+    }`;
+    const res = await graphql(schema, query);
+    expect(res.data!.endpoints).toEqual([
+      {
+        nome: 'localhost',
+        url: 'http://localhost:9595'
+      }
+    ]);
+  }));
+
+
   it('não deve permitir query com sessão inválida', asyncTest(async () => {
     const query = `query {
       session(id: "06e034af-ba1c-4045-a461-dc62bd458ade") {

@@ -55,6 +55,12 @@ export namespace EndpointService {
     return [false, convert(dto)];
   }
 
+  export async function findAll(): Promise<EndpointDto[]> {
+    const connection = await DatabaseService.getDatabase();
+    const dtos = await connection.query('SELECT * FROM endpoint');
+    return dtos.map(dto => convert(dto));
+  }
+
   export function getNameByUrl(endpoint_url: string): string {
     const url = new URL(endpoint_url);
     return url.hostname;

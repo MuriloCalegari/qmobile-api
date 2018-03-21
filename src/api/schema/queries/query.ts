@@ -1,3 +1,4 @@
+import { EndpointDto } from './../../../database/endpoint';
 import { UsuarioDto } from './../../../database/usuario';
 import { BaseContext } from './../index';
 import { UUID } from './../../../database/uuid';
@@ -11,6 +12,7 @@ export = {
 
   schema: `type Query {
     session(id: ID!): User
+    endpoints: [Endpoint!]!
   }`,
 
   resolvers: {
@@ -42,6 +44,9 @@ export = {
         } catch (e) {
           return null;
         }
+      },
+      endpoints(_, q, c): Promise<EndpointDto[]> {
+        return EndpointService.findAll();
       }
     }
 
