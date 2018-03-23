@@ -9,6 +9,7 @@ import { DatabaseService } from '../database/database';
 import { TaskQueue } from '../tasks/queue';
 import * as cron from 'node-cron';
 import * as fs from 'fs-extra';
+import * as cors from 'cors';
 import * as path from 'path';
 import { NotasTask } from '../tasks/notas';
 import { EndpointService } from '../database/endpoint';
@@ -36,6 +37,8 @@ const def_endpoint = 'http://qacademico.ifsul.edu.br/qacademico';
   const PORT = 3002;
 
   const app = express();
+
+  app.use(cors());
 
   app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
 
