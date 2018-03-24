@@ -1,32 +1,36 @@
 import { IStrategy, PeriodoInfo, PeriodoCompleto } from './../factory';
-import axios from 'axios';
 import * as qauth from './qauth';
 import * as quser from './quser';
 import { QDiarios } from './qdiarios';
 import { CookieJar } from 'tough-cookie';
 import * as DataLoader from 'dataloader';
-import axiosCookieJarSupport from 'axios-cookiejar-support';
+import * as request from 'request-promise';
+import * as iconv from 'iconv-lite';
 
-axiosCookieJarSupport(axios);
+const ENCODING = process.env.NODE_ENV !== 'test' ? 'iso-8859-1' : 'utf8';
 
 export class QAcademicoStrategy implements IStrategy {
 
-  options: any;
-  httpLoader: DataLoader<string, any>;
+  options: request.RequestPromiseOptions;
+  httpLoader: DataLoader<string, string>;
 
   constructor(public endpoint: string) {
     this.httpLoader = new DataLoader(async urls => Promise.all(
-      urls.map(url =>
-        axios.get(url, this.options)
-      )
+      urls.map(async url => {
+
+        const res = await request.get(url, this.options);
+        return iconv.decode(res, ENCODING);
+
+      })
     ));
   }
 
   init(): void {
     if (!this.options) {
       this.options = {
-        jar: new CookieJar(),
-        withCredentials: true
+        jar: request.jar(),
+        followAllRedirects: true,
+        encoding: null
       };
     }
   }
@@ -60,11 +64,25 @@ export class QAcademicoStrategy implements IStrategy {
 
   async release(errored?: boolean): Promise<void> {
     this.httpLoader.clearAll();
-    this.options = null;
+    this.options = null as any;
   }
 
-  getUrl(url: string): Promise<any> {
+  getUrl(url: string): Promise<string> {
     return this.httpLoader.load(url);
+  }
+
+  async getFile(url: string): Promise<Buffer> {
+    return await request.get(url, this.options);
+  }
+
+  async postUrl(url: string, data: any): Promise<string> {
+    const res = await request.post({
+      ...this.options,
+      method: 'POST',
+      url,
+      form: data
+    });
+    return iconv.decode(res, ENCODING);
   }
 
 }

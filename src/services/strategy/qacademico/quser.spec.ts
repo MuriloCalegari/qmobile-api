@@ -4,7 +4,6 @@ import * as quser from './quser';
 import * as imageSize from 'image-size';
 import { StrategyFactory, StrategyType } from '../factory';
 import { asyncTest } from '../../../test-utils';
-import axios from 'axios';
 
 describe('QUser', () => {
 
@@ -28,11 +27,10 @@ describe('QUser', () => {
   describe('getName()', () => {
 
     it('deve buscar a página inicial', asyncTest(async () => {
-      spyOn(axios, 'get').and.callThrough();
+      spyOn(strategy, 'getUrl').and.callThrough();
       await quser.getName(strategy);
-      expect(axios.get).toHaveBeenCalledWith(
-        'http://localhost:9595/index.asp?t=2000',
-        jasmine.any(Object)
+      expect(strategy.getUrl).toHaveBeenCalledWith(
+        'http://localhost:9595/index.asp?t=2000'
       );
     }));
 
@@ -81,19 +79,16 @@ describe('QUser', () => {
     }));
 
     it('deve buscar a foto', asyncTest(async () => {
-      spyOn(axios, 'get').and.callThrough();
+      spyOn(strategy, 'getFile').and.callThrough();
       await quser.getPhoto(strategy);
-      expect(axios.get).toHaveBeenCalledWith(
-        'http://localhost:9595/user.png',
-        jasmine.objectContaining({
-          responseType: 'arraybuffer'
-        })
+      expect(strategy.getFile).toHaveBeenCalledWith(
+        'http://localhost:9595/user.png'
       );
     }));
 
     it('deve ocorrer um erro caso não seja possivel obter a foto', async done => {
       try {
-        spyOn(axios, 'get').and.callFake(() => Promise.reject({}));
+        spyOn(strategy, 'getFile').and.callFake(() => Promise.reject({}));
         await quser.getPhoto(strategy);
         done.fail();
       } catch (e) {

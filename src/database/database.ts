@@ -26,7 +26,7 @@ export namespace DatabaseService {
         database,
         port,
         connectionLimit: process.env.NODE_ENV === 'test' ? 1 : 10,
-        charset: 'utf8_general_ci'
+        charset: 'utf8'
       });
 
       return connection;

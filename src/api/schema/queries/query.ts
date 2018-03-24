@@ -42,6 +42,7 @@ export = {
             }
           };
         } catch (e) {
+          console.error(e);
           return null;
         }
       },
