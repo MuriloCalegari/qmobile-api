@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `endpoint` (
   `url` VARCHAR(100) NOT NULL,
   `strategy` INT NOT NULL,
   PRIMARY KEY (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `professor` (
   `id` CHAR(36) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `professor` (
   `endpoint` CHAR(36) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`endpoint`) REFERENCES `endpoint` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `disciplina` (
   `id` CHAR(36) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `disciplina` (
   `endpoint` CHAR(36) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`endpoint`) REFERENCES `endpoint` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `usuario` (
   `id` CHAR(36) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `usuario` (
   `endpoint` CHAR(36) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`endpoint`) REFERENCES `endpoint` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `session` (
   `id` CHAR(36) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `session` (
   `instance` VARCHAR(100),
   PRIMARY KEY (`id`),
   FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `disciplina_professor` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `disciplina_professor` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`disciplina`) REFERENCES `disciplina` (`id`),
   FOREIGN KEY (`professor`) REFERENCES `professor` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`disciplina_professor`) REFERENCES `disciplina_professor` (`id`),
   FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `nota` (
   `id` CHAR(36) NOT NULL,
@@ -73,4 +73,4 @@ CREATE TABLE IF NOT EXISTS `nota` (
   `nota` FLOAT,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`usuario_disciplina`) REFERENCES `usuario_disciplina` (`id`)
-);
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
