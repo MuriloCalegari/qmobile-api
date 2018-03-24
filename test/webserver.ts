@@ -87,6 +87,9 @@ export class PocketServer {
             break;
         }
       });
+      app.get('/lib/rsa/gerador_chaves_rsa.asp', (req, res) => {
+        res.sendFile(path.join(assets, 'rsa.html'));
+      });
       app.get('/user.png', (_, res) =>
         res.sendFile(path.join(assets, 'user.png'))
       );
@@ -94,7 +97,7 @@ export class PocketServer {
         this.state.loggedIn = false;
         res.redirect('/index.asp?t=1001');
       });
-      app.post('/login', (req, res) => {
+      app.post('/lib/validalogin.asp', (req, res) => {
         this.state.loginBody = { ...req.body };
         if (this.state.allowLogin) {
           this.state.loggedIn = true;

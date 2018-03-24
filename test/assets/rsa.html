@@ -1,0 +1,9 @@
+<script src=/qacademico/lib/rsa/RSA.js></script>
+<script src=/qacademico/lib/rsa/BigInt.js></script>
+<script src=/qacademico/lib/rsa/Barrett.js></script>
+<script>function Encriptar_Campo(objCampo_Origem, objForm_Destino) { var novo_campo = parent.document.createElement('input'); novo_campo.type = 'hidden'; novo_campo.name = objCampo_Origem.name; novo_campo.value = encryptedString(key, objCampo_Origem.value); objForm_Destino.appendChild(novo_campo); }</script>
+<script>function Encriptar_Enviar2() { var novo_form = parent.document.createElement('form'); novo_form.method = 'POST'; novo_form.action = '/qacademico/lib/validalogin.asp'; for (var i = 0; i != parent.frmLogin.length; i++) { Encriptar_Campo(parent.frmLogin[i], novo_form); } parent.document.body.appendChild(novo_form); novo_form.submit(); } setMaxDigits(19); var key = new RSAKeyPair(
+    "164ebca382cf1090dbcdb81c98c711",
+    "",
+    "41dcc7e77ffa6374264d3a00bd04b7f"
+  ); Encriptar_Enviar2();</script>
