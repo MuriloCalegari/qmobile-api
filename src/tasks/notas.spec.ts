@@ -30,7 +30,7 @@ describe('NotasTask', () => {
       Promise.resolve()
     );
     await limpar();
-    [, usuario] = await auth.login('http://localhost:9595', 'test', 'pass');
+    usuario = await auth.login('http://localhost:9595', 'test', 'pass');
     (NotasTask.updateRemote as jasmine.Spy).and.callThrough();
   }));
 
