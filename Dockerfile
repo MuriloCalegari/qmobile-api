@@ -1,4 +1,4 @@
-FROM adimit/docker-node-chromium
+FROM node:8-stretch
 
 USER root
 

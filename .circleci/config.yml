@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: adimit/docker-node-chromium
+      - image: node:8-stretch
       - image: redis:3.2
       - image: mariadb:10.2.13
         environment:
