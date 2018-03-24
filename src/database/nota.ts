@@ -15,6 +15,7 @@ export interface NotaDto {
   descricao: string;
   data: Date;
   etapa: NumeroEtapa;
+  media?: number;
   peso?: number | null;
   notamaxima?: number | null;
   nota?: number | null;
@@ -35,11 +36,12 @@ export namespace NotaService {
       ...nota,
       id: UUID.random()
     };
+    nota.media = NotaService.getMedia(nota);
     await connection.query(
-      'INSERT INTO nota VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO nota VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         nota.id!.toString(), nota.usuario_disciplina, nota.descricao,
-        nota.data, nota.etapa, nota.peso, nota.notamaxima, nota.nota
+        nota.data, nota.etapa, nota.media, nota.peso, nota.notamaxima, nota.nota
       ]
     );
     return convert(nota);
@@ -56,9 +58,10 @@ export namespace NotaService {
 
   export async function update(id: UUID, nota: NotaUpdate): Promise<void> {
     const connection = await DatabaseService.getDatabase();
+    const media = NotaService.getMedia(nota);
     await connection.query(
-      'UPDATE nota SET nota=?, peso=?, notamaxima=? WHERE id=?',
-      [nota.nota, nota.peso, nota.notamaxima, id.toString()]
+      'UPDATE nota SET media=?, nota=?, peso=?, notamaxima=? WHERE id=?',
+      [media, nota.nota, nota.peso, nota.notamaxima, id.toString()]
     );
   }
 
@@ -79,7 +82,7 @@ export namespace NotaService {
     return convert(dto);
   }
 
-  export function getMedia(notaDto: NotaDto): number {
+  export function getMedia(notaDto: NotaUpdate | NotaDto): number {
     const nota = Math.max(0, notaDto.nota as any);
     if (nota <= 0) {
       return Number(notaDto.nota);
@@ -110,19 +113,19 @@ export namespace NotaService {
     return res.map(dado => convert(dado));
   }
 
-  export async function getNotasValidas(usuario: UUID, disciplina: UUID, periodo: Date, etapa?: NumeroEtapa): Promise<NotaDto[]> {
+  export async function getMediaDisciplina(usuario: UUID, disciplina: UUID, periodo: Date, etapa?: NumeroEtapa): Promise<number> {
     const db = await DatabaseService.getDatabase();
-    const res = await db.query(`
-    SELECT nota.nota, nota.peso, nota.notamaxima FROM nota
+    const [res] = await db.query(`
+    SELECT AVG(nota.media) AS media FROM nota
       LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
       LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
       WHERE disciplina_professor.disciplina = ?
         AND disciplina_professor.periodo = ?
-        AND nota.nota >= 0
+        AND nota.media >= 0
         AND usuario_disciplina.usuario = ?
         ${!!etapa ? 'AND nota.etapa = ?' : ''}
     `, [disciplina.toString(), periodo, usuario.toString(), etapa]);
-    return res.map(dado => convert(dado));
+    return Math.round(res.media * 100) / 100;
   }
 
   export async function getNota(usuario: UUID, id: UUID): Promise<(NotaDto & { periodo: Date }) | null> {

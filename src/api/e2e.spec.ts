@@ -36,9 +36,6 @@ describe('E2E', () => {
               disciplina.professor.id = jasmine.any(String);
             disciplina.notas.forEach(nota => {
               nota.id = jasmine.any(String);
-              // nota.nota =
-              //   nota.peso =
-              //   nota.notamaxima =
               nota.media = jasmine.any(Number);
             });
           });
@@ -366,8 +363,12 @@ describe('E2E', () => {
       const query = `query {
         session(id: "${session}") {
           periodos {
-            disciplinas(nome: "matematica") {
+            disciplinas(nome: "educacao") {
               media
+              etapa1: media(etapa: ETAPA1)
+              etapa2: media(etapa: ETAPA2)
+              rpetapa1: media(etapa: RP_ETAPA1)
+              rpetapa2: media(etapa: RP_ETAPA2)
             }
           }
         }
@@ -379,7 +380,11 @@ describe('E2E', () => {
       const { session: { periodos } } = data!;
       expect(periodos[0].disciplinas).toEqual([
         {
-          media: 7.4
+          media: 5.87,
+          etapa1: 7.9,
+          etapa2: 3.7,
+          rpetapa1: 0,
+          rpetapa2: 6
         }
       ]);
     }));

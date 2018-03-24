@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS `nota` (
   `descricao` VARCHAR(255) NOT NULL,
   `data` DATE NOT NULL,
   `etapa` INT NOT NULL,
+  `media` FLOAT NOT NULL,
   `peso` FLOAT,
   `notamaxima` FLOAT,
   `nota` FLOAT,

@@ -39,9 +39,6 @@ export = {
     },
 
     Nota: {
-      media(notaDto: NotaDto & PeriodoContext, _, c): number {
-        return NotaService.getMedia(notaDto);
-      },
       data(notaDto: NotaDto & PeriodoContext, _, c): string {
         return moment(notaDto.data).format('DD/MM/YYYY');
       },
