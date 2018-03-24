@@ -1,3 +1,4 @@
+import { HistoryLoader } from './../loader';
 import * as auth from '../../../services/auth/authenticate';
 import { SessionService } from '../../../database/session';
 
@@ -38,13 +39,14 @@ export = {
     Mutation: {
       async login(_, { input }: { input: LoginInput }, c): Promise<LoginResult> {
         const { endpoint, matricula, password, instance } = input;
-        const [novo, user] = await auth.login(endpoint, matricula, password);
+        const user = await auth.login(endpoint, matricula, password);
+        HistoryLoader.load(user.id!.toString());
         const session = await SessionService.create({
           usuario: user.id!,
           instance: input.instance
         });
         return {
-          novo: novo,
+          novo: !user.inicializado,
           session: session.id!.toString()
         };
       }

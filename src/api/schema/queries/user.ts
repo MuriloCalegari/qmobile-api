@@ -1,3 +1,4 @@
+import { HistoryLoader } from './../loader';
 import { EndpointDto, EndpointService } from './../../../database/endpoint';
 import { BaseContext, PeriodoContext } from './../index';
 import * as moment from 'moment';
@@ -32,6 +33,7 @@ export = {
         return (await EndpointService.getEndpointById(usuario.endpoint))!;
       },
       async periodos({ context }: BaseContext, _, c): Promise<(PeriodoContext & { nome: string })[]> {
+        await HistoryLoader.load(context.usuario.id!.toString());
         const res = await UsuarioDisciplinaService.getPeriodos(context.usuario.id!);
         return res.map(dado => ({
           nome: moment(dado.periodo).format('YYYY/M'),
@@ -42,6 +44,7 @@ export = {
         }));
       },
       async periodo({ context }: BaseContext, { nome }, c): Promise<(PeriodoContext & { nome: string }) | null> {
+        await HistoryLoader.load(context.usuario.id!.toString());
         const date = moment(nome, 'YYYY/M');
         if (!date.isValid()) {
           return null;
@@ -59,6 +62,7 @@ export = {
         };
       },
       async nota({ context }: BaseContext, { id }, _): Promise<(NotaDto & PeriodoContext) | null> {
+        await HistoryLoader.load(context.usuario.id!.toString());
         if (typeof id !== 'string' || id.length !== 36) {
           return null;
         }
