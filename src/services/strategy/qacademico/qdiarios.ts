@@ -3,8 +3,6 @@ import { QAcademicoStrategy } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import { DIARIOS_PAGE } from '../../../constants';
-import axios from 'axios';
-import * as querystring from 'querystring';
 import {
   RemoteNota,
   RemoteEtapa,
@@ -70,7 +68,7 @@ export namespace QDiarios {
   }
 
   function getDisciplinas(content: string): RemoteDisciplina[] {
-    const dom = cheerio.load(content);
+    const dom = cheerio.load(content, { decodeEntities: false });
     const tabelaNotas = dom(
       `table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) >
         table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody`
@@ -115,9 +113,9 @@ export namespace QDiarios {
 
   export async function getPeriodos(strategy: QAcademicoStrategy): Promise<PeriodoInfo[]> {
     const { endpoint } = strategy;
-    const { data: content } = await strategy.getUrl(endpoint + DIARIOS_PAGE);
+    const content = await strategy.getUrl(endpoint + DIARIOS_PAGE);
 
-    const dom = cheerio.load(content);
+    const dom = cheerio.load(content, { decodeEntities: false });
     const opts = dom('#frmConsultar select option');
     const periodos: PeriodoInfo[] = opts
       .toArray()
@@ -132,10 +130,9 @@ export namespace QDiarios {
   export async function getPeriodo(strategy: QAcademicoStrategy, { codigo, nome }: PeriodoInfo): Promise<PeriodoCompleto> {
     try {
       const { endpoint, options } = strategy;
-      const payload = {
+      const content = await strategy.postUrl(endpoint + DIARIOS_PAGE, {
         ANO_PERIODO2: codigo
-      };
-      const { data: content } = await axios.post(endpoint + DIARIOS_PAGE, querystring.stringify(payload), options);
+      });
       return {
         nome, codigo,
         disciplinas: getDisciplinas(content)

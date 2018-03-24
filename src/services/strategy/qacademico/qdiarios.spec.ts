@@ -4,7 +4,6 @@ import { PocketServer } from './../../../../test/webserver';
 import * as qauth from './qauth';
 import { QDiarios } from './qdiarios';
 import { asyncTest } from '../../../test-utils';
-import axios from 'axios';
 
 describe('QDiarios', () => {
 
@@ -33,13 +32,11 @@ describe('QDiarios', () => {
     const periodo = { codigo: '2017_1', nome: '2017/1' };
 
     it('deve abrir a página de diarios', asyncTest(async () => {
-      spyOn(axios, 'post').and.callThrough();
+      spyOn(strategy, 'postUrl').and.callThrough();
       await QDiarios.getPeriodo(strategy, periodo);
-      expect(axios.post).toHaveBeenCalledWith(
-        'http://localhost:9595/index.asp?t=2071',
-        'ANO_PERIODO2=2017_1',
-        jasmine.any(Object)
-      );
+      expect(strategy.postUrl).toHaveBeenCalledWith('http://localhost:9595/index.asp?t=2071', {
+        ANO_PERIODO2: '2017_1'
+      });
     }));
 
     it('deve ler todas as notas listadas', asyncTest(async () => {
@@ -81,7 +78,7 @@ describe('QDiarios', () => {
 
     it('deve esperar erro no browser', async done => {
       try {
-        spyOn(axios, 'post').and.callFake(
+        spyOn(strategy, 'postUrl').and.callFake(
           () => Promise.reject(new Error('panic'))
         );
         await QDiarios.getPeriodo(strategy, periodo);

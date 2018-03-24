@@ -1,17 +1,14 @@
 const rsa = require('./lib/rsa.js');
 import { QAcademicoStrategy } from './index';
 import { LOGIN_PAGE, RSA_PAGE, FORM_PAGE } from '../../../constants';
-import axios from 'axios';
 import * as cheerio from 'cheerio';
-import * as querystring from 'querystring';
 
 export async function login(strategy: QAcademicoStrategy, username: string, password: string): Promise<void> {
   try {
     const keyRegex = /\"([a-zA-Z0-9]+)\"/g;
-    const { options, endpoint } = strategy;
-    await axios.get(endpoint + LOGIN_PAGE);
+    const { endpoint } = strategy;
 
-    const { data } = await axios.get(endpoint + RSA_PAGE, options);
+    const data = await strategy.getUrl(endpoint + RSA_PAGE);
 
     let matches;
     const keys: string[] = [];
@@ -35,12 +32,8 @@ export async function login(strategy: QAcademicoStrategy, username: string, pass
       throw new Error('Falha no QAcademico');
     }
 
-    const { data: pagina } = await axios.post(
-      endpoint + FORM_PAGE,
-      querystring.stringify(payload),
-      options
-    );
-    const dom = cheerio.load(pagina);
+    const pagina = await strategy.postUrl(endpoint + FORM_PAGE, payload);
+    const dom = cheerio.load(pagina, { decodeEntities: false });
     const titulo = dom('title').text();
     if (!titulo.toLowerCase().includes('bem vindo')) {
       throw new Error('Senha incorreta');
