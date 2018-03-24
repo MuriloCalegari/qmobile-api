@@ -3,6 +3,8 @@ import { QAcademicoStrategy } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import { DIARIOS_PAGE } from '../../../constants';
+import axios from 'axios';
+import * as querystring from 'querystring';
 import {
   RemoteNota,
   RemoteEtapa,
@@ -10,24 +12,9 @@ import {
   NumeroEtapa,
   PeriodoInfo
 } from '../factory';
-import { ElementHandle } from 'puppeteer';
+
 
 export namespace QDiarios {
-
-  export async function openDiarios(strategy: QAcademicoStrategy): Promise<void> {
-    try {
-      const { endpoint, page } = strategy;
-      const diarios = endpoint + DIARIOS_PAGE;
-      const url = await page.url();
-      if (url !== diarios) {
-        await page.goto(diarios);
-      }
-      await page.waitForFunction(`(() => document.readyState === 'ready' || document.readyState === 'complete')()`);
-    } catch (e) {
-      await strategy.release(true);
-      throw e;
-    }
-  }
 
   function extractFloat(val: string): number {
     return parseFloat(val.replace(/[^0-9\.]/g, '')) || -1;
@@ -82,96 +69,81 @@ export namespace QDiarios {
     };
   }
 
-  async function getDisciplinas(strategy: QAcademicoStrategy): Promise<RemoteDisciplina[]> {
-    try {
-      const { page } = strategy;
-      await openDiarios(strategy);
-      const dom = cheerio.load(await page.content());
-      const tabelaNotas = dom(
-        `table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) >
+  function getDisciplinas(content: string): RemoteDisciplina[] {
+    const dom = cheerio.load(content);
+    const tabelaNotas = dom(
+      `table tr:nth-child(2) > td > table tr:nth-child(2) > td:nth-child(2) >
         table:nth-child(3) > tbody td:nth-child(2) table:nth-child(3) > tbody`
-      );
-      const trs = tabelaNotas.children('tr').toArray();
-      const periodo = moment(dom('span.dado_cabecalho').text(), 'YYYY/MM').toDate();
+    );
+    const trs = tabelaNotas.children('tr').toArray();
+    const periodo = moment(dom('span.dado_cabecalho').text(), 'YYYY/MM').toDate();
 
-      const disciplinas: RemoteDisciplina[] = trs.map((elem, i) => {
+    const disciplinas: RemoteDisciplina[] = trs.map((elem, i) => {
 
-        const tr = dom(elem);
-        if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
-          const descricao = tr.find('td.conteudoTexto').text();
-          const [_, turma, nome, professor] = descricao.split('-')
-            .map(p => p && p.trim().replace(/\([a-zA-Z0-9]+\)/g, ''));
-          const etapas: RemoteEtapa[] = [];
-          for (let j = 1; j <= 4 && i + j < trs.length; j++) {
-            const etapa = readEtapa(dom, trs[i + j]);
-            if (etapa) {
-              if (etapa.numero === 11) {
-                etapa.numero = NumeroEtapa.RP_ETAPA1;
-              } else if (etapa.numero === 12) {
-                etapa.numero = NumeroEtapa.RP_ETAPA2;
-              }
-              etapas.push(etapa);
-            } else {
-              break;
+      const tr = dom(elem);
+      if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
+        const descricao = tr.find('td.conteudoTexto').text();
+        const [_, turma, nome, professor] = descricao.split('-')
+          .map(p => p && p.trim().replace(/\([a-zA-Z0-9]+\)/g, ''));
+        const etapas: RemoteEtapa[] = [];
+        for (let j = 1; j <= 4 && i + j < trs.length; j++) {
+          const etapa = readEtapa(dom, trs[i + j]);
+          if (etapa) {
+            if (etapa.numero === 11) {
+              etapa.numero = NumeroEtapa.RP_ETAPA1;
+            } else if (etapa.numero === 12) {
+              etapa.numero = NumeroEtapa.RP_ETAPA2;
             }
+            etapas.push(etapa);
+          } else {
+            break;
           }
-          return {
-            turma,
-            nome,
-            professor: professor || '',
-            etapas,
-            periodo
-          };
         }
+        return {
+          turma,
+          nome,
+          professor: professor || '',
+          etapas,
+          periodo
+        };
+      }
 
-      }).filter(d => !!d && !(!d.professor && d.etapas.length === 0)) as any;
+    }).filter(d => !!d && !(!d.professor && d.etapas.length === 0)) as any;
 
-      return disciplinas;
-    } catch (e) {
-      await strategy.release(true);
-      throw e;
-    }
-  }
-
-  async function openSelect(strategy: QAcademicoStrategy): Promise<void> {
-    await QDiarios.openDiarios(strategy);
-    const { page } = strategy;
-    const atual = await page.$('span.dado_cabecalho');
-    const parent = (await atual!.getProperty('parentElement')).asElement()!;
-    await (await parent.$('a'))!.click();
+    return disciplinas;
   }
 
   export async function getPeriodos(strategy: QAcademicoStrategy): Promise<PeriodoInfo[]> {
-    await openSelect(strategy);
-    const { page } = strategy;
-    const form = (await page.$('#frmConsultar'))!;
-    const options = (await form.$$('select option'))!;
-    const periodos: PeriodoInfo[] = [];
-    for (const option of options) {
-      const codigo = await (await option.getProperty('value')).jsonValue();
-      const nome = await (await option.getProperty('innerText')).jsonValue();
-      if (!!nome.trim()) {
-        periodos.push({ nome, codigo });
-      }
-    }
+    const { endpoint } = strategy;
+    const { data: content } = await strategy.getUrl(endpoint + DIARIOS_PAGE);
+
+    const dom = cheerio.load(content);
+    const opts = dom('#frmConsultar select option');
+    const periodos: PeriodoInfo[] = opts
+      .toArray()
+      .map(elem => ({
+        nome: dom(elem).text().trim(),
+        codigo: elem.attribs.value
+      })).filter(per => !!per.nome);
+
     return periodos;
   }
 
   export async function getPeriodo(strategy: QAcademicoStrategy, { codigo, nome }: PeriodoInfo): Promise<PeriodoCompleto> {
-    await openSelect(strategy);
-    const { page } = strategy;
-    const form = (await page.$('#frmConsultar'))!;
-    const select = (await form.$('#frmConsultar'))!;
-    await page.evaluate(`(() => {
-      const element = document.querySelector('#frmConsultar select');
-      element.querySelector('option[value="${codigo}"]').selected = true;
-    })()`);
-    await (await form.$('[type=submit]'))!.click();
-    await page.waitForNavigation();
-    return {
-      nome, codigo,
-      disciplinas: await getDisciplinas(strategy)
-    };
+    try {
+      const { endpoint, options } = strategy;
+      const payload = {
+        ANO_PERIODO2: codigo
+      };
+      const { data: content } = await axios.post(endpoint + DIARIOS_PAGE, querystring.stringify(payload), options);
+      return {
+        nome, codigo,
+        disciplinas: getDisciplinas(content)
+      };
+    } catch (e) {
+      strategy.release(true);
+      throw e;
+    }
   }
 
 }

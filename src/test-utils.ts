@@ -2,7 +2,6 @@ import { DATA_FOLDER } from './constants';
 import { StrategyType } from './services/strategy/factory';
 import { PocketServer } from '../test/webserver';
 import { DatabaseService } from './database/database';
-import { PoolService } from './services/driver/pool';
 import { EndpointService } from './database/endpoint';
 import * as fs from 'fs-extra';
 
@@ -44,13 +43,11 @@ beforeAll(asyncTest(async () => {
 }));
 
 afterAll(asyncTest(async () => {
-  const [db, pool] = await Promise.all([
-    DatabaseService.getDatabase(),
-    PoolService.getPool()
+  const [db] = await Promise.all([
+    DatabaseService.getDatabase()
   ]);
   await Promise.all([
     db.end(),
-    pool.clear(),
     PocketServer.getInstance().stop()
   ]);
 }));

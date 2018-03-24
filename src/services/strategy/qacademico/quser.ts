@@ -1,26 +1,13 @@
 import * as cheerio from 'cheerio';
+import axios from 'axios';
 import { QAcademicoStrategy } from './index';
 import { HOME_PAGE } from '../../../constants';
 
-async function openHome(strategy: QAcademicoStrategy): Promise<void> {
-  try {
-    const { page, endpoint } = strategy;
-    const home = endpoint + HOME_PAGE;
-    const url = await page.url();
-    if (url !== home) {
-      await page.goto(home);
-    }
-  } catch (exc) {
-    await strategy.release(true);
-    throw new Error('Falha ao acessar ao servidor.');
-  }
-}
-
 export async function getName(strategy: QAcademicoStrategy): Promise<string> {
   try {
-    const { page } = strategy;
-    await openHome(strategy);
-    const dom = cheerio.load(await page.content());
+    const { endpoint } = strategy;
+    const { data } = await strategy.getUrl(endpoint + HOME_PAGE);
+    const dom = cheerio.load(data);
     const nome = dom('.barraRodape').eq(1).text().trim();
     if (!!nome) {
       return nome;
@@ -35,20 +22,17 @@ export async function getName(strategy: QAcademicoStrategy): Promise<string> {
 
 export async function getPhoto(strategy: QAcademicoStrategy): Promise<Buffer> {
   try {
-    const { page } = strategy;
-    await openHome(strategy);
-    const base64 = (<string>await page.evaluate(`
+    const { options, endpoint } = strategy;
+    const { data } = await strategy.getUrl(endpoint + HOME_PAGE);
 
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d');
-      const img = document.querySelector('.titulo img');
-      c.width = img.naturalWidth || img.width;
-      c.height = img.naturalHeight || img.height;
-      ctx.drawImage(img, 0, 0, c.width, c.height);
-      c.toDataURL();
+    const dom = cheerio.load(data);
+    const url = dom('.titulo img').attr('src');
 
-    `)).replace(/^data:image\/png;base64,/, '');
-    return new Buffer(base64, 'base64');
+    const { data: buffer } = await axios.get<Buffer>(url, {
+      ...options,
+      responseType: 'arraybuffer'
+    });
+    return buffer;
   } catch (exc) {
     await strategy.release(true);
     throw new Error('Falha ao buscar os dados');

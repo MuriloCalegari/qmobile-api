@@ -2,45 +2,40 @@ import { QAcademicoStrategy } from './index';
 import { PocketServer } from './../../../../test/webserver';
 import * as qauth from './qauth';
 import { StrategyFactory, StrategyType } from '../factory';
+import { asyncTest } from '../../../test-utils';
+const rsa = require('./lib/rsa.js');
 
 describe('QAuth', () => {
 
   let server: PocketServer;
   let strategy: QAcademicoStrategy;
 
-  beforeAll(async done => {
+  beforeAll(asyncTest(async () => {
     server = PocketServer.getInstance();
     strategy = await StrategyFactory.build(StrategyType.QACADEMICO, 'http://localhost:9595') as any;
-    done();
+  }));
+
+  beforeEach(() => {
+    strategy.init();
+    spyOn(rsa, 'encryptedString').and.returnValue('encrypted');
   });
 
-  beforeEach(done => {
-    strategy.init().then(done).catch(done.fail);
-  });
-
-  afterEach(done => {
+  afterEach(asyncTest(async () => {
     server.reset();
-    strategy.release().then(done).catch(done.fail);
-  });
+    strategy.release();
+  }));
 
   describe('login()', () => {
-    it('deve logar com sucesso', async done => {
+    it('deve logar com sucesso', asyncTest(async () => {
       const { state } = server;
-      try {
-
-        await qauth.login(strategy, 'test', 'pass');
-        expect(state.loggedIn).toBeTruthy();
-        expect(state.loginBody).toEqual(jasmine.objectContaining({
-          LOGIN: 'test',
-          SENHA: 'pass',
-          TIPO_USU: '1'
-        }));
-
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
-    });
+      await qauth.login(strategy, 'test', 'pass');
+      expect(state.loggedIn).toBeTruthy();
+      expect(state.loginBody).toEqual(jasmine.objectContaining({
+        LOGIN: 'encrypted',
+        SENHA: 'encrypted',
+        TIPO_USU: 'encrypted'
+      }));
+    }));
 
     it('deve esperar login incorreto', async done => {
       const { state } = server;
