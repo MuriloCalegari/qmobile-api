@@ -416,6 +416,62 @@ describe('E2E', () => {
       });
     }));
 
+    describe('favoritos', () => {
+
+      it('deve definir disciplina como favorita', asyncTest(async () => {
+        const query = `mutation {
+          session(id: "${session}") {
+            correto: setFavorite(periodo: "2015/1", disciplina: "${disciplina_id}", state: true)
+            incorreto: setFavorite(periodo: "000000001a", disciplina: "${disciplina_id}", state: true)
+          }
+        }`;
+        const { data } = await graphql(schema, query);
+        expect(data).toEqual({
+          session: {
+            correto: true,
+            incorreto: false
+          }
+        });
+      }));
+
+      it('deve mostrar disciplina favorita', asyncTest(async () => {
+        const query = `query {
+          session(id: "${session}") {
+            periodo(nome: "2015/1") {
+              favoritos {
+                id
+                nome
+                turma
+                favorito
+                professor {
+                  nome
+                }
+              }
+            }
+          }
+        }`;
+        const { data } = await graphql(schema, query);
+        expect(data).toEqual({
+          session: {
+            periodo: {
+              favoritos: [
+                {
+                  id: disciplina_id,
+                  nome: 'Lógica de Programação',
+                  turma: '00001.TS.TII_I.4M',
+                  favorito: true,
+                  professor: {
+                    nome: 'ROGER CAMPBELL'
+                  }
+                }
+              ]
+            }
+          }
+        });
+      }));
+
+    });
+
   });
 
 });

@@ -5,6 +5,7 @@ export interface UsuarioDisciplinaDto {
   id?: number;
   disciplina_professor: number;
   usuario: UUID;
+  favorito?: boolean;
 }
 
 export namespace UsuarioDisciplinaService {
@@ -12,16 +13,17 @@ export namespace UsuarioDisciplinaService {
   function convert(dto: UsuarioDisciplinaDto): UsuarioDisciplinaDto {
     return dto && {
       ...dto,
-      usuario: UUID.from(dto.usuario)
+      usuario: UUID.from(dto.usuario),
+      favorito: !!dto.favorito
     };
   }
 
-  export async function create({ ...uddto }: UsuarioDisciplinaDto): Promise<UsuarioDisciplinaDto> {
+  export async function create(uddto: UsuarioDisciplinaDto): Promise<UsuarioDisciplinaDto> {
     const connection = await DatabaseService.getDatabase();
     const res = await connection.query(
-      'INSERT INTO usuario_disciplina VALUES (?, ?, ?)',
+      'INSERT INTO usuario_disciplina VALUES (?, ?, ?, ?)',
       [
-        0, uddto.disciplina_professor, uddto.usuario.toString()
+        0, uddto.disciplina_professor, uddto.usuario.toString(), uddto.favorito ? 1 : 0
       ]
     );
     return convert({
@@ -48,6 +50,31 @@ export namespace UsuarioDisciplinaService {
       ]
     );
     return convert(dto);
+  }
+
+  export async function isFavorite(periodo: Date, disciplina: UUID, usuario: UUID): Promise<boolean> {
+    const db = await DatabaseService.getDatabase();
+    const [res] = await db.query(`
+    SELECT favorito FROM usuario_disciplina
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      WHERE disciplina_professor.disciplina = ?
+        AND disciplina_professor.periodo = ?
+        AND usuario_disciplina.usuario = ?
+      LIMIT 1;
+    `, [disciplina.toString(), periodo, usuario.toString()]);
+    return !!res.favorito;
+  }
+
+  export async function setFavorite(periodo: Date, disciplina: UUID, usuario: UUID, state: boolean): Promise<void> {
+    const db = await DatabaseService.getDatabase();
+    await db.query(`
+    UPDATE usuario_disciplina
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      SET favorito = ?
+      WHERE disciplina_professor.disciplina = ?
+        AND disciplina_professor.periodo = ?
+        AND usuario_disciplina.usuario = ?;
+    `, [state ? 1 : 0, disciplina.toString(), periodo, usuario.toString()]);
   }
 
   export async function findOrCreate(dpdto: UsuarioDisciplinaDto): Promise<[boolean, UsuarioDisciplinaDto]> {
