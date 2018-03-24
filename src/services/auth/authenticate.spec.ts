@@ -45,7 +45,7 @@ describe('AuthService:auth', () => {
   }));
 
   it('deve seguir o fluxo corretamente', asyncTest(async () => {
-    const [, user] = await authService.login('http://localhost:9595', 'test', 'pass');
+    const user = await authService.login('http://localhost:9595', 'test', 'pass');
     expect(user.id).toBeTruthy();
     expect(user.nome).toBe('Aluno Teste');
     expect(user.matricula).toBe('test');
@@ -59,7 +59,7 @@ describe('AuthService:auth', () => {
   }));
 
   it('não deve buscar informacoes se ja houver no banco', asyncTest(async () => {
-    const [, user1] = await authService.login('http://localhost:9595', 'test', 'pass');
+    const user1 = await authService.login('http://localhost:9595', 'test', 'pass');
 
     [
       strategy.login,
@@ -67,7 +67,7 @@ describe('AuthService:auth', () => {
       strategy.getProfilePicture as any
     ].forEach((spy: jasmine.Spy) => spy.calls.reset());
 
-    const [, user2] = await authService.login('http://localhost:9595', 'test', 'pass');
+    const user2 = await authService.login('http://localhost:9595', 'test', 'pass');
 
     expect(user1.id!.toString()).toBe(user2.id!.toString());
     expect(strategy.login).not.toHaveBeenCalled();

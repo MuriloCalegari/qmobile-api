@@ -7,7 +7,7 @@ import { ConfigurationService } from '../../configs';
 import { UsuarioService } from '../../database/usuario';
 import { EndpointService } from '../../database/endpoint';
 
-export async function login(endpoint: string, matricula: string, password: string): Promise<[boolean, UsuarioDto]> {
+export async function login(endpoint: string, matricula: string, password: string): Promise<UsuarioDto> {
   const { cipher_pass } = await ConfigurationService.getConfig();
   const endpointDto = await EndpointService.getEndpointByUrl(endpoint);
   if (!endpointDto) {
@@ -15,9 +15,7 @@ export async function login(endpoint: string, matricula: string, password: strin
   }
 
   let user = await UsuarioService.findByMatricula(matricula);
-  let novo = false;
   if (!user) {
-    novo = true;
     const strategy = (await StrategyFactory.build(endpointDto.strategy, endpoint))!;
     await strategy.login(matricula, password);
 
@@ -40,7 +38,7 @@ export async function login(endpoint: string, matricula: string, password: strin
   }
   const decrypted = cipher.decrypt(user.password, cipher_pass);
   if (decrypted === password) {
-    return [novo, user];
+    return user;
   } else {
     throw new Error('Senha incorreta');
   }
