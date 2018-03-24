@@ -22,6 +22,7 @@ interface GType {
 }
 
 const types: GType[] = [
+  require('./mutations/user'),
   require('./mutations/mutation'),
   require('./queries/disciplina'),
   require('./queries/nota'),

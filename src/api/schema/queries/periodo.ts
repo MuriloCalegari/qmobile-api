@@ -7,6 +7,7 @@ export = {
   schema: `type Periodo {
     nome: ID!
     disciplinas(nome: String): [Disciplina!]!
+    favoritos: [Disciplina!]!
     disciplina(id: ID!): Disciplina
   }`,
 
@@ -15,6 +16,13 @@ export = {
     Periodo: {
       async disciplinas({ context }: PeriodoContext, { nome }, c): Promise<(DisciplinaDto & PeriodoContext)[]> {
         const disciplinas = await DisciplinaService.getDisciplinas(context.usuario, context.periodo, nome);
+        return disciplinas.map(dado => ({
+          ...dado,
+          context
+        }));
+      },
+      async favoritos({ context }: PeriodoContext, _, c): Promise<(DisciplinaDto & PeriodoContext)[]> {
+        const disciplinas = await DisciplinaService.getFavorites(context.periodo, context.usuario.id!);
         return disciplinas.map(dado => ({
           ...dado,
           context

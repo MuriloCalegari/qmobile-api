@@ -4,6 +4,7 @@ import { PeriodoContext } from './../index';
 import { DisciplinaDto } from './../../../database/disciplina';
 import { DatabaseService } from '../../../database/database';
 import { UUID } from '../../../database/uuid';
+import { UsuarioDisciplinaService } from '../../../database/usuario_disciplina';
 
 export = {
 
@@ -16,6 +17,7 @@ export = {
     id: ID!
     nome: String!
     turma: String!
+    favorito: Boolean!
     media(etapa: NumeroEtapa): Float!
     professor: Professor!
     notas: [Nota!]!
@@ -37,6 +39,9 @@ export = {
       },
       media({ context, id }: DisciplinaDto & PeriodoContext, { etapa }, c): Promise<number> {
         return NotaService.getMediaDisciplina(context.usuario.id!, id!, context.periodo, etapa);
+      },
+      favorito({ context, id }: DisciplinaDto & PeriodoContext, _, c): Promise<boolean> {
+        return UsuarioDisciplinaService.isFavorite(context.periodo, id!, context.usuario.id!);
       }
     }
 

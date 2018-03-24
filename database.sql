@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `disciplina_professor` INT NOT NULL,
   `usuario` CHAR(36) NOT NULL,
+  `favorito` INT(1) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`disciplina_professor`) REFERENCES `disciplina_professor` (`id`),
   FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
