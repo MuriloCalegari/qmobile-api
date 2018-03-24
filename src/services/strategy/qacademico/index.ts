@@ -7,7 +7,7 @@ import * as DataLoader from 'dataloader';
 import * as request from 'request-promise';
 import * as iconv from 'iconv-lite';
 
-const ENCODING = 'iso-8859-1';
+const ENCODING = process.env.NODE_ENV !== 'test' ? 'iso-8859-1' : 'utf8';
 
 export class QAcademicoStrategy implements IStrategy {
 
