@@ -35,13 +35,8 @@ export = {
           context
         }));
       },
-      async media({ context, id }: DisciplinaDto & PeriodoContext, { etapa }, c): Promise<number> {
-        const res = await NotaService.getNotasValidas(context.usuario.id!, id!, context.periodo, etapa);
-        const medias = res
-          .map((nota: NotaDto) => NotaService.getMedia(nota)) as number[];
-        const mediaTotal = medias
-          .reduce((a, b) => a + b, 0) / medias.length;
-        return (Math.round(mediaTotal * 100) / 100) || 0;
+      media({ context, id }: DisciplinaDto & PeriodoContext, { etapa }, c): Promise<number> {
+        return NotaService.getMediaDisciplina(context.usuario.id!, id!, context.periodo, etapa);
       }
     }
 
