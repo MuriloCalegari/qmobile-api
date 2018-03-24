@@ -317,7 +317,6 @@ describe('E2E', () => {
         }
       }`;
       const { data, errors } = await graphql(schema, query);
-      console.log(errors);
       expect(data!.session).toBeTruthy();
       expect(data!.session!.periodo).toBeTruthy();
 

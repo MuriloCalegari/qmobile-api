@@ -1,29 +1,39 @@
-import { Page, Browser } from 'puppeteer';
 import { IStrategy, PeriodoInfo, PeriodoCompleto } from './../factory';
+import axios from 'axios';
 import * as qauth from './qauth';
 import * as quser from './quser';
 import { QDiarios } from './qdiarios';
-import { PoolService } from '../../driver/pool';
+import { CookieJar } from 'tough-cookie';
+import * as DataLoader from 'dataloader';
+import axiosCookieJarSupport from 'axios-cookiejar-support';
+
+axiosCookieJarSupport(axios);
 
 export class QAcademicoStrategy implements IStrategy {
 
-  public browser: Browser = null as any;
-  public page: Page = null as any;
+  options: any;
+  httpLoader: DataLoader<string, any>;
 
   constructor(public endpoint: string) {
+    this.httpLoader = new DataLoader(async urls => Promise.all(
+      urls.map(url =>
+        axios.get(url, this.options)
+      )
+    ));
   }
 
-  async init(): Promise<void> {
-    if (!this.isLoggedIn()) {
-      const pool = await PoolService.getPool();
-      this.browser = await pool.acquire();
-      this.page = await this.browser.newPage();
+  init(): void {
+    if (!this.options) {
+      this.options = {
+        jar: new CookieJar(),
+        withCredentials: true
+      };
     }
   }
 
   async login(username: string, password: string): Promise<void> {
     if (!this.isLoggedIn()) {
-      await this.init();
+      this.init();
       await qauth.login(this, username, password);
     }
   }
@@ -37,7 +47,7 @@ export class QAcademicoStrategy implements IStrategy {
   }
 
   isLoggedIn(): boolean {
-    return !!this.page;
+    return !!this.options;
   }
 
   getFullName(): Promise<string> {
@@ -49,21 +59,12 @@ export class QAcademicoStrategy implements IStrategy {
   }
 
   async release(errored?: boolean): Promise<void> {
-    const { page, browser } = this;
-    if (page && browser) {
-      const pool = await PoolService.getPool();
-      try {
-        const btnSair = await page.$('a[href*="sair.asp"]');
-        await btnSair!.click();
-        await page.waitForNavigation();
-      } catch { }
-      if (errored) {
-        pool.destroy(browser);
-      } else {
-        pool.release(browser);
-      }
-      this.browser = this.page = null as any;
-    }
+    this.httpLoader.clearAll();
+    this.options = null;
+  }
+
+  getUrl(url: string): Promise<any> {
+    return this.httpLoader.load(url);
   }
 
 }
