@@ -21,7 +21,6 @@ Utilizando deste servidor, futuramente o aplicativo mobile será capaz de exibir
 * MariaDB
 * Redis
 * TypeScript
-* Puppeteer
 
 ## Subindo um container com docker
 
