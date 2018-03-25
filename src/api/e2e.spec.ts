@@ -390,6 +390,41 @@ describe('E2E', () => {
       ]);
     }));
 
+    it('deve gerar histórico da disciplina', asyncTest(async () => {
+      const query = `query {
+        session(id: "${session}") {
+          periodos {
+            disciplinas(nome: "matematica") {
+              historico {
+                data
+                media
+                etapa
+              }
+            }
+          }
+        }
+      }`;
+      const { data, errors } = await graphql(schema, query);
+      expect(data!.session).toBeTruthy();
+      expect(data!.session!.periodos).toBeTruthy();
+
+      const { session: { periodos } } = data!;
+      expect(periodos[0].disciplinas).toEqual([
+        {
+          historico: [
+            { data: '11/11/2015', media: 6, etapa: 'ETAPA2' },
+            { data: '21/10/2015', media: 8.5, etapa: 'ETAPA2' },
+            { data: '20/10/2015', media: 6, etapa: 'ETAPA2' },
+            { data: '07/10/2015', media: 10, etapa: 'ETAPA2' },
+            { data: '01/10/2015', media: 7.5, etapa: 'ETAPA2' },
+            { data: '09/09/2015', media: 7, etapa: 'ETAPA2' },
+            { data: '09/07/2015', media: 6.5, etapa: 'ETAPA1' },
+            { data: '14/05/2015', media: 7.7, etapa: 'ETAPA1' },
+          ]
+        }
+      ]);
+    }));
+
     it('deve buscar periodo por nome', asyncTest(async () => {
       const query = `query {
         session(id: "${session}") {
