@@ -1,3 +1,4 @@
+import { QAcademicoV2Strategy } from './academico_v2/index';
 import { UsuarioDto } from './../../database/usuario';
 import { EndpointDto } from './../../database/endpoint';
 import { QAcademicoStrategy } from './qacademico/index';
@@ -43,7 +44,8 @@ export interface PeriodoCompleto extends PeriodoInfo {
 }
 
 export enum StrategyType {
-  QACADEMICO = 0
+  QACADEMICO = 0,
+  QACADEMICOV2 = 1
 }
 
 export interface IStrategy {
@@ -70,6 +72,8 @@ export namespace StrategyFactory {
     switch (type) {
       case StrategyType.QACADEMICO:
         return new QAcademicoStrategy(endpoint);
+      case StrategyType.QACADEMICOV2:
+        return new QAcademicoV2Strategy(endpoint);
     }
     return null;
   }

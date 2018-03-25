@@ -81,8 +81,12 @@ export namespace QDiarios {
       const tr = dom(elem);
       if (!tr.hasClass('conteudoTexto') && !tr.hasClass('rotulo')) {
         const descricao = tr.find('td.conteudoTexto').text();
-        const [_, turma, nome, professor] = descricao.split('-')
+        const [_, turma, prenome, ...resto] = descricao.split('-')
           .map(p => p && p.trim().replace(/\([a-zA-Z0-9]+\)/g, ''));
+
+        const nome = [prenome, ...resto.splice(0, resto.length - 1)].join(' ');
+        const [professor] = resto;
+
         const etapas: RemoteEtapa[] = [];
         for (let j = 1; j <= 4 && i + j < trs.length; j++) {
           const etapa = readEtapa(dom, trs[i + j]);
@@ -91,6 +95,8 @@ export namespace QDiarios {
               etapa.numero = NumeroEtapa.RP_ETAPA1;
             } else if (etapa.numero === 12) {
               etapa.numero = NumeroEtapa.RP_ETAPA2;
+            } else if (!etapa.numero) {
+              etapa.numero = NumeroEtapa.ETAPA1;
             }
             etapas.push(etapa);
           } else {
