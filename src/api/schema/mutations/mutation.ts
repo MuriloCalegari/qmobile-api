@@ -69,8 +69,7 @@ export = {
               session
             }
           };
-        } catch (e) {
-          console.error(e);
+        } catch {
           return null;
         }
       },

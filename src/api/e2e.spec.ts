@@ -472,6 +472,28 @@ describe('E2E', () => {
 
     });
 
+    it('deve deslogar', asyncTest(async () => {
+      const query = `mutation {
+        session(id: "${session}") {
+          logout
+        }
+      }`;
+      const { data } = await graphql(schema, query);
+      expect(data).toEqual({
+        session: {
+          logout: true
+        }
+      });
+
+      const query2 = `query {
+        session(id: "${session}") {
+          id
+        }
+      }`;
+      const { data: data2 } = await graphql(schema, query);
+      expect(data2!.session).toBeFalsy();
+    }));
+
   });
 
 });
