@@ -1,3 +1,4 @@
+import { StrategyType } from './../services/strategy/factory';
 import { photo_router } from './photo';
 import { DATA_FOLDER } from './../constants';
 import * as colors from 'colors/safe';
@@ -14,7 +15,8 @@ import * as path from 'path';
 import { NotasTask } from '../tasks/notas';
 import { EndpointService } from '../database/endpoint';
 
-const def_endpoint = 'http://qacademico.ifsul.edu.br/qacademico';
+const endpoint1 = 'http://qacademico.ifsul.edu.br/qacademico';
+const endpoint2 = 'https://academicoweb.ifg.edu.br/qacademico';
 
 (async () => {
   console.log(colors.green(`
@@ -33,7 +35,10 @@ const def_endpoint = 'http://qacademico.ifsul.edu.br/qacademico';
   await DatabaseService.createTables();
   await TaskQueue.startRunner();
   // TODO arrumar um modo melhor de inicializar o endpoint
-  await EndpointService.findOrCreate(def_endpoint);
+  await Promise.all([
+    EndpointService.findOrCreate(endpoint1),
+    EndpointService.findOrCreate(endpoint2, StrategyType.QACADEMICOV2)
+  ]);
   const PORT = 3002;
 
   const app = express();
