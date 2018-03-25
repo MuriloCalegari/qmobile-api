@@ -17,6 +17,14 @@ export namespace SessionService {
     };
   }
 
+  export async function destroy(id: UUID): Promise<void> {
+    const connection = await DatabaseService.getDatabase();
+    await connection.query(
+      `DELETE FROM session WHERE id=?`,
+      [id.toString()]
+    );
+  }
+
   export async function create(session: SessionDto): Promise<SessionDto> {
     const connection = await DatabaseService.getDatabase();
 

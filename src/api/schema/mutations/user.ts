@@ -12,6 +12,7 @@ export = {
 
   type UserMutation {
     setFavorite(periodo: ID!, disciplina: ID!, state: Boolean!): Boolean!
+    logout: Boolean!
   }
   `,
 
@@ -29,6 +30,10 @@ export = {
           context.usuario.id!,
           state
         );
+        return true;
+      },
+      async logout({ context }: BaseContext, _, c): Promise<boolean> {
+        await SessionService.destroy(context.session.id!);
         return true;
       }
     }
