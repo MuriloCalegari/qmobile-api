@@ -21,6 +21,12 @@ export interface NotaDto {
   nota?: number | null;
 }
 
+export interface HistoricoDto {
+  data: string;
+  media: number;
+  etapa: NumeroEtapa;
+}
+
 export namespace NotaService {
 
   function convert(dto: NotaDto): NotaDto {
@@ -94,6 +100,22 @@ export namespace NotaService {
     }
     const media = (nota / maximo) * 10;
     return Math.round(media * 100) / 100;
+  }
+
+  export async function getHistorico(usuario: UUID, disciplina: UUID, periodo: Date): Promise<HistoricoDto[]> {
+    const db = await DatabaseService.getDatabase();
+    const res = await db.query(`
+    SELECT nota.data, AVG(nota.media) AS media, nota.etapa FROM nota
+      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      WHERE disciplina_professor.disciplina = ?
+        AND disciplina_professor.periodo = ?
+        AND usuario_disciplina.usuario = ?
+        AND nota.media >= 0
+      GROUP BY nota.data
+      ORDER BY nota.data DESC;
+    `, [disciplina.toString(), periodo, usuario.toString()]);
+    return res;
   }
 
   export async function getNotas(usuario: UUID, disciplina: UUID, periodo: Date): Promise<NotaDto[]> {

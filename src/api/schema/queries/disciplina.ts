@@ -1,10 +1,11 @@
-import { NotaDto, NotaService } from './../../../database/nota';
+import { NotaDto, NotaService, HistoricoDto } from './../../../database/nota';
 import { ProfessorDto, ProfessorService } from './../../../database/professor';
 import { PeriodoContext } from './../index';
 import { DisciplinaDto } from './../../../database/disciplina';
 import { DatabaseService } from '../../../database/database';
 import { UUID } from '../../../database/uuid';
 import { UsuarioDisciplinaService } from '../../../database/usuario_disciplina';
+import * as moment from 'moment';
 
 export = {
 
@@ -13,6 +14,13 @@ export = {
     id: ID!
     nome: String!
   }
+
+  type Historico {
+    data: String!
+    media: Float!
+    etapa: NumeroEtapa!
+  }
+
   type Disciplina {
     id: ID!
     nome: String!
@@ -21,6 +29,7 @@ export = {
     media(etapa: NumeroEtapa): Float!
     professor: Professor!
     notas: [Nota!]!
+    historico: [Historico!]!
   }
   `,
 
@@ -35,6 +44,14 @@ export = {
         return res.map(dado => ({
           ...dado,
           context
+        }));
+      },
+      async historico({ context, id }: DisciplinaDto & PeriodoContext, _, c): Promise<HistoricoDto[]> {
+        const historico = await NotaService.getHistorico(context.usuario.id!, id!, context.periodo);
+        return historico.map(hist => ({
+          ...hist,
+          media: Math.round(hist.media * 100) / 100,
+          data: moment(hist.data).format('DD/MM/YYYY')
         }));
       },
       media({ context, id }: DisciplinaDto & PeriodoContext, { etapa }, c): Promise<number> {
