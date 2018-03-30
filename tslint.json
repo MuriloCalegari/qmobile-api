@@ -96,6 +96,7 @@
       true,
       "multiline"
     ],
-    "quotemark": [true, "single"]
+    "quotemark": [true, "single"],
+    "cyclomatic-complexity": [true, 8]
   }
 }

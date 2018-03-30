@@ -41,21 +41,18 @@ const options = {
 photo_router.post('/photo/:user', fileUpload(options), async (req, res) => {
   let { user } = req.params;
   user = removeExtension(user);
-  if (!user || user.length !== 36 || !req.files ||
-    !req.files.picture || Array.isArray(req.files.picture)) {
+  const session = req.get('X-Session');
+  const params = [session, user, req.files];
+  if (params.some(param => !param) || user.length !== 36
+  || !req.files!.picture || Array.isArray(req.files!.picture!)) {
     return res.status(404).end();
   }
 
-  const session = req.get('X-Session');
-  if (!session) {
-    return res.status(401).end();
-  }
-
-  const sessionDto = await SessionService.findById(UUID.from(session));
+  const sessionDto = await SessionService.findById(UUID.from(session!));
   if (!sessionDto || sessionDto.usuario.toString() !== user) {
     return res.status(401).end();
   }
-  const { data } = req.files.picture;
+  const { data } = req.files!.picture! as any;
   const novo = await photo.process(data);
   await fs.writeFile(
     photo.getPath(sessionDto.usuario.toString()),
