@@ -1,6 +1,5 @@
 import { NotaDto, NotaService } from './../../../database/nota';
-import { ProfessorDto } from './../../../database/professor';
-import { PeriodoContext } from './../index';
+import { PeriodoContext, DisciplinaResponse } from './../index';
 import { DisciplinaDto, DisciplinaService } from './../../../database/disciplina';
 import { DatabaseService } from '../../../database/database';
 
@@ -43,10 +42,11 @@ export = {
         return moment(notaDto.data).format('DD/MM/YYYY');
       },
       async disciplina({ context, usuario_disciplina }: NotaDto & PeriodoContext, _, c
-      ): Promise<DisciplinaDto & PeriodoContext> {
+      ): Promise<DisciplinaResponse & PeriodoContext> {
         const res = await DisciplinaService.getDisciplinaByUD(usuario_disciplina);
         return res && {
           ...res,
+          ud: usuario_disciplina,
           context
         } as any;
       },

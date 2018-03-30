@@ -40,6 +40,7 @@ export namespace QDiarios {
     let data: moment.Moment | null = moment(desc, 'DD/MM/YYYY');
     if (data.isValid() && data.isBefore(moment())) {
       desc = desc.substring(12).trim();
+    /* istanbul ignore next: dificil de reproduzir */
     } else {
       data = moment();
     }

@@ -1,3 +1,4 @@
+import { DisciplinaDto, DisciplinaExtras } from './../../database/disciplina';
 import { SessionDto } from './../../database/session';
 import { UsuarioDto } from './../../database/usuario';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -15,6 +16,8 @@ export type PeriodoContext = BaseContext & {
     periodo: Date;
   }
 };
+
+export type DisciplinaResponse = DisciplinaDto & DisciplinaExtras;
 
 interface GType {
   schema: string;

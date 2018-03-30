@@ -1,16 +1,16 @@
 import { QAcademicoV2Strategy } from './index';
 import { QAcademicoStrategy } from './../qacademico/index';
 import { asyncTest } from '../../../test-utils';
-import { NumeroEtapa } from '../factory';
+import { NumeroEtapa, StrategyFactory, StrategyType } from '../factory';
 
 describe('QAcademicoV2', () => {
 
   let strategy: QAcademicoV2Strategy;
 
-  beforeEach(() => {
+  beforeEach(asyncTest(async () => {
     spyOn(QAcademicoStrategy.prototype, 'getPeriodo').and.returnValue([]);
-    strategy = new QAcademicoV2Strategy('aaaa');
-  });
+    strategy = await StrategyFactory.build(StrategyType.QACADEMICOV2, 'aaaaa') as any;
+  }));
 
   it('deve mapear notas N1', asyncTest(async () => {
     (QAcademicoStrategy.prototype.getPeriodo as jasmine.Spy).and.returnValue(Promise.resolve({

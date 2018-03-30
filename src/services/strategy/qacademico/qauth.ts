@@ -28,6 +28,7 @@ export async function login(strategy: QAcademicoStrategy, username: string, pass
       Submit: rsa.encryptedString(key, 'OK')
     };
 
+    /* istanbul ignore next: dificil de reproduzir */
     if (!Object.values(payload).every(Boolean)) {
       throw new Error('Falha no QAcademico');
     }

@@ -395,7 +395,7 @@ describe('NotasTask', () => {
     }));
 
     it('deve buscar todos os alunos', asyncTest(async () => {
-      spyOn(UsuarioService, 'findAll').and.returnValue(Promise.resolve([]));
+      spyOn(UsuarioService, 'findAll').and.callThrough();
       await NotasTask.scheduleUpdate();
 
       expect(UsuarioService.findAll).toHaveBeenCalled();

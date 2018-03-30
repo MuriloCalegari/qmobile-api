@@ -74,14 +74,19 @@ export namespace NotasTask {
     usuario: UUID, endpoint: UUID, { etapas, ...disciplina }: RemoteDisciplina
   ): Promise<NotaUpdate[]> {
 
-    const [, disciplinaDto] = await DisciplinaService.findOrCreate({
-      nome: disciplina.nome,
-      endpoint
-    });
-    const [, professorDto] = await ProfessorService.findOrCreate({
-      nome: disciplina.professor,
-      endpoint
-    });
+    const [[, disciplinaDto], [, professorDto]] = await Promise.all([
+
+      DisciplinaService.findOrCreate({
+        nome: disciplina.nome,
+        endpoint
+      }),
+
+      ProfessorService.findOrCreate({
+        nome: disciplina.professor,
+        endpoint
+      })
+
+    ]);
     const [, dpDto] = await DisciplinaProfessorService.findOrCreate({
       professor: professorDto.id!,
       disciplina: disciplinaDto.id!,
@@ -136,7 +141,7 @@ export namespace NotasTask {
       await Promise.all(
         codigosPeriodos.map(async periodo => {
 
-          const {disciplinas} = await strategy.getPeriodo(periodo);
+          const { disciplinas } = await strategy.getPeriodo(periodo);
           await NotasTask.updateAll(usuario, disciplinas);
 
         })

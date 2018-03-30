@@ -52,16 +52,13 @@ export namespace UsuarioDisciplinaService {
     return convert(dto);
   }
 
-  export async function isFavorite(periodo: Date, disciplina: UUID, usuario: UUID): Promise<boolean> {
+  export async function isFavorite(usuario_disciplina: number): Promise<boolean> {
     const db = await DatabaseService.getDatabase();
     const [res] = await db.query(`
     SELECT favorito FROM usuario_disciplina
-      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
-      WHERE disciplina_professor.disciplina = ?
-        AND disciplina_professor.periodo = ?
-        AND usuario_disciplina.usuario = ?
+      WHERE usuario_disciplina.id = ?
       LIMIT 1;
-    `, [disciplina.toString(), periodo, usuario.toString()]);
+    `, [usuario_disciplina]);
     return !!res.favorito;
   }
 
@@ -77,13 +74,29 @@ export namespace UsuarioDisciplinaService {
     `, [state ? 1 : 0, disciplina.toString(), periodo, usuario.toString()]);
   }
 
-  export async function findOrCreate(dpdto: UsuarioDisciplinaDto): Promise<[boolean, UsuarioDisciplinaDto]> {
+  export async function findOrCreate(nova: UsuarioDisciplinaDto): Promise<[boolean, UsuarioDisciplinaDto]> {
     const connection = await DatabaseService.getDatabase();
-    const dto = await UsuarioDisciplinaService.find(dpdto);
-    if (!dto) {
-      return [true, await UsuarioDisciplinaService.create(dpdto)];
+    const params = [
+      0, nova.disciplina_professor, nova.usuario.toString(), nova.favorito ? 1 : 0,
+      nova.disciplina_professor, nova.usuario.toString()
+    ];
+    const [insert, select] = await Promise.all([
+
+      connection.query(
+        `INSERT INTO usuario_disciplina
+        SELECT * FROM (SELECT ?, ?, ?, ? AS fav) AS tmp
+        WHERE NOT EXISTS (
+          SELECT id FROM usuario_disciplina WHERE disciplina_professor=? AND usuario=?
+        ) LIMIT 1;
+        `, params),
+
+      UsuarioDisciplinaService.find(nova)
+
+    ]);
+    if (!insert.affectedRows) {
+      return [false, select!];
     }
-    return [false, dto];
+    return [true, { ...nova, id: insert.insertId }];
   }
 
   export async function getPeriodos(usuario: UUID): Promise<{ periodo: Date }[]> {
