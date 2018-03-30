@@ -42,11 +42,22 @@ export namespace DisciplinaService {
   }
 
   export async function findOrCreate(disciplina: DisciplinaDto): Promise<[boolean, DisciplinaDto]> {
-    const dto = await DisciplinaService.findByNome(disciplina.endpoint, disciplina.nome);
-    if (!dto) {
-      return [true, await DisciplinaService.create(disciplina)];
+    const connection = await DatabaseService.getDatabase();
+    const nova = {
+      ...disciplina,
+      id: UUID.random()
+    };
+    const res = await connection.query(
+      `INSERT INTO disciplina (id, nome, endpoint)
+      SELECT * FROM (SELECT ?, ?, ?) AS tmp
+      WHERE NOT EXISTS (
+          SELECT nome FROM disciplina WHERE nome = ?
+      ) LIMIT 1;
+      `, [nova.id.toString(), nova.nome, nova.endpoint.toString(), nova.nome]);
+    if (!res.affectedRows) {
+      return [false, (await DisciplinaService.findByNome(disciplina.endpoint, disciplina.nome))!];
     }
-    return [false, dto];
+    return [true, nova];
   }
 
   export async function getDisciplinas(usuario: UsuarioDto, periodo: Date, nome?: string): Promise<DisciplinaDto[]> {
