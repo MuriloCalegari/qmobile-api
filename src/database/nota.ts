@@ -87,15 +87,21 @@ export namespace NotaService {
     const connection = await DatabaseService.getDatabase();
 
     const cols = insertParams.map((_, i) => `? AS col_${i}`).join(', ');
-    const res = await connection.query(
-      `INSERT INTO nota
-      SELECT * FROM (SELECT ${cols}) AS tmp
-      WHERE NOT EXISTS (
-        SELECT id FROM nota WHERE usuario_disciplina=? AND descricao=? AND etapa=? AND data=?
-      ) LIMIT 1;
-      `, [...insertParams, ...queryParams]);
-    if (!res.affectedRows) {
-      return [false, (await NotaService.find(nova))!];
+    const [insert, select] = await Promise.all([
+
+      connection.query(
+        `INSERT INTO nota
+        SELECT * FROM (SELECT ${cols}) AS tmp
+        WHERE NOT EXISTS (
+          SELECT id FROM nota WHERE usuario_disciplina=? AND descricao=? AND etapa=? AND data=?
+        ) LIMIT 1;
+        `, [...insertParams, ...queryParams]),
+
+      NotaService.find(nova)
+
+    ]);
+    if (!insert.affectedRows) {
+      return [false, select!];
     }
     return [true, nova];
   }
@@ -123,51 +129,39 @@ export namespace NotaService {
     return Math.round(media * 100) / 100;
   }
 
-  export async function getHistorico(usuario: UUID, disciplina: UUID, periodo: Date): Promise<HistoricoDto[]> {
+  export async function getHistorico(usuario_disciplina: number): Promise<HistoricoDto[]> {
     const db = await DatabaseService.getDatabase();
     const res = await db.query(`
     SELECT nota.data, AVG(nota.media) AS media, nota.etapa FROM nota
-      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
-      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
-      WHERE disciplina_professor.disciplina = ?
-        AND disciplina_professor.periodo = ?
-        AND usuario_disciplina.usuario = ?
+      WHERE nota.usuario_disciplina = ?
         AND nota.media >= 0
       GROUP BY nota.data
       ORDER BY nota.data DESC;
-    `, [disciplina.toString(), periodo, usuario.toString()]);
+    `, [usuario_disciplina]);
     return res;
   }
 
-  export async function getNotas(usuario: UUID, disciplina: UUID, periodo: Date): Promise<NotaDto[]> {
+  export async function getNotas(usuario_disciplina: number): Promise<NotaDto[]> {
     const db = await DatabaseService.getDatabase();
     const res = await db.query(`
     SELECT nota.* FROM nota
-      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
-      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
-      WHERE disciplina_professor.disciplina = ?
-        AND disciplina_professor.periodo = ?
-        AND usuario_disciplina.usuario = ?
+      WHERE nota.usuario_disciplina = ?
       ORDER BY
         nota.data DESC,
         nota.descricao DESC,
         nota.etapa DESC;
-    `, [disciplina.toString(), periodo, usuario.toString()]);
+    `, [usuario_disciplina]);
     return res.map(dado => convert(dado));
   }
 
-  export async function getMediaDisciplina(usuario: UUID, disciplina: UUID, periodo: Date, etapa?: NumeroEtapa): Promise<number> {
+  export async function getMediaDisciplina(usuario_disciplina: number, etapa?: NumeroEtapa): Promise<number> {
     const db = await DatabaseService.getDatabase();
     const [res] = await db.query(`
     SELECT AVG(nota.media) AS media FROM nota
-      LEFT JOIN usuario_disciplina ON nota.usuario_disciplina = usuario_disciplina.id
-      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
-      WHERE disciplina_professor.disciplina = ?
-        AND disciplina_professor.periodo = ?
+      WHERE nota.usuario_disciplina = ?
         AND nota.media >= 0
-        AND usuario_disciplina.usuario = ?
         ${!!etapa ? 'AND nota.etapa = ?' : ''}
-    `, [disciplina.toString(), periodo, usuario.toString(), etapa]);
+    `, [usuario_disciplina, etapa]);
     return Math.round(res.media * 100) / 100;
   }
 

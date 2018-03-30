@@ -1,5 +1,5 @@
-import { DisciplinaDto, DisciplinaService } from './../../../database/disciplina';
-import { PeriodoContext } from './../index';
+import { DisciplinaService } from './../../../database/disciplina';
+import { PeriodoContext, DisciplinaResponse } from './../index';
 import { UUID } from '../../../database/uuid';
 
 export = {
@@ -14,21 +14,21 @@ export = {
   resolvers: {
 
     Periodo: {
-      async disciplinas({ context }: PeriodoContext, { nome }, c): Promise<(DisciplinaDto & PeriodoContext)[]> {
+      async disciplinas({ context }: PeriodoContext, { nome }, c): Promise<(DisciplinaResponse & PeriodoContext)[]> {
         const disciplinas = await DisciplinaService.getDisciplinas(context.usuario, context.periodo, nome);
         return disciplinas.map(dado => ({
           ...dado,
           context
         }));
       },
-      async favoritos({ context }: PeriodoContext, _, c): Promise<(DisciplinaDto & PeriodoContext)[]> {
+      async favoritos({ context }: PeriodoContext, _, c): Promise<(DisciplinaResponse & PeriodoContext)[]> {
         const disciplinas = await DisciplinaService.getFavorites(context.periodo, context.usuario.id!);
         return disciplinas.map(dado => ({
           ...dado,
           context
         }));
       },
-      async disciplina({ context }: PeriodoContext, { id }, c): Promise<(DisciplinaDto & PeriodoContext) | null> {
+      async disciplina({ context }: PeriodoContext, { id }, c): Promise<(DisciplinaResponse & PeriodoContext) | null> {
         if (typeof id !== 'string' || id.length !== 36) {
           return null;
         }

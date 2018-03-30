@@ -9,6 +9,10 @@ export interface DisciplinaDto {
   endpoint: UUID;
 }
 
+export interface DisciplinaExtras {
+  ud: number;
+}
+
 export namespace DisciplinaService {
 
   function convert(dto: DisciplinaDto): DisciplinaDto {
@@ -47,23 +51,29 @@ export namespace DisciplinaService {
       ...disciplina,
       id: UUID.random()
     };
-    const res = await connection.query(
-      `INSERT INTO disciplina (id, nome, endpoint)
-      SELECT * FROM (SELECT ?, ?, ?) AS tmp
-      WHERE NOT EXISTS (
-          SELECT nome FROM disciplina WHERE nome = ?
-      ) LIMIT 1;
-      `, [nova.id.toString(), nova.nome, nova.endpoint.toString(), nova.nome]);
-    if (!res.affectedRows) {
-      return [false, (await DisciplinaService.findByNome(disciplina.endpoint, disciplina.nome))!];
+    const [insert, select] = await Promise.all([
+
+      connection.query(
+        `INSERT INTO disciplina (id, nome, endpoint)
+        SELECT * FROM (SELECT ?, ?, ?) AS tmp
+        WHERE NOT EXISTS (
+            SELECT nome FROM disciplina WHERE nome = ?
+        ) LIMIT 1;
+        `, [nova.id.toString(), nova.nome, nova.endpoint.toString(), nova.nome]),
+
+      DisciplinaService.findByNome(disciplina.endpoint, disciplina.nome)
+
+    ]);
+    if (!insert.affectedRows) {
+      return [false, select!];
     }
     return [true, nova];
   }
 
-  export async function getDisciplinas(usuario: UsuarioDto, periodo: Date, nome?: string): Promise<DisciplinaDto[]> {
+  export async function getDisciplinas(usuario: UsuarioDto, periodo: Date, nome?: string): Promise<(DisciplinaDto & DisciplinaExtras)[]> {
     const db = await DatabaseService.getDatabase();
     const res = await db.query(`
-      SELECT disciplina.*, disciplina_professor.turma FROM usuario_disciplina
+      SELECT disciplina.*, disciplina_professor.turma, usuario_disciplina.id AS ud FROM usuario_disciplina
         LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
         LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
         WHERE disciplina_professor.periodo = ?
@@ -75,10 +85,10 @@ export namespace DisciplinaService {
     return res.map(dado => convert(dado));
   }
 
-  export async function getDisciplina(usuario: UsuarioDto, periodo: Date, id: UUID): Promise<DisciplinaDto> {
+  export async function getDisciplina(usuario: UsuarioDto, periodo: Date, id: UUID): Promise<DisciplinaDto & DisciplinaExtras> {
     const db = await DatabaseService.getDatabase();
     const [res] = await db.query(`
-      SELECT disciplina.*, disciplina_professor.turma FROM usuario_disciplina
+      SELECT disciplina.*, disciplina_professor.turma, usuario_disciplina.id AS ud FROM usuario_disciplina
         LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
         LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
         WHERE disciplina_professor.periodo = ?
@@ -86,7 +96,7 @@ export namespace DisciplinaService {
             AND usuario_disciplina.usuario = ?
         LIMIT 1;
       `, [periodo, id.toString(), usuario.id!.toString()]);
-    return convert(res);
+    return convert(res) as any;
   }
 
   export async function getDisciplinaByUD(usuario_disciplina: number): Promise<DisciplinaDto & { turma: string }> {
@@ -101,10 +111,10 @@ export namespace DisciplinaService {
     return convert(res) as any;
   }
 
-  export async function getFavorites(periodo: Date, usuario: UUID): Promise<DisciplinaDto[]> {
+  export async function getFavorites(periodo: Date, usuario: UUID): Promise<(DisciplinaDto & DisciplinaExtras)[]> {
     const db = await DatabaseService.getDatabase();
     const res = await db.query(`
-    SELECT disciplina.*, disciplina_professor.turma FROM usuario_disciplina
+    SELECT disciplina.*, disciplina_professor.turma, usuario_disciplina.id AS ud FROM usuario_disciplina
         LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
         LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
         WHERE disciplina_professor.periodo = ?

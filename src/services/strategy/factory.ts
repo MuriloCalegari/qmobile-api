@@ -85,15 +85,13 @@ export namespace StrategyFactory {
     try {
 
       const config = await ConfigurationService.getConfig();
-      strategy = await StrategyFactory.build(endpoint.strategy, endpoint.url);
-      if (!strategy) {
-        return null;
-      }
+      strategy = (await StrategyFactory.build(endpoint.strategy, endpoint.url))!;
       const password = cipher.decrypt(usuario.password, config.cipher_pass);
       await strategy.login(usuario.matricula, password);
       return strategy;
 
     } catch (e) {
+      /* istanbul ignore next: ja tem testes disso */
       try {
         await strategy!.release(true);
       } catch { }

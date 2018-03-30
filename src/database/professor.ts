@@ -45,7 +45,9 @@ export namespace ProfessorService {
       ...professor,
       id: UUID.random()
     };
-    const res = await connection.query(
+    const [insert, select] = await Promise.all([
+
+      connection.query(
       `INSERT INTO professor
       SELECT * FROM (SELECT ?, ?, ?) AS tmp
       WHERE NOT EXISTS (
@@ -54,9 +56,13 @@ export namespace ProfessorService {
       `, [
         novo.id!.toString(), novo.nome, novo.endpoint.toString(),
         novo.nome, novo.endpoint.toString()
-      ]);
-    if (!res.affectedRows) {
-      return [false, (await ProfessorService.findByNome(professor.endpoint, professor.nome))!];
+      ]),
+
+      ProfessorService.findByNome(professor.endpoint, professor.nome)
+
+    ]);
+    if (!insert.affectedRows) {
+      return [false, select!];
     }
     return [true, novo];
   }

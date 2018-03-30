@@ -20,30 +20,6 @@ export namespace DisciplinaProfessorService {
     };
   }
 
-  export async function create({ id: _, ...dpdto }: DisciplinaProfessorDto): Promise<DisciplinaProfessorDto> {
-    const connection = await DatabaseService.getDatabase();
-    const res = await connection.query(
-      'INSERT INTO disciplina_professor VALUES (?, ?, ?, ?, ?)',
-      [
-        0, dpdto.periodo, dpdto.turma,
-        dpdto.disciplina.toString(), dpdto.professor.toString()
-      ]
-    );
-    return convert({
-      ...dpdto,
-      id: res.insertId
-    });
-  }
-
-  export async function findById(id: number): Promise<DisciplinaProfessorDto | null> {
-    const connection = await DatabaseService.getDatabase();
-    const [dto] = await connection.query(
-      'SELECT * FROM disciplina_professor WHERE id=? LIMIT 1',
-      [id]
-    );
-    return convert(dto);
-  }
-
   export async function find(dpdto: DisciplinaProfessorDto): Promise<DisciplinaProfessorDto | null> {
     const connection = await DatabaseService.getDatabase();
     const [dto] = await connection.query(
@@ -64,17 +40,23 @@ export namespace DisciplinaProfessorService {
       nova.disciplina.toString(),
       nova.professor.toString()
     ];
-    const res = await connection.query(
-      `INSERT INTO disciplina_professor (id, periodo, turma, disciplina, professor)
-      SELECT * FROM (SELECT ?, ?, ?, ?, ?) AS tmp
-      WHERE NOT EXISTS (
-        SELECT professor FROM disciplina_professor WHERE periodo=? AND turma=? AND disciplina=? AND professor=?
-      ) LIMIT 1;
-      `, [0, ...params, ...params]);
-    if (!res.affectedRows) {
-      return [false, (await DisciplinaProfessorService.find(nova))!];
+    const [insert, select] = await Promise.all([
+
+      connection.query(
+        `INSERT INTO disciplina_professor (id, periodo, turma, disciplina, professor)
+        SELECT * FROM (SELECT ?, ?, ?, ?, ?) AS tmp
+        WHERE NOT EXISTS (
+          SELECT professor FROM disciplina_professor WHERE periodo=? AND turma=? AND disciplina=? AND professor=?
+        ) LIMIT 1;
+        `, [0, ...params, ...params]),
+
+      DisciplinaProfessorService.find(nova)
+
+    ]);
+    if (!insert.affectedRows) {
+      return [false, select!];
     }
-    return [true, { ...nova, id: res.insertId }];
+    return [true, { ...nova, id: insert.insertId }];
   }
 
 }

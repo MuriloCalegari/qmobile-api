@@ -19,6 +19,7 @@ export const HistoryLoader = new DataLoader<string, void>(
         const strategy = (await StrategyFactory.prepareStrategy(endpoint!, usuario))!;
         await NotasTask.updateRemote(strategy, usuario.matricula, true);
       } catch (e) {
+        /* istanbul ignore next: dificil de reproduzir */
         UsuarioService.setInicializado(usuario.id!, false).catch(() => { });
         throw e;
       }
