@@ -46,6 +46,16 @@ export namespace ConfigurationService {
   export const CONFIG_PATH = path.join(__dirname, '../data/config.json');
   let configPromise: Promise<Configuration>;
 
+  function mergeValid(target: any, origin: any): void {
+    Object.entries(origin).forEach(([key, value]) => {
+      if (typeof origin[key] !== 'object') {
+        target[key] = origin[key] || target[key];
+      } else {
+        mergeValid(target[key], origin[key]);
+      }
+    });
+  }
+
   export async function getConfig(): Promise<Configuration> {
     return configPromise || (configPromise = (async () => {
 
@@ -58,18 +68,21 @@ export namespace ConfigurationService {
       }
 
       if (process.env) {
-        config.cipher_pass = process.env.ENCRYPTION_KEY || config.cipher_pass;
-        config.database.host = process.env.MYSQL_HOST || config.database.host;
-        config.database.username = process.env.MYSQL_USER || config.database.username;
-        config.database.password = process.env.MYSQL_PASSWORD || config.database.password;
-        config.database.database = process.env.MYSQL_DB || config.database.database;
-        config.database.port =
-          (process.env.MYSQL_PORT && parseInt(process.env.MYSQL_PORT, 10)) ||
-          config.database.port;
-
-        config.redis.host = process.env.REDIS_HOST || config.redis.host;
-        config.redis.port = (process.env.REDIS_PORT && parseInt(process.env.REDIS_PORT, 10)) ||
-          config.redis.port;
+        const env_config = {
+          cipher_pass: process.env.ENCRYPTION_KEY,
+          database: {
+            host: process.env.MYSQL_HOST,
+            username: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DB,
+            port: process.env.MYSQL_PORT && parseInt(process.env.MYSQL_PORT, 10),
+          },
+          redis: {
+            host: process.env.REDIS_HOST,
+            port: process.env.REDIS_PORT && parseInt(process.env.REDIS_PORT, 10)
+          }
+        };
+        mergeValid(config, env_config);
       }
       return config;
 

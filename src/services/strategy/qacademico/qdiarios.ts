@@ -67,6 +67,17 @@ export namespace QDiarios {
     };
   }
 
+  function etapaPorNumero(numero: number): NumeroEtapa {
+    if (numero === 11) {
+      return NumeroEtapa.RP_ETAPA1;
+    } else if (numero === 12) {
+      return NumeroEtapa.RP_ETAPA2;
+    } else if (!numero) {
+      return NumeroEtapa.ETAPA1;
+    }
+    return numero;
+  }
+
   function getDisciplinas(content: string): RemoteDisciplina[] {
     const dom = cheerio.load(content, { decodeEntities: false });
     const tabelaNotas = dom(
@@ -91,13 +102,7 @@ export namespace QDiarios {
         for (let j = 1; j <= 4 && i + j < trs.length; j++) {
           const etapa = readEtapa(dom, trs[i + j]);
           if (etapa) {
-            if (etapa.numero === 11) {
-              etapa.numero = NumeroEtapa.RP_ETAPA1;
-            } else if (etapa.numero === 12) {
-              etapa.numero = NumeroEtapa.RP_ETAPA2;
-            } else if (!etapa.numero) {
-              etapa.numero = NumeroEtapa.ETAPA1;
-            }
+            etapa.numero = etapaPorNumero(etapa.numero);
             etapas.push(etapa);
           } else {
             break;
