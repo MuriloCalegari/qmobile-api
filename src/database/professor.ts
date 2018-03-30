@@ -40,11 +40,25 @@ export namespace ProfessorService {
   }
 
   export async function findOrCreate(professor: ProfessorDto): Promise<[boolean, ProfessorDto]> {
-    const dto = await ProfessorService.findByNome(professor.endpoint, professor.nome);
-    if (!dto) {
-      return [true, await ProfessorService.create(professor)];
+    const connection = await DatabaseService.getDatabase();
+    const novo = {
+      ...professor,
+      id: UUID.random()
+    };
+    const res = await connection.query(
+      `INSERT INTO professor
+      SELECT * FROM (SELECT ?, ?, ?) AS tmp
+      WHERE NOT EXISTS (
+        SELECT id FROM professor WHERE nome=? AND endpoint=?
+      ) LIMIT 1;
+      `, [
+        novo.id!.toString(), novo.nome, novo.endpoint.toString(),
+        novo.nome, novo.endpoint.toString()
+      ]);
+    if (!res.affectedRows) {
+      return [false, (await ProfessorService.findByNome(professor.endpoint, professor.nome))!];
     }
-    return [false, dto];
+    return [true, novo];
   }
 
   export async function getProfessor(periodo: Date, disciplina: UUID): Promise<ProfessorDto> {

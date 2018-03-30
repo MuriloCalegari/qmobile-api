@@ -129,17 +129,18 @@ export namespace NotasTask {
     const usuario = await UsuarioService.findByMatricula(matricula);
 
     if (usuario) {
-      const periodos = await strategy.getPeriodos();
-      const { disciplinas } = await strategy.getPeriodo(periodos[0]);
-      await NotasTask.updateAll(usuario, disciplinas);
-
-      if (updatePast) {
-        const [, ...resto] = periodos;
-        for (const periodo of resto) {
-          const { disciplinas: disc } = await strategy.getPeriodo(periodo);
-          await NotasTask.updateAll(usuario, disc);
-        }
+      const codigosPeriodos = await strategy.getPeriodos();
+      if (!updatePast) {
+        codigosPeriodos.splice(1, codigosPeriodos.length - 1);
       }
+      await Promise.all(
+        codigosPeriodos.map(async periodo => {
+
+          const {disciplinas} = await strategy.getPeriodo(periodo);
+          await NotasTask.updateAll(usuario, disciplinas);
+
+        })
+      );
     }
 
     return null;

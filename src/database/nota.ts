@@ -72,11 +72,32 @@ export namespace NotaService {
   }
 
   export async function findOrCreate(nota: NotaDto): Promise<[boolean, NotaDto]> {
-    const dto = await NotaService.find(nota);
-    if (!dto) {
-      return [true, await NotaService.create(nota)];
+    const nova = {
+      ...nota,
+      id: UUID.random(),
+      media: NotaService.getMedia(nota)
+    };
+    const insertParams = [
+      nova.id!.toString(), nova.usuario_disciplina, nova.descricao,
+      moment(nova.data).format('YYYY-MM-DD'), nova.etapa, nova.media, nova.peso, nova.notamaxima, nova.nota
+    ];
+    const queryParams = [
+      nova.usuario_disciplina, nova.descricao, nova.etapa, moment(nova.data).format('YYYY-MM-DD')
+    ];
+    const connection = await DatabaseService.getDatabase();
+
+    const cols = insertParams.map((_, i) => `? AS col_${i}`).join(', ');
+    const res = await connection.query(
+      `INSERT INTO nota
+      SELECT * FROM (SELECT ${cols}) AS tmp
+      WHERE NOT EXISTS (
+        SELECT id FROM nota WHERE usuario_disciplina=? AND descricao=? AND etapa=? AND data=?
+      ) LIMIT 1;
+      `, [...insertParams, ...queryParams]);
+    if (!res.affectedRows) {
+      return [false, (await NotaService.find(nova))!];
     }
-    return [false, dto];
+    return [true, nova];
   }
 
   export async function findById(id: UUID): Promise<NotaDto | null> {
