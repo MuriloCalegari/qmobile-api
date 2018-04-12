@@ -1,4 +1,4 @@
-import { IStrategy, PeriodoInfo, PeriodoCompleto } from './../factory';
+import { IStrategy, PeriodoInfo, PeriodoCompleto, RemoteBoletim } from './../factory';
 import * as qauth from './qauth';
 import * as quser from './quser';
 import { QDiarios } from './qdiarios';
@@ -6,6 +6,7 @@ import { CookieJar } from 'tough-cookie';
 import * as DataLoader from 'dataloader';
 import * as request from 'request-promise';
 import * as iconv from 'iconv-lite';
+import { QBoletim } from './qboletim';
 
 const ENCODING = process.env.NODE_ENV !== 'test' ? 'iso-8859-1' : 'utf8';
 
@@ -48,6 +49,18 @@ export class QAcademicoStrategy implements IStrategy {
 
   async getPeriodo(info: PeriodoInfo): Promise<PeriodoCompleto> {
     return QDiarios.getPeriodo(this, info);
+  }
+
+  async getBoletim(info: PeriodoInfo): Promise<RemoteBoletim[]> {
+    const boletim = await QBoletim.getBoletim(this, info);
+    return boletim.map(disciplina => ({
+      disciplina: disciplina['Componente Curricular'],
+      situacao: disciplina.Situação as any,
+      etapa1: QDiarios.extractFloat(disciplina['1E']),
+      etapa2: QDiarios.extractFloat(disciplina['2E']),
+      rp_etapa1: QDiarios.extractFloat(disciplina['1R1E']),
+      rp_etapa2: QDiarios.extractFloat(disciplina['1R2E'])
+    }));
   }
 
   isLoggedIn(): boolean {

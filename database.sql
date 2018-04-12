@@ -62,6 +62,17 @@ CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
   FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `boletim` (
+  `id`                 INT NOT NULL AUTO_INCREMENT,
+  `usuario_disciplina` INT NOT NULL,
+  `etapa1`             FLOAT,
+  `etapa2`             FLOAT,
+  `rp_etapa1`          FLOAT,
+  `rp_etapa2`          FLOAT,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`usuario_disciplina`) REFERENCES `usuario_disciplina` (`id`)
+) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS `nota` (
   `id` CHAR(36) NOT NULL,
   `usuario_disciplina` INT NOT NULL,

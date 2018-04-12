@@ -341,7 +341,7 @@
               "etapa": "ETAPA2",
               "media": -1,
               "peso": 0.05,
-              "nota": -1,
+              "nota": 0,
               "notamaxima": -1
             },
             {
@@ -381,7 +381,7 @@
               "etapa": "ETAPA2",
               "media": -1,
               "peso": 0.2,
-              "nota": -1,
+              "nota": 0,
               "notamaxima": -1
             },
             {
@@ -623,7 +623,7 @@
               "etapa": "ETAPA2",
               "media": -1,
               "peso": 2,
-              "nota": -1,
+              "nota": 0,
               "notamaxima": -1
             },
             {
@@ -633,7 +633,7 @@
               "etapa": "ETAPA2",
               "media": -1,
               "peso": 1,
-              "nota": -1,
+              "nota": 0,
               "notamaxima": -1
             },
             {
@@ -905,7 +905,7 @@
               "etapa": "ETAPA1",
               "media": -1,
               "peso": 1,
-              "nota": -1,
+              "nota": 0,
               "notamaxima": -1
             }
           ]

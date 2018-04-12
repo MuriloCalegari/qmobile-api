@@ -14,8 +14,9 @@ import {
 
 export namespace QDiarios {
 
-  function extractFloat(val: string): number {
-    return parseFloat(val.replace(/[^0-9\.]/g, '')) || -1;
+  export function extractFloat(val: string): number {
+    const parsed = parseFloat(val.replace(',', '.').replace(/[^0-9\.]/g, ''));
+    return Number.isNaN(parsed) ? -1 : parsed;
   }
 
   function extractInt(val: string): number {

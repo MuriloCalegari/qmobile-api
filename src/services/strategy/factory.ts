@@ -12,6 +12,15 @@ export enum NumeroEtapa {
   RP_ETAPA2 = 4
 }
 
+export interface RemoteBoletim {
+  disciplina: string;
+  situacao: 'Aprovado' | 'Reprovado' | 'Cursando';
+  etapa1: number;
+  etapa2: number;
+  rp_etapa1?: number;
+  rp_etapa2?: number;
+}
+
 export interface RemoteDisciplina {
   turma: string;
   nome: string;
@@ -57,6 +66,8 @@ export interface IStrategy {
   getPeriodos(): Promise<PeriodoInfo[]>;
 
   getPeriodo(info: PeriodoInfo): Promise<PeriodoCompleto>;
+
+  getBoletim(info: PeriodoInfo): Promise<RemoteBoletim[]>;
 
   getFullName(): Promise<string>;
 
