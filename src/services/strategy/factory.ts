@@ -15,6 +15,7 @@ export enum NumeroEtapa {
 export interface RemoteBoletim {
   disciplina: string;
   situacao: 'Aprovado' | 'Reprovado' | 'Cursando';
+  data: Date;
   etapa1: number;
   etapa2: number;
   rp_etapa1?: number;
