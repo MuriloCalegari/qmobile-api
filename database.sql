@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `usuario_disciplina` (
 CREATE TABLE IF NOT EXISTS `boletim` (
   `id`                 INT NOT NULL AUTO_INCREMENT,
   `usuario_disciplina` INT NOT NULL,
+  `situacao` VARCHAR(15) NOT NULL,
   `etapa1`             FLOAT,
   `etapa2`             FLOAT,
   `rp_etapa1`          FLOAT,

@@ -18,12 +18,12 @@ export namespace BoletimService {
 
       connection.query(
       `INSERT INTO boletim
-      SELECT * FROM (SELECT ? AS ud, ? AS s, ? AS e1, ? AS e2, ? AS r1, ? AS r2) AS tmp
+      SELECT * FROM (SELECT ? AS id, ? AS ud, ? AS s, ? AS e1, ? AS e2, ? AS r1, ? AS r2) AS tmp
       WHERE NOT EXISTS (
         SELECT id FROM boletim WHERE usuario_disciplina=?
       ) LIMIT 1;
       `, [
-        dto.usuario_disciplina, dto.situacao, dto.etapa1, dto.etapa2, dto.rp_etapa1, dto.rp_etapa2,
+        0, dto.usuario_disciplina, dto.situacao, dto.etapa1, dto.etapa2, dto.rp_etapa1, dto.rp_etapa2,
         dto.usuario_disciplina
       ]),
 

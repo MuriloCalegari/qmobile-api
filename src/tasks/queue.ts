@@ -6,6 +6,7 @@ import { UsuarioService } from '../database/usuario';
 import { UUID } from '../database/uuid';
 import { EndpointService } from '../database/endpoint';
 import * as cipher from '../services/cipher/cipher';
+import { BoletimTask } from './boletim';
 
 export namespace TaskQueue {
 
@@ -54,6 +55,7 @@ export namespace TaskQueue {
         strategy = (await StrategyFactory.build(endpoint.strategy, endpoint!.url))!;
         await strategy.login(usuario.matricula, password);
         await NotasTask.updateRemote(strategy, usuario.matricula);
+        await BoletimTask.updateRemote(strategy, usuario.matricula);
         await strategy.release();
         done();
 
