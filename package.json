@@ -8,7 +8,9 @@
     "test": "cross-env NODE_ENV=test jasmine-ts \"./src/**/*.spec.ts\"",
     "test:cov": "cross-env NODE_ENV=test nyc npm test",
     "test:ci": "npm run test:cov && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "start": "ts-node ./src/api/index.ts"
+    "start:dev": "ts-node ./src/api/index.ts",
+    "start": "node ./src/api/index.js",
+    "build": "tsc --project ."
   },
   "repository": {
     "type": "git",
@@ -49,8 +51,6 @@
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "sharp": "^0.18.4",
-    "ts-node": "^4.1.0",
-    "typescript": "^2.7.1",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
@@ -78,7 +78,9 @@
     "jasmine-spec-reporter": "^4.2.1",
     "jasmine-ts": "^0.2.1",
     "nyc": "^11.4.1",
-    "tslint": "^5.9.1"
+    "ts-node": "^6.0.0",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.1"
   },
   "nyc": {
     "check-coverage": true,

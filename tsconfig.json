@@ -1,6 +1,9 @@
 {
+  "include": [
+    "src/**/*"
+  ],
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es6",
     "module": "commonjs",
     "strict": true,
     "moduleResolution": "node",
@@ -8,5 +11,9 @@
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
     "noImplicitAny": false
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
