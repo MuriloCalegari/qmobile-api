@@ -2,6 +2,7 @@ import { DisciplinaDto } from './disciplina';
 import { UUID } from './uuid';
 import { DatabaseService } from './database';
 import { UsuarioDto } from './usuario';
+import * as moment from 'moment';
 
 export interface DisciplinaDto {
   id?: UUID;
@@ -96,6 +97,20 @@ export namespace DisciplinaService {
             AND usuario_disciplina.usuario = ?
         LIMIT 1;
       `, [periodo, id.toString(), usuario.id!.toString()]);
+    return convert(res) as any;
+  }
+
+  export async function getDisciplinaByNome(usuario: UsuarioDto, periodo: Date, nome: string): Promise<DisciplinaDto & DisciplinaExtras> {
+    const db = await DatabaseService.getDatabase();
+    const [res] = await db.query(`
+      SELECT disciplina.*, disciplina_professor.turma, usuario_disciplina.id AS ud FROM usuario_disciplina
+        LEFT JOIN disciplina_professor ON usuario_disciplina.disciplina_professor = disciplina_professor.id
+        LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
+        WHERE disciplina_professor.periodo = ?
+            AND disciplina.nome = ?
+            AND usuario_disciplina.usuario = ?
+        LIMIT 1;
+      `, [moment(periodo).format('YYYY-MM-DD'), nome, usuario.id!.toString()]);
     return convert(res) as any;
   }
 

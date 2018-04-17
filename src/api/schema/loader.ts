@@ -4,6 +4,7 @@ import { UsuarioService } from '../../database/usuario';
 import { EndpointService } from '../../database/endpoint';
 import { StrategyFactory } from '../../services/strategy/factory';
 import { NotasTask } from '../../tasks/notas';
+import { BoletimTask } from '../../tasks/boletim';
 
 export const HistoryLoader = new DataLoader<string, void>(
   ids => Promise.all(ids.map(async id => {
@@ -18,6 +19,7 @@ export const HistoryLoader = new DataLoader<string, void>(
 
         const strategy = (await StrategyFactory.prepareStrategy(endpoint!, usuario))!;
         await NotasTask.updateRemote(strategy, usuario.matricula, true);
+        await BoletimTask.updateRemote(strategy, usuario.matricula, true);
       } catch (e) {
         /* istanbul ignore next: dificil de reproduzir */
         UsuarioService.setInicializado(usuario.id!, false).catch(() => { });

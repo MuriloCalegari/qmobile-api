@@ -5,9 +5,9 @@ import { ConfigurationService } from '../configs';
 
 export namespace DatabaseService {
 
-  let connectionPromise: Promise<mysql.Pool>;
+  let connectionPromise: Promise<mysql.Connection>;
 
-  export function getDatabase(): Promise<mysql.Pool> {
+  export function getDatabase(): Promise<mysql.Connection> {
     return connectionPromise || (connectionPromise = (async () => {
       const {
         database: {
@@ -19,13 +19,12 @@ export namespace DatabaseService {
         }
       } = await ConfigurationService.getConfig();
 
-      const connection = await mysql.createPool({
+      const connection = await mysql.createConnection({
         host,
         user: username,
         password,
         database,
         port,
-        connectionLimit: process.env.NODE_ENV === 'test' ? 1 : 10,
         charset: 'utf8'
       });
 

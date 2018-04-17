@@ -1,3 +1,5 @@
+import { DisciplinaExtras } from './../../../database/disciplina';
+import { BoletimDto } from './../../../database/boletim';
 import { NotaDto, NotaService, HistoricoDto } from './../../../database/nota';
 import { ProfessorDto, ProfessorService } from './../../../database/professor';
 import { PeriodoContext, DisciplinaResponse } from './../index';
@@ -5,6 +7,7 @@ import { DatabaseService } from '../../../database/database';
 import { UUID } from '../../../database/uuid';
 import { UsuarioDisciplinaService } from '../../../database/usuario_disciplina';
 import * as moment from 'moment';
+import { BoletimService } from '../../../database/boletim';
 
 export = {
 
@@ -25,7 +28,7 @@ export = {
     nome: String!
     turma: String!
     favorito: Boolean!
-    media(etapa: NumeroEtapa): Float!
+    boletim: Boletim!
     professor: Professor!
     notas: [Nota!]!
     historico: [Historico!]!
@@ -53,11 +56,15 @@ export = {
           data: moment(hist.data).format('DD/MM/YYYY')
         }));
       },
-      media({ context, id, ud }: DisciplinaResponse & PeriodoContext, { etapa }, c): Promise<number> {
-        return NotaService.getMediaDisciplina(ud, etapa);
-      },
       favorito({ context, id, ud }: DisciplinaResponse & PeriodoContext, _, c): Promise<boolean> {
         return UsuarioDisciplinaService.isFavorite(ud);
+      },
+      async boletim({ context, id, ud, nome }: DisciplinaResponse & PeriodoContext, _, c): Promise<BoletimDto & DisciplinaExtras> {
+        const boletim = (await BoletimService.findByUD(ud));
+        return {
+          ...boletim,
+          ud
+        };
       }
     }
 

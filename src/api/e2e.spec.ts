@@ -191,7 +191,7 @@ describe('E2E', () => {
 
       const { session: { periodos } } = data!;
       const disciplinas = payload.periodos[0].disciplinas
-        .map(({ notas, ...disciplina }) => disciplina);
+        .map(({ notas, boletim, ...disciplina }) => disciplina);
 
       expect(periodos[0].disciplinas).toEqual(disciplinas);
     }));
@@ -201,6 +201,13 @@ describe('E2E', () => {
         session(id: "${session}") {
           periodos {
             disciplinas {
+              boletim {
+                situacao
+                etapa1
+                etapa2
+                rp_etapa1
+                rp_etapa2
+              }
               notas {
                 id
                 descricao
@@ -221,10 +228,11 @@ describe('E2E', () => {
 
       const { session: { periodos } } = data!;
       const disciplinas = payload.periodos[0].disciplinas
-        .map(({ notas, ...disciplina }) => ({ notas }));
+        .map(({ notas, boletim, ...disciplina }) => ({ notas, boletim }));
 
       expect(periodos[0].disciplinas).toEqual(disciplinas);
     }));
+
 
     let disciplina_id: string;
 
@@ -358,36 +366,6 @@ describe('E2E', () => {
       expect(data!.session.incorreto1).toBeFalsy();
       expect(data!.session.incorreto2).toBeFalsy();
       expect(data!.session.correto).toEqual(nota);
-    }));
-
-    it('deve calcular média da disciplina', asyncTest(async () => {
-      const query = `query {
-        session(id: "${session}") {
-          periodos {
-            disciplinas(nome: "educacao") {
-              media
-              etapa1: media(etapa: ETAPA1)
-              etapa2: media(etapa: ETAPA2)
-              rpetapa1: media(etapa: RP_ETAPA1)
-              rpetapa2: media(etapa: RP_ETAPA2)
-            }
-          }
-        }
-      }`;
-      const { data, errors } = await graphql(schema, query);
-      expect(data!.session).toBeTruthy();
-      expect(data!.session!.periodos).toBeTruthy();
-
-      const { session: { periodos } } = data!;
-      expect(periodos[0].disciplinas).toEqual([
-        {
-          media: 5.87,
-          etapa1: 7.9,
-          etapa2: 3.7,
-          rpetapa1: 0,
-          rpetapa2: 6
-        }
-      ]);
     }));
 
     it('deve gerar histórico da disciplina', asyncTest(async () => {

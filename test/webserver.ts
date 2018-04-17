@@ -60,31 +60,32 @@ export class PocketServer {
     if (app) {
       app.use(bodyParser.urlencoded({ extended: false }));
       app.use('/index.asp', (req, res) => {
+        const rotas = {
+          1: 'login_fail.html',
+          1001: 'login.html'
+        };
+        const rotas_logado = {
+          2071: 'diarios.html',
+          2032: 'boletim.html',
+          2000: 'home.html'
+        };
         const type = parseInt(req.query.t, 10) || 0;
-        switch (type) {
-          case 1:
-            res.sendFile(path.join(assets, 'login_fail.html'));
-            break;
-          case 1001:
-            res.sendFile(path.join(assets, 'login.html'));
-            break;
-          case 2071:
-            if (this.state.loggedIn) {
-              res.sendFile(path.join(assets, 'diarios.html'));
-            } else {
-              res.redirect('/index.asp?t=1');
-            }
-            break;
-          case 2000:
-            if (this.state.loggedIn) {
-              res.sendFile(path.join(assets, 'home.html'));
-            } else {
-              res.redirect('/index.asp?t=1');
-            }
-            break;
-          default:
-            res.status(404).send('fail');
-            break;
+
+        if (rotas[type]) {
+
+          res.sendFile(path.join(assets, rotas[type]));
+        } else if (rotas_logado[type]) {
+
+          if (this.state.loggedIn) {
+            res.sendFile(path.join(assets, rotas_logado[type]));
+          } else {
+            res.redirect('/index.asp?t=1');
+          }
+
+        } else {
+
+          res.status(404).end('fail');
+
         }
       });
       app.get('/lib/rsa/gerador_chaves_rsa.asp', (req, res) => {
