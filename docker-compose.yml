@@ -1,17 +1,22 @@
 version: '3'
 services:
   web:
-    build: .
+    image: "alangomes/qmobile-api"
     ports:
-     - "3002:3002"
+     - "80:80"
     environment:
       MYSQL_HOST: mariadb
       REDIS_HOST: redis
+    healthcheck:
+      test: curl -f http://localhost:3002 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - mariadb
       - redis
     volumes:
-      - /home/qmobile/data:/opt/app/data
+      - qmobile-data:/opt/app/data
   redis:
     image: "redis:alpine"
   mariadb:
@@ -20,9 +25,9 @@ services:
       MYSQL_ROOT_PASSWORD: '12345'
       MYSQL_DATABASE: qmobile
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3306"]
+      test: curl -f http://localhost:3306 || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
     volumes:
-    - /home/qmobile/db:/var/lib/mysql
+    - qmobile-db:/var/lib/mysql

@@ -39,7 +39,7 @@ const endpoint2 = 'https://academicoweb.ifg.edu.br/qacademico';
     EndpointService.findOrCreate(endpoint1),
     EndpointService.findOrCreate(endpoint2, StrategyType.QACADEMICOV2)
   ]);
-  const PORT = 3002;
+  const PORT = 80;
 
   const app = express();
 
