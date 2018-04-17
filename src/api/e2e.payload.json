@@ -3,26 +3,40 @@
     {
       "disciplinas": [
         {
-          "id": "4f8ab289-ab4f-4a91-a704-fca6a7fbd709",
+          "id": "1bcfaa9c-2461-4c17-a5dd-3eda6770fb09",
           "nome": "Sociologia I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 7.5,
+            "etapa2": 6,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "66b64800-f086-4714-bab6-1010af3ad003",
+            "id": "1f2941ac-f4a1-4df5-a3ec-9fc579f4e012",
             "nome": "BRIAN HOPKINS"
           },
           "notas": []
         },
         {
-          "id": "389ab877-5018-4714-99bc-aca8d8c2c7ad",
+          "id": "d6382e50-5dd1-41a6-98f6-856e8e461e54",
           "nome": "Química I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 8.5,
+            "etapa2": 10,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "c121d23f-8aa0-4fe6-9442-18c29e2c8294",
+            "id": "aab9d8fa-33e0-423e-b948-04a6bb11cfd4",
             "nome": "PATRICK RAY"
           },
           "notas": [
             {
-              "id": "8cc00a6e-efcb-4727-b451-cdef92283132",
+              "id": "42743a51-daec-4225-9315-8da3b8ffc3d8",
               "descricao": "Prova: capitulos",
               "data": "08/12/2015",
               "etapa": "RP_ETAPA2",
@@ -32,7 +46,7 @@
               "notamaxima": -1
             },
             {
-              "id": "ab4de2d0-cd5b-4eaf-82a7-e969ce93ccf6",
+              "id": "45060a68-130a-4b9c-b141-dc8fc4f8ff6e",
               "descricao": "Prova: capitulos livro 1 sem",
               "data": "01/12/2015",
               "etapa": "RP_ETAPA1",
@@ -42,7 +56,7 @@
               "notamaxima": -1
             },
             {
-              "id": "9899409d-def3-43cc-a5e2-86998e0b24e6",
+              "id": "11c245ae-324a-40ee-87cd-b6715569d3e3",
               "descricao": "Trabalho: exercicios, estudo dirigido",
               "data": "24/11/2015",
               "etapa": "ETAPA2",
@@ -52,7 +66,7 @@
               "notamaxima": -1
             },
             {
-              "id": "430f9eeb-99fa-4560-8e8e-1141776cef5d",
+              "id": "b0b24dc5-c248-40b3-b6ab-77e992eb9c11",
               "descricao": "Prova: capitulos",
               "data": "25/08/2015",
               "etapa": "ETAPA2",
@@ -62,7 +76,7 @@
               "notamaxima": -1
             },
             {
-              "id": "1548070c-c542-42ba-bb78-7689595330ec",
+              "id": "42e17824-fa5b-4182-8c4b-1d39f06efb28",
               "descricao": "Prova: cap 3,4,5",
               "data": "10/07/2015",
               "etapa": "ETAPA1",
@@ -72,7 +86,7 @@
               "notamaxima": -1
             },
             {
-              "id": "35f950e8-812a-4d24-888b-13462622c902",
+              "id": "b1ecc0ad-d5ff-41a5-aa87-84480ee70b72",
               "descricao": "Prova: capítulos 1 e 2",
               "data": "10/04/2015",
               "etapa": "ETAPA1",
@@ -84,16 +98,23 @@
           ]
         },
         {
-          "id": "d80a21d2-9a2c-4c5c-a481-ec169c19ec39",
+          "id": "5b932c39-e2bb-4f43-97ce-ebc8315f6214",
           "nome": "Matemática I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 7.5,
+            "etapa2": 7,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "f3444275-b296-49dd-aa07-e40019eb2123",
+            "id": "a98d6e9c-3d8e-43d7-b6f6-5b780018dab9",
             "nome": "JACQUELINE HAWKINS"
           },
           "notas": [
             {
-              "id": "897c91f6-90f2-49ac-ab9b-ecbe2e5dfcbb",
+              "id": "520c3792-0902-42a6-8eaf-f57820e9ea96",
               "descricao": "Prova: Prova",
               "data": "16/12/2015",
               "etapa": "RP_ETAPA2",
@@ -103,7 +124,7 @@
               "notamaxima": -1
             },
             {
-              "id": "c398e455-daab-4376-a712-fc73779c0112",
+              "id": "cc5a6137-cd01-4500-862a-3884800ea73e",
               "descricao": "Prova: Prova",
               "data": "16/12/2015",
               "etapa": "RP_ETAPA1",
@@ -113,7 +134,7 @@
               "notamaxima": -1
             },
             {
-              "id": "9b5212d1-756d-49aa-8a1a-a374bf60c6ef",
+              "id": "0f9dfcd1-4418-4f80-9edc-7433cbc740d5",
               "descricao": "Prova: Prova",
               "data": "09/12/2015",
               "etapa": "RP_ETAPA2",
@@ -123,7 +144,7 @@
               "notamaxima": -1
             },
             {
-              "id": "38c3be9e-36a9-4a8c-823a-7bf728ffb673",
+              "id": "716cc234-32ef-4c2b-8bbd-cf040b82c6f8",
               "descricao": "Prova: Prova",
               "data": "24/11/2015",
               "etapa": "RP_ETAPA1",
@@ -133,7 +154,7 @@
               "notamaxima": -1
             },
             {
-              "id": "59fc97b2-eb13-43b3-9637-b5f9bba40796",
+              "id": "a00ceffc-a0cc-45d1-9da6-2f51027126f9",
               "descricao": "Trabalho: Exercícios",
               "data": "11/11/2015",
               "etapa": "ETAPA2",
@@ -143,7 +164,7 @@
               "notamaxima": -1
             },
             {
-              "id": "7637470e-7a4b-484f-a163-2bdcbf610478",
+              "id": "ba507860-39a6-40f8-b858-6703fa62ac7d",
               "descricao": "Prova: Prova",
               "data": "21/10/2015",
               "etapa": "ETAPA2",
@@ -153,7 +174,7 @@
               "notamaxima": -1
             },
             {
-              "id": "8060633e-d95c-43f5-8ba4-5234862470ca",
+              "id": "ea90692d-3957-4af8-82ea-d442402b38ac",
               "descricao": "Prova: Prova",
               "data": "20/10/2015",
               "etapa": "ETAPA2",
@@ -163,7 +184,7 @@
               "notamaxima": -1
             },
             {
-              "id": "93d46813-7dd5-4636-a0c8-1650ca72743f",
+              "id": "b9c90b53-d80b-4a03-8269-1f249bca4dfb",
               "descricao": "Trabalho: Relações e Funções",
               "data": "07/10/2015",
               "etapa": "ETAPA2",
@@ -173,7 +194,7 @@
               "notamaxima": -1
             },
             {
-              "id": "3e58a91b-d778-4207-a454-8ff8bcd6e67f",
+              "id": "00410cbc-9131-4f05-aa91-229dd3c2336f",
               "descricao": "Prova: Prova",
               "data": "01/10/2015",
               "etapa": "ETAPA2",
@@ -183,7 +204,7 @@
               "notamaxima": -1
             },
             {
-              "id": "04ee1b01-d453-4bd0-8990-3cad4de782d4",
+              "id": "1b0fdfcc-fd34-447b-818a-75f8423c0363",
               "descricao": "Prova: Prova Composta",
               "data": "09/09/2015",
               "etapa": "ETAPA2",
@@ -193,7 +214,7 @@
               "notamaxima": -1
             },
             {
-              "id": "edf15178-b4ca-4b7e-8159-81f2376112b9",
+              "id": "5c861b9d-befa-4e08-a5a5-b3c59676ebbf",
               "descricao": "Prova: Segunda prova primeira etapa",
               "data": "09/07/2015",
               "etapa": "ETAPA1",
@@ -203,7 +224,7 @@
               "notamaxima": -1
             },
             {
-              "id": "0482bc0b-1182-46e7-8d0f-fb42e645236a",
+              "id": "0d361baa-5d9b-4034-be32-330592641ac9",
               "descricao": "Prova: Primeira prova primeira etapa",
               "data": "14/05/2015",
               "etapa": "ETAPA1",
@@ -215,16 +236,23 @@
           ]
         },
         {
-          "id": "0eb36c23-3155-4247-bcd2-0ccc2d5510d1",
+          "id": "781318d2-dcb4-4fa1-aaca-4f6e9bcefa29",
           "nome": "Lógica de Programação",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 10,
+            "etapa2": 9.5,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "ab3959bf-ef28-4883-a130-7b84d2f893ae",
+            "id": "0ca6e050-e8d9-4392-be9d-3751d6c1c15a",
             "nome": "ROGER CAMPBELL"
           },
           "notas": [
             {
-              "id": "a8c10d19-091d-460a-9f97-43b730f15d51",
+              "id": "e6fc8e90-a3c1-45f7-94db-58a749d2d9d5",
               "descricao": "Prova: Reavaliação Etapa 2",
               "data": "11/12/2015",
               "etapa": "RP_ETAPA2",
@@ -234,7 +262,7 @@
               "notamaxima": -1
             },
             {
-              "id": "71c56471-5654-43ff-8dd5-69fdb1df2e87",
+              "id": "f45ae56d-d054-4500-ac63-29d721f79ca2",
               "descricao": "Prova: Reavaliação Etapa 1",
               "data": "04/12/2015",
               "etapa": "RP_ETAPA1",
@@ -244,7 +272,7 @@
               "notamaxima": -1
             },
             {
-              "id": "63fee4e4-d9d4-4229-a473-eaaf3bd01a56",
+              "id": "51a99046-5b9e-4eb8-a6f4-914918784e4d",
               "descricao": "Prova: Avaliação 3 Etapa 2",
               "data": "26/11/2015",
               "etapa": "ETAPA2",
@@ -254,7 +282,7 @@
               "notamaxima": -1
             },
             {
-              "id": "46e24fab-e9b8-43b0-a4b9-b1251c13974f",
+              "id": "f9df1993-e68c-4719-8149-e1f3b85ce2a3",
               "descricao": "Trabalho: Trabalhos Etapa 2",
               "data": "20/11/2015",
               "etapa": "ETAPA2",
@@ -264,7 +292,7 @@
               "notamaxima": -1
             },
             {
-              "id": "b368d79f-7b6f-4dc3-b392-e4fbe6b23f86",
+              "id": "968c3fb6-00e4-49b9-8596-af4a83ba79b8",
               "descricao": "Prova: Avaliação 1 Etapa 2",
               "data": "18/09/2015",
               "etapa": "ETAPA2",
@@ -274,7 +302,7 @@
               "notamaxima": -1
             },
             {
-              "id": "41248e0c-eb7d-4a45-a0ed-405b95845936",
+              "id": "25aa816d-0880-43f8-b3d5-9d8d7ba53ba7",
               "descricao": "Prova: Prova 2 Etapa 1",
               "data": "10/07/2015",
               "etapa": "ETAPA1",
@@ -284,7 +312,7 @@
               "notamaxima": -1
             },
             {
-              "id": "f53fbab5-6324-4059-8744-af4c4bb7eb8b",
+              "id": "e6ef7ef2-5d5a-4196-a0d6-fafbde5a5abe",
               "descricao": "Trabalho: Trabalhos Etapa 1",
               "data": "07/07/2015",
               "etapa": "ETAPA1",
@@ -294,7 +322,7 @@
               "notamaxima": -1
             },
             {
-              "id": "42dc5022-3b97-4134-9281-5ce530202718",
+              "id": "7ba161dd-069e-4448-bf1e-433ebd669a47",
               "descricao": "Prova: Prova 1 Etapa 1",
               "data": "12/05/2015",
               "etapa": "ETAPA1",
@@ -306,16 +334,23 @@
           ]
         },
         {
-          "id": "d7ae9243-98bf-4e82-b6a4-9607813a297b",
+          "id": "ff8af7cb-65ee-4bc3-a71a-e781a9543365",
           "nome": "Língua Portuguesa e Literatura I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 9,
+            "etapa2": 6,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "357305d9-df68-4538-b243-75de0b08aba8",
+            "id": "e047ca57-9f8e-4dbb-b53f-e7063f0a2c4a",
             "nome": "JULIA GARZA"
           },
           "notas": [
             {
-              "id": "b5f52ca1-bb6c-4870-98ba-5cba2191a592",
+              "id": "c51028e6-fc7e-4a28-a979-812666b1e7d4",
               "descricao": "Trabalho: Reavaliação de textos",
               "data": "16/12/2015",
               "etapa": "RP_ETAPA2",
@@ -325,7 +360,7 @@
               "notamaxima": -1
             },
             {
-              "id": "35fe2eac-d08c-4444-bd21-c561da7e4c76",
+              "id": "3a8c7555-e55c-4b58-a682-19eaff742ece",
               "descricao": "Prova: Prova de reavaliação da primeira etapa",
               "data": "07/12/2015",
               "etapa": "RP_ETAPA1",
@@ -335,17 +370,17 @@
               "notamaxima": -1
             },
             {
-              "id": "a09ea61d-a54e-4a39-a21b-15cda3bb2825",
+              "id": "8fbc0f29-dd8a-495a-8528-c48da7ddc892",
               "descricao": "Trabalho: Produção de textos e de comentários no moodle",
               "data": "23/11/2015",
               "etapa": "ETAPA2",
-              "media": -1,
+              "media": 0,
               "peso": 0.05,
               "nota": 0,
               "notamaxima": -1
             },
             {
-              "id": "97378c74-e8bb-47fb-ad17-8612445d3b36",
+              "id": "762ec1b6-eeb2-4d50-89eb-608c8209267e",
               "descricao": "Trabalho: Mini-palestra de cinco minutos",
               "data": "23/11/2015",
               "etapa": "ETAPA2",
@@ -355,7 +390,7 @@
               "notamaxima": -1
             },
             {
-              "id": "46af10bc-ba30-412b-b01d-6aef61e46dd1",
+              "id": "394577e9-bc66-45f3-9159-36c48bb405ba",
               "descricao": "Trabalho: Carta aberta",
               "data": "23/11/2015",
               "etapa": "ETAPA2",
@@ -365,7 +400,7 @@
               "notamaxima": -1
             },
             {
-              "id": "597d5d53-7f18-4236-8996-0816a162353f",
+              "id": "6ae0e2bc-a1db-40c0-a033-21beca74f888",
               "descricao": "Trabalho: Leitura e interpretação da Carta Aberta ao CAp",
               "data": "26/10/2015",
               "etapa": "ETAPA2",
@@ -375,17 +410,17 @@
               "notamaxima": -1
             },
             {
-              "id": "95bb8af8-d67f-42ec-b458-9b280d8f772e",
+              "id": "1285df72-73ec-4328-a6dd-a4278c50c508",
               "descricao": "Trabalho: Texto sobre educação militarizada X educação democrática",
               "data": "28/09/2015",
               "etapa": "ETAPA2",
-              "media": -1,
+              "media": 0,
               "peso": 0.2,
               "nota": 0,
               "notamaxima": -1
             },
             {
-              "id": "5b89f7b9-431e-4029-8623-ba1c085bdecb",
+              "id": "1ef77f77-b936-450e-880d-40f683d9817f",
               "descricao": "Trabalho: Trabalho em grupo sobre educação militarizada X educação democrática",
               "data": "14/09/2015",
               "etapa": "ETAPA2",
@@ -395,7 +430,7 @@
               "notamaxima": -1
             },
             {
-              "id": "aceb909a-3b92-4cff-8b2e-2e12c5ab7776",
+              "id": "12e35603-3a7e-4272-9446-ae68dd70f4a9",
               "descricao": "Trabalho: Trabalho “O Beijo na Parede”+ Evento “O Beijo na Parede”",
               "data": "20/08/2015",
               "etapa": "ETAPA2",
@@ -405,7 +440,7 @@
               "notamaxima": -1
             },
             {
-              "id": "e824fc7f-baa4-4ce4-a868-ebf50fdee8aa",
+              "id": "96240e8c-5d60-4d48-b751-c2b50f5d559f",
               "descricao": "Prova: Prova final da primeira etapa",
               "data": "07/07/2015",
               "etapa": "ETAPA1",
@@ -415,7 +450,7 @@
               "notamaxima": -1
             },
             {
-              "id": "2c214edd-e178-477a-97fd-60ef22a3d4f9",
+              "id": "b96cdf3c-252d-4ac5-a10c-9c9cf37c8748",
               "descricao": "Trabalho: Escolha do próximo livro que será lido",
               "data": "16/06/2015",
               "etapa": "ETAPA1",
@@ -425,7 +460,7 @@
               "notamaxima": -1
             },
             {
-              "id": "0f8da221-6a4b-4dc1-8d50-be60bfa402a5",
+              "id": "f7057926-134f-4a27-a7db-d166ba56a921",
               "descricao": "Trabalho: Resenha em vídeo do livro",
               "data": "26/05/2015",
               "etapa": "ETAPA1",
@@ -435,7 +470,7 @@
               "notamaxima": -1
             },
             {
-              "id": "3f3550f0-63ff-47ed-ab0b-9bbd35d74f58",
+              "id": "b0edad35-2d02-4bdd-b02c-525a833d1407",
               "descricao": "Trabalho: Tarefa sobre o texto \"Dois Gênios Diferentes\"",
               "data": "12/05/2015",
               "etapa": "ETAPA1",
@@ -445,7 +480,7 @@
               "notamaxima": -1
             },
             {
-              "id": "1e52de94-3d98-4419-a527-e29e4a723d09",
+              "id": "677113f2-37ec-4633-ae26-83b371564e39",
               "descricao": "Trabalho: Parágrafo final do texto \"Guerreiras e Heróis\"",
               "data": "05/05/2015",
               "etapa": "ETAPA1",
@@ -455,7 +490,7 @@
               "notamaxima": -1
             },
             {
-              "id": "314d692d-611b-4bb7-bb72-8eb7ec15af02",
+              "id": "6ce6b1a4-ebe0-40a5-b942-d8b3d9dd4c66",
               "descricao": "Prova: Teste 1: conto \"Bárbara\"",
               "data": "31/03/2015",
               "etapa": "ETAPA1",
@@ -467,16 +502,23 @@
           ]
         },
         {
-          "id": "df4dd3ea-a4cd-4e11-aceb-13cc1fa567db",
+          "id": "121c7b9f-d4b6-48b8-84e6-27422a354a30",
           "nome": "Língua Estrangeira I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 9.5,
+            "etapa2": 7.5,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "7ab9b086-d15a-4974-a7ec-de77f4d79d51",
+            "id": "4b2d970b-5388-4540-b428-c9f0a4ecbabf",
             "nome": "JOSE CARROLL"
           },
           "notas": [
             {
-              "id": "ad804fa8-1627-4556-9027-d8bc67902779",
+              "id": "c2af5df2-e477-4c95-97fa-9c46c3922af6",
               "descricao": "Prova: Prova de reavaliação da segunda etapa",
               "data": "02/12/2015",
               "etapa": "RP_ETAPA2",
@@ -486,7 +528,7 @@
               "notamaxima": -1
             },
             {
-              "id": "82e77ed8-9132-4c5b-b80d-f861454c5180",
+              "id": "5f4e670c-3814-42a9-93a8-c74c2971a11a",
               "descricao": "Prova: Prova de reavaliação da primeira etapa",
               "data": "02/12/2015",
               "etapa": "RP_ETAPA1",
@@ -496,7 +538,7 @@
               "notamaxima": -1
             },
             {
-              "id": "e0f3e2b3-dca3-49cb-a3f6-f6f51c7243bb",
+              "id": "739bfb72-cc5e-4298-bf73-2d787eff3f69",
               "descricao": "Trabalho: Trabalho final de retomada - individual",
               "data": "25/11/2015",
               "etapa": "ETAPA2",
@@ -506,7 +548,7 @@
               "notamaxima": -1
             },
             {
-              "id": "8e6d9ff1-43a4-416a-aa10-a0ebff6d6b1c",
+              "id": "597e111f-c281-4542-9763-054d65e92bb7",
               "descricao": "Trabalho: Trabalho sobre o texto \"11 things they did not and will not learn in school\"",
               "data": "28/10/2015",
               "etapa": "ETAPA2",
@@ -516,7 +558,7 @@
               "notamaxima": -1
             },
             {
-              "id": "53e98a45-ce13-45dd-8216-429b247fe291",
+              "id": "a9be493a-c5a8-4a5e-abf7-4e21061279bc",
               "descricao": "Trabalho: Tarefa: Another brick in the wall",
               "data": "28/10/2015",
               "etapa": "ETAPA2",
@@ -526,7 +568,7 @@
               "notamaxima": -1
             },
             {
-              "id": "de3291ce-c5f0-4499-b41a-bf41f23b2b78",
+              "id": "8d96f650-0d3d-4653-a0c4-b9fe514915d1",
               "descricao": "Trabalho: Gráfico da geração Z na sala de aula",
               "data": "16/09/2015",
               "etapa": "ETAPA2",
@@ -536,7 +578,7 @@
               "notamaxima": -1
             },
             {
-              "id": "8469d589-079d-467b-bd26-4bbc36ae78fd",
+              "id": "f64e021d-0c25-4f7f-b2bc-ce3bb1c6256f",
               "descricao": "Trabalho: Tarefa com cartoons sobre a geração Z",
               "data": "10/09/2015",
               "etapa": "ETAPA2",
@@ -546,7 +588,7 @@
               "notamaxima": -1
             },
             {
-              "id": "843d1a7e-7272-4a79-82e3-4720546e2f4e",
+              "id": "f7ec1920-400d-41c8-a892-3094c6118539",
               "descricao": "Prova: Prova final da primeira etapa",
               "data": "09/07/2015",
               "etapa": "ETAPA1",
@@ -556,7 +598,7 @@
               "notamaxima": -1
             },
             {
-              "id": "53c661ec-8b80-4988-bdab-06f8f350e094",
+              "id": "7121d956-c3ce-4031-9597-9a087d05a737",
               "descricao": "Avaliação Qualitativa: Participação em aula; uso do livro didático; cooperação com os colegas",
               "data": "09/07/2015",
               "etapa": "ETAPA1",
@@ -566,7 +608,7 @@
               "notamaxima": -1
             },
             {
-              "id": "6d236d60-9013-4a5e-b9ba-e019c324c4e2",
+              "id": "e8b1d9a4-c46f-4d69-bb26-45eb854d5640",
               "descricao": "Trabalho: What will I be in the future?",
               "data": "07/05/2015",
               "etapa": "ETAPA1",
@@ -576,7 +618,7 @@
               "notamaxima": -1
             },
             {
-              "id": "6fbf40ab-c95b-42df-bcef-54646f2b784a",
+              "id": "4436ab4e-8abe-4c41-be77-55f356fe7cfa",
               "descricao": "Trabalho: Elaboração de \"comic strip\"",
               "data": "02/04/2015",
               "etapa": "ETAPA1",
@@ -588,16 +630,23 @@
           ]
         },
         {
-          "id": "57669da2-1a7a-4708-aaa6-d21779316546",
+          "id": "a925e503-23c5-412e-8093-7de3470ffd97",
           "nome": "Informática Básica",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 8.5,
+            "etapa2": 7,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "39bae98a-2c69-4755-982e-dab68f485619",
+            "id": "4f56b527-5214-4882-beac-1f97d53e8214",
             "nome": "MARGARET VARGAS"
           },
           "notas": [
             {
-              "id": "7d946492-3f7e-40d7-b307-9bafe203253d",
+              "id": "40883a9a-a775-47e9-b542-d3bcb5d26d9d",
               "descricao": "Prova: Reavaliação Etapa 1",
               "data": "17/12/2015",
               "etapa": "RP_ETAPA1",
@@ -607,7 +656,7 @@
               "notamaxima": -1
             },
             {
-              "id": "5c3f7879-0694-437d-ac55-ceb42e4e9dc4",
+              "id": "fc9d2974-1448-4b95-ac64-5ec028125242",
               "descricao": "Exercício: Atividade Avaliada 6 - Prezi",
               "data": "29/10/2015",
               "etapa": "ETAPA2",
@@ -617,27 +666,27 @@
               "notamaxima": -1
             },
             {
-              "id": "876198dd-3156-4840-b6ad-d337f97b36a0",
+              "id": "e1c08e6f-7e98-46bd-a29f-abbbf9940042",
               "descricao": "Exercício: Atividade Avaliada 5 - Impress",
               "data": "29/10/2015",
               "etapa": "ETAPA2",
-              "media": -1,
+              "media": 0,
               "peso": 2,
               "nota": 0,
               "notamaxima": -1
             },
             {
-              "id": "f0961665-9d6e-47e4-bd5e-d76b5bdedceb",
+              "id": "c07e2f59-5ede-4d77-aa73-33b7d5efcf7b",
               "descricao": "Exercício: Atividade Avaliada 4 - Calc",
               "data": "01/10/2015",
               "etapa": "ETAPA2",
-              "media": -1,
+              "media": 0,
               "peso": 1,
               "nota": 0,
               "notamaxima": -1
             },
             {
-              "id": "039671a5-4eba-4a24-9bdd-16a2be6da717",
+              "id": "5668a13c-b99a-4baa-969f-69884e32ee8d",
               "descricao": "Exercício: Atividade Avaliada 3 - Calc",
               "data": "24/09/2015",
               "etapa": "ETAPA2",
@@ -647,7 +696,7 @@
               "notamaxima": -1
             },
             {
-              "id": "307b4ced-89e2-488d-9e7f-5b3c5a4a925b",
+              "id": "6faba565-338d-4067-b923-464c34ee14db",
               "descricao": "Exercício: Atividade Avaliada 2 - Writer",
               "data": "27/08/2015",
               "etapa": "ETAPA2",
@@ -657,7 +706,7 @@
               "notamaxima": -1
             },
             {
-              "id": "1c877a9c-13a6-46e5-9c10-1ef89268b9f2",
+              "id": "0249c6cd-1f50-41d6-9464-e99e10f04f38",
               "descricao": "Exercício: Atividade Avaliada 1 - Writer",
               "data": "20/08/2015",
               "etapa": "ETAPA2",
@@ -667,7 +716,7 @@
               "notamaxima": -1
             },
             {
-              "id": "7c36723b-2ede-44f7-872d-50da13c96bb9",
+              "id": "85578e3c-1618-4b9c-a742-92702549f813",
               "descricao": "Prova: Prova Final da 1ª Etapa",
               "data": "09/07/2015",
               "etapa": "ETAPA1",
@@ -677,7 +726,7 @@
               "notamaxima": -1
             },
             {
-              "id": "ea8eb15a-873b-4216-b466-a3784a107d02",
+              "id": "7641f42b-d1c6-409d-ad70-720708f7f417",
               "descricao": "Trabalho: Trabalho sobre a Internet",
               "data": "02/07/2015",
               "etapa": "ETAPA1",
@@ -687,7 +736,7 @@
               "notamaxima": -1
             },
             {
-              "id": "4ff7c976-f789-48da-afc4-d1f1d979f47d",
+              "id": "eb289bd1-fd9d-4bcd-ba24-5ff13c1427db",
               "descricao": "Trabalho: Pesquisa sobre SO",
               "data": "11/06/2015",
               "etapa": "ETAPA1",
@@ -697,7 +746,7 @@
               "notamaxima": -1
             },
             {
-              "id": "faae1ecc-4069-4a2e-9254-8e24f2a57e96",
+              "id": "a5d79b29-683b-4aff-907a-c0deefe96e23",
               "descricao": "Trabalho: Recuperação da prova",
               "data": "21/05/2015",
               "etapa": "ETAPA1",
@@ -707,7 +756,7 @@
               "notamaxima": -1
             },
             {
-              "id": "92d6610d-e727-451c-bffc-2a32dd4ce4ac",
+              "id": "294643c8-084c-4f2a-a45b-37a9da0a9bb4",
               "descricao": "Prova: Prova Parcial",
               "data": "07/05/2015",
               "etapa": "ETAPA1",
@@ -717,7 +766,7 @@
               "notamaxima": -1
             },
             {
-              "id": "53d7174d-5153-402c-8d51-e41e052af327",
+              "id": "9e029358-ba0c-40d4-81c4-3722e4613d88",
               "descricao": "Trabalho: Aritmética Binária",
               "data": "23/04/2015",
               "etapa": "ETAPA1",
@@ -727,7 +776,7 @@
               "notamaxima": -1
             },
             {
-              "id": "c3feac96-da13-41e2-8cbb-52c5b5c21553",
+              "id": "98b2303c-dc84-4f7d-adf6-8a53eef6cce2",
               "descricao": "Trabalho: Trabalho Conversão de Bases",
               "data": "09/04/2015",
               "etapa": "ETAPA1",
@@ -739,16 +788,23 @@
           ]
         },
         {
-          "id": "4588964a-8b1c-4cc9-ab93-0b8224ab7c41",
+          "id": "8f3022ef-ea86-4018-afa1-ac8f086a214b",
           "nome": "Física I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 6,
+            "etapa2": 7,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "224940a4-3d71-4f2e-b842-580dacf623bc",
+            "id": "c095eac6-0c71-44f6-9e5a-b01cb80b4d45",
             "nome": "LAWRENCE ANDERSON"
           },
           "notas": [
             {
-              "id": "8e0aae76-ef6f-4c61-8b87-19bfa2ad3bbf",
+              "id": "7ac80957-d868-4fac-9003-b49d3dd1a8bf",
               "descricao": "Prova: Reavaliação 2ª etapa",
               "data": "25/11/2015",
               "etapa": "RP_ETAPA2",
@@ -758,7 +814,7 @@
               "notamaxima": -1
             },
             {
-              "id": "b665b100-ae33-4de6-aa2d-1f7709502739",
+              "id": "d0d319cf-8783-4b91-85ae-bc61308fa668",
               "descricao": "Prova: Reavaliação 1ª etapa - 2",
               "data": "04/11/2015",
               "etapa": "RP_ETAPA1",
@@ -768,7 +824,7 @@
               "notamaxima": -1
             },
             {
-              "id": "ba4f8a8c-80b8-48f1-aad0-b520dd3230ee",
+              "id": "f11a7701-14b6-4e78-8f6a-a1fa60fe82cc",
               "descricao": "Prova: MRU-MRUV",
               "data": "07/10/2015",
               "etapa": "RP_ETAPA1",
@@ -778,7 +834,7 @@
               "notamaxima": -1
             },
             {
-              "id": "3a807516-4655-4b28-9633-6e2d837676b4",
+              "id": "a54f1788-3275-42b5-9431-8846bb2a4169",
               "descricao": "Prova: Força da mola e atrito.",
               "data": "13/07/2015",
               "etapa": "ETAPA2",
@@ -788,7 +844,7 @@
               "notamaxima": -1
             },
             {
-              "id": "7801bd53-746d-44f6-a183-601583c36c50",
+              "id": "61f5a450-2f3e-4b94-a7c7-56dddc973ae6",
               "descricao": "Trabalho: Leis de Força",
               "data": "06/07/2015",
               "etapa": "ETAPA2",
@@ -798,7 +854,7 @@
               "notamaxima": -1
             },
             {
-              "id": "543a470b-a2d8-47c8-a1a7-0a2bd2c0eeca",
+              "id": "617f66e4-7f15-451e-9dda-de69f4f6a860",
               "descricao": "Prova: Leis de Newton II",
               "data": "15/06/2015",
               "etapa": "ETAPA2",
@@ -808,7 +864,7 @@
               "notamaxima": -1
             },
             {
-              "id": "4f6a4cae-1771-4c0c-96c9-ebef1e1bfea7",
+              "id": "b838c0a1-efc8-42cd-a026-f7acf2ea4a2e",
               "descricao": "Prova: MRUV",
               "data": "11/05/2015",
               "etapa": "ETAPA1",
@@ -818,7 +874,7 @@
               "notamaxima": -1
             },
             {
-              "id": "b5c81ff1-2088-40c1-9d0a-75a756bce2d2",
+              "id": "dc68d76b-9409-4533-9bae-13de637de776",
               "descricao": "Trabalho: Trabalho - MRU - MRUV",
               "data": "04/05/2015",
               "etapa": "ETAPA1",
@@ -828,7 +884,7 @@
               "notamaxima": -1
             },
             {
-              "id": "c7c44e52-c700-4ab1-9f19-a358b1ae6d0d",
+              "id": "857ad533-cf3b-4b2a-be79-1b904d26c1ed",
               "descricao": "Prova: MRU",
               "data": "30/03/2015",
               "etapa": "ETAPA1",
@@ -840,16 +896,23 @@
           ]
         },
         {
-          "id": "13fc3832-8007-40c7-a164-3b64e87deb11",
+          "id": "162218a7-414e-4169-bb0f-fca0e273b647",
           "nome": "Filosofia I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 3.5,
+            "etapa2": 6.5,
+            "rp_etapa1": 7.5,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "1d9ddc03-e394-4b78-9cc1-e3ac6633e80c",
+            "id": "e4cf0c0e-6c70-4d97-be11-bd7cc61ad897",
             "nome": "HARRY BANKS"
           },
           "notas": [
             {
-              "id": "84e7f922-cc89-4797-929f-18e80c585a7f",
+              "id": "b9e6c6e2-ec5e-4c38-b912-f501abf229b4",
               "descricao": "Prova: Recuperação de conteúdos da Etapa 2",
               "data": "17/12/2015",
               "etapa": "RP_ETAPA2",
@@ -859,7 +922,7 @@
               "notamaxima": -1
             },
             {
-              "id": "b6660ebe-61a6-4c1d-8823-feee48e03995",
+              "id": "12eabe39-03e0-4033-ada1-ee05b3fb5aca",
               "descricao": "Trabalho: Oficinas 2",
               "data": "03/12/2015",
               "etapa": "ETAPA2",
@@ -869,7 +932,7 @@
               "notamaxima": -1
             },
             {
-              "id": "70b4b8f4-611b-4c2f-9db1-a5c183b62195",
+              "id": "50efa919-8a83-43d7-8f65-7edf02712e2f",
               "descricao": "Prova: Platão Aristóteles, Fil Helenísticas",
               "data": "03/12/2015",
               "etapa": "ETAPA2",
@@ -879,7 +942,7 @@
               "notamaxima": -1
             },
             {
-              "id": "733a1e16-4147-4020-83b7-0838019e6300",
+              "id": "17ef366b-64c6-4e3e-b506-294ea1fe1a03",
               "descricao": "Prova: Reavaliação prova 1",
               "data": "05/11/2015",
               "etapa": "RP_ETAPA1",
@@ -889,7 +952,7 @@
               "notamaxima": -1
             },
             {
-              "id": "f9a375d5-5cb4-4a84-bd01-1ac7a9326b8d",
+              "id": "98df38ad-c403-4bfd-99d3-0f6b2847beeb",
               "descricao": "Trabalho: Oficinas",
               "data": "24/09/2015",
               "etapa": "ETAPA1",
@@ -899,11 +962,11 @@
               "notamaxima": -1
             },
             {
-              "id": "ffa14238-70e8-4403-92fd-50e01da4bbe3",
+              "id": "1fe52c60-268f-4f84-88de-b56a930f7ea8",
               "descricao": "Prova: Sof, Soc, Mito Cav, Her e Parm",
               "data": "24/09/2015",
               "etapa": "ETAPA1",
-              "media": -1,
+              "media": 0,
               "peso": 1,
               "nota": 0,
               "notamaxima": -1
@@ -911,16 +974,23 @@
           ]
         },
         {
-          "id": "1f3163ab-f96e-4c3d-9887-1aefdbacb6c2",
+          "id": "b1e131c2-9b6d-4fa5-99f7-5a7ad0cc2bc5",
           "nome": "Elaboração de Projetos/Metodologia de Pesquisa",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 8,
+            "etapa2": 9.5,
+            "rp_etapa1": 0,
+            "rp_etapa2": 0
+          },
           "professor": {
-            "id": "413875e4-7b23-4847-9857-686466a22af4",
+            "id": "2196fa7e-f7e6-41a4-b20b-fbab473ebc31",
             "nome": "SUSAN FOSTER"
           },
           "notas": [
             {
-              "id": "ad23fa32-3f64-4ac8-af37-9cd164b6fe03",
+              "id": "b13db95a-a99e-4e70-935d-aafbd9c11677",
               "descricao": "Trabalho: pesquisa, apresentação",
               "data": "01/12/2015",
               "etapa": "RP_ETAPA2",
@@ -930,7 +1000,7 @@
               "notamaxima": -1
             },
             {
-              "id": "019318f7-c015-4a9f-b08c-716a45588e89",
+              "id": "ec400a14-755f-41a7-a1f0-aa661fbb69f7",
               "descricao": "Trabalho: apresentação",
               "data": "03/11/2015",
               "etapa": "ETAPA2",
@@ -940,7 +1010,7 @@
               "notamaxima": -1
             },
             {
-              "id": "10f9e0ce-9976-405b-8993-045ce34bb5d0",
+              "id": "b8290ea1-ae1f-4291-abf9-cc2808aac33f",
               "descricao": "Trabalho: banner",
               "data": "20/10/2015",
               "etapa": "ETAPA2",
@@ -950,7 +1020,7 @@
               "notamaxima": -1
             },
             {
-              "id": "5136ead9-caf3-4d1a-abcb-c230354e7040",
+              "id": "b2b5bd2b-7ba9-4959-b850-67f664915875",
               "descricao": "Trabalho: projeto",
               "data": "10/07/2015",
               "etapa": "ETAPA1",
@@ -962,16 +1032,23 @@
           ]
         },
         {
-          "id": "783c7039-07fa-4bb7-826b-1f77f7b7f101",
+          "id": "5b7134e6-3ebf-4fdb-a555-e0a1a720137d",
           "nome": "Educação Física I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 8,
+            "etapa2": 4,
+            "rp_etapa1": 0,
+            "rp_etapa2": 6
+          },
           "professor": {
-            "id": "ee24919b-f0a8-4bb3-ae14-efbbaf9de4ed",
+            "id": "054900e5-ba63-4ab2-a5fc-f1fa8638fb13",
             "nome": "MADISON HARRIS"
           },
           "notas": [
             {
-              "id": "f07b2483-0b5a-4128-8c75-d57f2eb61753",
+              "id": "bd2fe6d4-6d6a-42ff-aaa8-0a9264bad66d",
               "descricao": "Prova: Prova",
               "data": "11/12/2015",
               "etapa": "RP_ETAPA2",
@@ -981,7 +1058,7 @@
               "notamaxima": -1
             },
             {
-              "id": "8f160cc9-5b7b-4d7c-9511-32bfa40a67ca",
+              "id": "d63e3bc6-b190-476f-a24a-c72c939bfa3c",
               "descricao": "Prova: Prova",
               "data": "11/12/2015",
               "etapa": "RP_ETAPA1",
@@ -991,7 +1068,7 @@
               "notamaxima": -1
             },
             {
-              "id": "592de1ed-e148-4c54-b208-ea3b68a9cf9d",
+              "id": "06eadec9-4f15-4226-b19f-1d3cf70314ed",
               "descricao": "Prova: Prova",
               "data": "04/12/2015",
               "etapa": "ETAPA2",
@@ -1001,7 +1078,7 @@
               "notamaxima": -1
             },
             {
-              "id": "e384a851-b8e6-4031-ac01-33e85bf155ca",
+              "id": "2d412777-46b0-4d16-a558-d4eb9e572ca5",
               "descricao": "Prova: Prova",
               "data": "03/07/2015",
               "etapa": "ETAPA1",
@@ -1013,11 +1090,18 @@
           ]
         },
         {
-          "id": "daf5dc22-13fb-4c9e-ac91-b48239a6ae58",
+          "id": "01562d4c-7047-4add-bae2-6f2892fbae88",
           "nome": "Biologia I",
           "turma": "00001.TS.TII_I.4M",
+          "boletim": {
+            "situacao": "APROVADO",
+            "etapa1": 7,
+            "etapa2": 5.5,
+            "rp_etapa1": 0,
+            "rp_etapa2": 6
+          },
           "professor": {
-            "id": "4562db5d-56bb-43fe-b5a3-0d0137f1f30a",
+            "id": "6a92ec31-eb1e-468c-9762-c326c11b80f7",
             "nome": "FRANK CAMPBELL"
           },
           "notas": []

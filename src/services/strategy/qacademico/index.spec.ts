@@ -17,128 +17,118 @@ describe('QAcademicoStrategy', () => {
 
   it('deve processar os dados do boletim corretamente', asyncTest(async () => {
     const ret = await strategy.getBoletim({
-      nome: '',
+      nome: '2017/1',
       codigo: '2017_1'
     });
-    expect(ret).toEqual([
-      {
-        disciplina: 'Redes de Computadores I',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 7.4,
-        etapa2: 7.8,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Língua Portuguesa e Literatura III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 4.8,
-        etapa2: 7.5,
-        rp_etapa1: 8,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Educação Física III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 9,
-        etapa2: 10,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Sociologia III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 6.5,
-        etapa2: 6.5,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Filosofia III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 6.9,
-        etapa2: 6.9,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Matemática III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 6.2,
-        etapa2: 6.1,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Física III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 6.8,
-        etapa2: 6.8,
-        rp_etapa1: 0,
-        rp_etapa2: 0
-      },
-      {
-        disciplina: 'Língua Estrangeira III',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 10,
-        etapa2: 6.7,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Sistemas Operacionais Modernos',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 7.5,
-        etapa2: 6.5,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Gestão e Empreendedorismo',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 6,
-        etapa2: 6.8,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Programação Visual',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 10,
-        etapa2: 10,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Geografia II',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 7,
-        etapa2: 8.1,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      },
-      {
-        disciplina: 'Programação de Internet II',
-        situacao: 'Aprovado',
-        data: jasmine.any(Date) as any,
-        etapa1: 10,
-        etapa2: 9.5,
-        rp_etapa1: -1,
-        rp_etapa2: -1
-      }
-    ]);
+    expect(ret).toEqual([{
+      disciplina: 'Língua Portuguesa e Literatura I',
+      situacao: 'Aprovado',
+      etapa1: 9,
+      etapa2: 6,
+      rp_etapa1: -1,
+      rp_etapa2: -1,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Educação Física I',
+      situacao: 'Aprovado',
+      etapa1: 8,
+      etapa2: 4,
+      rp_etapa1: 0,
+      rp_etapa2: 6,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Informática Básica',
+      situacao: 'Aprovado',
+      etapa1: 8.5,
+      etapa2: 7,
+      rp_etapa1: 0,
+      rp_etapa2: -1,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Língua Estrangeira I',
+      situacao: 'Aprovado',
+      etapa1: 9.5,
+      etapa2: 7.5,
+      rp_etapa1: -1,
+      rp_etapa2: -1,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Elaboração de Projetos/Metodologia de Pesquisa',
+      situacao: 'Aprovado',
+      etapa1: 8,
+      etapa2: 9.5,
+      rp_etapa1: -1,
+      rp_etapa2: -1,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Sociologia I',
+      situacao: 'Aprovado',
+      etapa1: 7.5,
+      etapa2: 6,
+      rp_etapa1: -1,
+      rp_etapa2: -1,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Filosofia I',
+      situacao: 'Aprovado',
+      etapa1: 3.5,
+      etapa2: 6.5,
+      rp_etapa1: 7.5,
+      rp_etapa2: -1,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Matemática I',
+      situacao: 'Aprovado',
+      etapa1: 7.5,
+      etapa2: 7,
+      rp_etapa1: 0,
+      rp_etapa2: 0,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Física I',
+      situacao: 'Aprovado',
+      etapa1: 6,
+      etapa2: 7,
+      rp_etapa1: 0,
+      rp_etapa2: 0,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Química I',
+      situacao: 'Aprovado',
+      etapa1: 8.5,
+      etapa2: 10,
+      rp_etapa1: 0,
+      rp_etapa2: 0,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Biologia I',
+      situacao: 'Aprovado',
+      etapa1: 7,
+      etapa2: 5.5,
+      rp_etapa1: -1,
+      rp_etapa2: 6,
+      data: jasmine.any(Date) as any
+    },
+    {
+      disciplina: 'Lógica de Programação',
+      situacao: 'Aprovado',
+      etapa1: 10,
+      etapa2: 9.5,
+      rp_etapa1: 0,
+      rp_etapa2: 0,
+      data: jasmine.any(Date) as any
+    }]
+    );
   }));
 
 });

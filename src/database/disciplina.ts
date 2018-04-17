@@ -2,6 +2,7 @@ import { DisciplinaDto } from './disciplina';
 import { UUID } from './uuid';
 import { DatabaseService } from './database';
 import { UsuarioDto } from './usuario';
+import * as moment from 'moment';
 
 export interface DisciplinaDto {
   id?: UUID;
@@ -109,7 +110,7 @@ export namespace DisciplinaService {
             AND disciplina.nome = ?
             AND usuario_disciplina.usuario = ?
         LIMIT 1;
-      `, [periodo, nome, usuario.id!.toString()]);
+      `, [moment(periodo).format('YYYY-MM-DD'), nome, usuario.id!.toString()]);
     return convert(res) as any;
   }
 

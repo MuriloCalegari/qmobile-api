@@ -18,7 +18,7 @@ describe('BoletimTask', () => {
 
   beforeAll(asyncTest(async () => {
     await DatabaseService.truncate(
-      ['nota', 'disciplina', 'professor', 'disciplina_professor', 'usuario_disciplina']
+      ['nota', 'disciplina', 'professor', 'disciplina_professor', 'usuario_disciplina', 'boletim']
     );
     usuario = await auth.login('http://localhost:9595', 'test', 'pass');
     await NotasTask.updateDisciplina(usuario.id!, usuario.endpoint, {

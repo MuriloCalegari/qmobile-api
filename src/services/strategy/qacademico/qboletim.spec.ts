@@ -26,7 +26,7 @@ describe('QBoletim', () => {
       nome: '',
       codigo: '2017_1'
     });
-    expect(ret.length).toBe(13);
+    expect(ret.length).toBe(12);
     ret.forEach(disciplina => {
       const keys = [
         'Componente Curricular', 'CH', 'Turma', 'T. Faltas', 'M Final',

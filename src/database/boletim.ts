@@ -31,7 +31,7 @@ export namespace BoletimService {
 
     ]);
     if (!insert.affectedRows) {
-      await BoletimService.update(select.id!, dto);
+      await BoletimService.update(dto.usuario_disciplina, dto);
       return [false, select!];
     }
     return [true, { ...dto, id: insert.insertId }];
