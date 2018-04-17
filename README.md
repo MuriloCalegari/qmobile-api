@@ -7,6 +7,7 @@
 [![CircleCI Status][logo]](https://circleci.com/gh/Alan-Gomes/qmobile-api)
 ![Dependencies](https://david-dm.org/Alan-Gomes/qmobile-api.svg)
 [![GitHub issues](https://img.shields.io/github/issues/Alan-Gomes/qmobile-api.svg)](https://github.com/Alan-Gomes/qmobile-api/issues)
+[![](https://images.microbadger.com/badges/image/alangomes/qmobile-api.svg)](https://microbadger.com/images/alangomes/qmobile-api)
 
 Esse repositório contém o servidor do app QMobile (em desenvolvimento). Este sistema faz o login nos servidores do Q-Acadêmico e provê uma abstração para leitura dos dados.
 
