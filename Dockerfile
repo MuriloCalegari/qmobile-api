@@ -8,9 +8,9 @@ WORKDIR /opt/app
 COPY . .
 
 RUN apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing vips-dev fftw-dev && \
-  apk add --no-cache make gcc g++ python && \
+  apk add --no-cache make curl gcc g++ python && \
   npm install && \
-  apk del make gcc g++ python && \
+  apk del fftw-dev make gcc g++ python && \
   rm -rf /var/cache/apk/*
 RUN npm run build
 RUN npm prune --production
