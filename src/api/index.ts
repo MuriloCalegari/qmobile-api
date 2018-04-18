@@ -55,6 +55,19 @@ const endpoint2 = 'https://academicoweb.ifg.edu.br/qacademico';
     NotasTask.scheduleUpdate();
   });
 
+  app.get('/ping', async (_, res) => {
+    try {
+      await DatabaseService.getDatabase();
+      res
+        .status(200)
+        .json({ pong: true });
+    } catch (e) {
+      res
+        .status(500)
+        .end();
+    }
+  });
+
   app.listen(PORT, () => {
     console.log(colors.white(`Servidor ONLINE na porta ${PORT}`));
     console.log(colors.white('Here we go :)'));
