@@ -8,7 +8,7 @@ services:
       MYSQL_HOST: mariadb
       REDIS_HOST: redis
     healthcheck:
-      test: curl -f http://localhost:3002 || exit 1
+      test: curl -f http://localhost:80/ping || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
@@ -24,10 +24,5 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: '12345'
       MARIADB_DATABASE: qmobile
-    healthcheck:
-      test: curl -f http://localhost:3306 || exit 1
-      interval: 30s
-      timeout: 10s
-      retries: 5
     volumes:
     - qmobile-db:/var/lib/mysql
