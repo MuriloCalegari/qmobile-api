@@ -20,10 +20,10 @@ services:
   redis:
     image: "redis:alpine"
   mariadb:
-    image: "mariadb:10.2.13"
+    image: "nimmis/alpine-mariadb"
     environment:
-      MYSQL_ROOT_PASSWORD: '12345'
-      MYSQL_DATABASE: qmobile
+      MARIADB_ROOT_PASSWORD: '12345'
+      MARIADB_DATABASE: qmobile
     healthcheck:
       test: curl -f http://localhost:3306 || exit 1
       interval: 30s
