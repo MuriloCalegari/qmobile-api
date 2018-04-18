@@ -7,6 +7,7 @@ services:
     environment:
       MYSQL_HOST: mariadb
       REDIS_HOST: redis
+    restart: always
     healthcheck:
       test: curl -f http://localhost:80/ping || exit 1
       interval: 30s
@@ -19,10 +20,17 @@ services:
       - qmobile-data:/opt/app/data
   redis:
     image: "redis:alpine"
+    restart: always
   mariadb:
     image: "nimmis/alpine-mariadb"
+    restart: always
     environment:
       MARIADB_ROOT_PASSWORD: '12345'
       MARIADB_DATABASE: qmobile
+      MARIADB_REMOTE_ROOT: 'yes'
     volumes:
-    - qmobile-db:/var/lib/mysql
+      - qmobile-db:/var/lib/mysql
+
+volumes:
+  qmobile-db:
+  qmobile-data:
