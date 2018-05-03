@@ -1,4 +1,4 @@
-const rsa = require('./lib/rsa.js');
+import * as rsa from '@qutils/barrett-rsa';
 import { QAcademicoStrategy } from './index';
 import { LOGIN_PAGE, RSA_PAGE, FORM_PAGE } from '../../../constants';
 import * as cheerio from 'cheerio';

@@ -3,7 +3,7 @@ import { PocketServer } from './../../../../test/webserver';
 import * as qauth from './qauth';
 import { StrategyFactory, StrategyType } from '../factory';
 import { asyncTest } from '../../../test-utils';
-const rsa = require('./lib/rsa.js');
+import * as rsa from '@qutils/barrett-rsa';
 
 describe('QAuth', () => {
 
@@ -17,7 +17,6 @@ describe('QAuth', () => {
 
   beforeEach(() => {
     strategy.init();
-    spyOn(rsa, 'encryptedString').and.returnValue('encrypted');
   });
 
   afterEach(asyncTest(async () => {
@@ -31,9 +30,9 @@ describe('QAuth', () => {
       await qauth.login(strategy, 'test', 'pass');
       expect(state.loggedIn).toBeTruthy();
       expect(state.loginBody).toEqual(jasmine.objectContaining({
-        LOGIN: 'encrypted',
-        SENHA: 'encrypted',
-        TIPO_USU: 'encrypted'
+        LOGIN: '033989df733e6a25fab0a05de025a764',
+        SENHA: '006b5e8dec43097b12e6719b184b1f34',
+        TIPO_USU: '01c4ff7c314535f261f5f950a76697dd'
       }));
     }));
 
