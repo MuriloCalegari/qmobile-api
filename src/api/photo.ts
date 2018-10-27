@@ -44,7 +44,7 @@ photo_router.post('/photo/:user', fileUpload(options), async (req, res) => {
   const session = req.get('X-Session');
   const params = [session, user, req.files];
   if (params.some(param => !param) || user.length !== 36
-  || !req.files!.picture || Array.isArray(req.files!.picture!)) {
+  || !req.files!.picture || Array.isArray(req.files!.picture)) {
     return res.status(404).end();
   }
 

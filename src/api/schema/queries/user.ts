@@ -1,11 +1,12 @@
 import { HistoryLoader } from './../loader';
 import { EndpointDto, EndpointService } from './../../../database/endpoint';
-import { BaseContext, PeriodoContext } from './../index';
+import { BaseContext, PeriodoContext, DisciplinaResponse } from './../index';
 import * as moment from 'moment';
 import { DatabaseService } from '../../../database/database';
 import { NotaDto, NotaService } from '../../../database/nota';
 import { UsuarioDisciplinaService } from '../../../database/usuario_disciplina';
 import { UUID } from '../../../database/uuid';
+import { DisciplinaExtras, DisciplinaDto } from '../../../database/disciplina';
 
 export = {
 
@@ -22,6 +23,8 @@ export = {
     endpoint: Endpoint!
     periodos: [Periodo!]!
     periodo(nome: String!): Periodo
+    favoritos: [Disciplina!]!
+    disciplinas: [Disciplina!]!
     nota(id: ID!): Nota
   }
   `,
@@ -37,6 +40,28 @@ export = {
         const res = await UsuarioDisciplinaService.getPeriodos(context.usuario.id!);
         return res.map(dado => ({
           nome: moment(dado.periodo).format('YYYY/M'),
+          context: {
+            ...context,
+            periodo: dado.periodo
+          }
+        }));
+      },
+      async favoritos({ context }: BaseContext, _, c): Promise<(PeriodoContext & DisciplinaResponse)[]> {
+        await HistoryLoader.load(context.usuario.id!.toString());
+        const res = await UsuarioDisciplinaService.getFavorites(context.usuario.id!);
+        return res.map(dado => ({
+          ...dado,
+          context: {
+            ...context,
+            periodo: dado.periodo
+          }
+        }));
+      },
+      async disciplinas({ context }: BaseContext, _, c): Promise<(PeriodoContext & DisciplinaResponse)[]> {
+        await HistoryLoader.load(context.usuario.id!.toString());
+        const res = await UsuarioDisciplinaService.getDisciplinas(context.usuario.id!);
+        return res.map(dado => ({
+          ...dado,
           context: {
             ...context,
             periodo: dado.periodo

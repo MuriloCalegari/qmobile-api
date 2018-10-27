@@ -1,5 +1,7 @@
 import { UUID } from './uuid';
 import { DatabaseService } from './database';
+import { DisciplinaDto } from './disciplina';
+import { DisciplinaResponse } from '../api/schema';
 
 export interface UsuarioDisciplinaDto {
   id?: number;
@@ -97,6 +99,30 @@ export namespace UsuarioDisciplinaService {
       return [false, select!];
     }
     return [true, { ...nova, id: insert.insertId }];
+  }
+
+  export async function getFavorites(usuario: UUID): Promise<(DisciplinaResponse & { periodo: Date })[]> {
+    const db = await DatabaseService.getDatabase();
+    const res = await db.query(`
+    SELECT disciplina.*, disciplina_professor.periodo, disciplina_professor.turma, usuario_disciplina.id AS ud FROM usuario_disciplina
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
+      WHERE usuario_disciplina.usuario = ?
+        AND usuario_disciplina.favorito = 1
+    `, [usuario.toString()]);
+    return res;
+  }
+
+  export async function getDisciplinas(usuario: UUID): Promise<(DisciplinaResponse & { periodo: Date })[]> {
+    const db = await DatabaseService.getDatabase();
+    const res = await db.query(`
+    SELECT disciplina.*, disciplina_professor.periodo, disciplina_professor.turma, usuario_disciplina.id AS ud FROM usuario_disciplina
+      LEFT JOIN disciplina_professor ON disciplina_professor.id = usuario_disciplina.disciplina_professor
+      LEFT JOIN disciplina ON disciplina.id = disciplina_professor.disciplina
+      WHERE usuario_disciplina.usuario = ?
+      ORDER BY disciplina_professor.periodo DESC
+    `, [usuario.toString()]);
+    return res;
   }
 
   export async function getPeriodos(usuario: UUID): Promise<{ periodo: Date }[]> {

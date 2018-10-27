@@ -32,6 +32,7 @@ export = {
     professor: Professor!
     notas: [Nota!]!
     historico: [Historico!]!
+    periodo: String!
   }
   `,
 
@@ -65,6 +66,9 @@ export = {
           ...boletim,
           ud
         };
+      },
+      periodo({ context }: PeriodoContext): string {
+        return moment(context.periodo).format('YYYY/M');
       }
     }
 

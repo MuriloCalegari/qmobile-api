@@ -87,3 +87,39 @@ CREATE TABLE IF NOT EXISTS `nota` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`usuario_disciplina`) REFERENCES `usuario_disciplina` (`id`)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE FUNCTION IF NOT EXISTS calcula_media (pi_nota FLOAT, pi_peso FLOAT, pi_notaMaxima FLOAT)
+  RETURNS FLOAT
+BEGIN
+    DECLARE nota FLOAT;
+    DECLARE notaMaxima FLOAT;
+    DECLARE media FLOAT;
+
+    SET nota = GREATEST(pi_nota, 0);
+    IF pi_peso <= 0 THEN
+      RETURN pi_nota;
+    END IF;
+
+    SET notaMaxima = GREATEST(pi_notaMaxima, pi_peso, 0);
+    IF notaMaxima <= 0 OR nota > notaMaxima THEN
+      SET notaMaxima = 10;
+    END IF;
+
+    SET media = (nota / notaMaxima) * 10;
+    SET media = ROUND(media, 2);
+    RETURN media;
+END;
+
+CREATE TRIGGER IF NOT EXISTS TG_nota_insert BEFORE INSERT
+ON nota
+FOR EACH ROW
+BEGIN
+    SET NEW.media = calcula_media(NEW.nota, NEW.peso, NEW.notamaxima);
+END;
+
+CREATE TRIGGER IF NOT EXISTS TG_nota_update BEFORE UPDATE
+ON nota
+FOR EACH ROW
+BEGIN
+    SET NEW.media = calcula_media(NEW.nota, NEW.peso, NEW.notamaxima);
+END;

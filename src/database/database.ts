@@ -25,7 +25,8 @@ export namespace DatabaseService {
         password,
         database,
         port,
-        charset: 'utf8'
+        charset: 'utf8',
+        multipleStatements: true
       });
 
       return connection;
@@ -35,12 +36,7 @@ export namespace DatabaseService {
   export async function createTables(): Promise<void> {
     const db = await DatabaseService.getDatabase();
     const data = await fs.readFile(path.join(__dirname, '../../database.sql'), 'utf-8');
-    const queries = data.split(';');
-    for (const query of queries) {
-      if (!!query.trim()) {
-        await db.query(query);
-      }
-    }
+    await db.query(data);
   }
 
   export async function truncate(tables: string[]): Promise<void> {

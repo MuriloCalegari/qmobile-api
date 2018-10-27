@@ -42,12 +42,11 @@ export namespace NotaService {
       ...nota,
       id: UUID.random()
     };
-    nota.media = NotaService.getMedia(nota);
     await connection.query(
       'INSERT INTO nota VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         nota.id!.toString(), nota.usuario_disciplina, nota.descricao,
-        nota.data, nota.etapa, nota.media, nota.peso, nota.notamaxima, nota.nota
+        nota.data, nota.etapa, null, nota.peso, nota.notamaxima, nota.nota
       ]
     );
     return convert(nota);
@@ -64,22 +63,20 @@ export namespace NotaService {
 
   export async function update(id: UUID, nota: NotaUpdate): Promise<void> {
     const connection = await DatabaseService.getDatabase();
-    const media = NotaService.getMedia(nota);
     await connection.query(
-      'UPDATE nota SET media=?, nota=?, peso=?, notamaxima=? WHERE id=?',
-      [media, nota.nota, nota.peso, nota.notamaxima, id.toString()]
+      'UPDATE nota SET nota=?, peso=?, notamaxima=? WHERE id=?',
+      [nota.nota, nota.peso, nota.notamaxima, id.toString()]
     );
   }
 
   export async function findOrCreate(nota: NotaDto): Promise<[boolean, NotaDto]> {
     const nova = {
       ...nota,
-      id: UUID.random(),
-      media: NotaService.getMedia(nota)
+      id: UUID.random()
     };
     const insertParams = [
       nova.id!.toString(), nova.usuario_disciplina, nova.descricao,
-      moment(nova.data).format('YYYY-MM-DD'), nova.etapa, nova.media, nova.peso, nova.notamaxima, nova.nota
+      moment(nova.data).format('YYYY-MM-DD'), nova.etapa, null, nova.peso, nova.notamaxima, nova.nota
     ];
     const queryParams = [
       nova.usuario_disciplina, nova.descricao, nova.etapa, moment(nova.data).format('YYYY-MM-DD')
@@ -113,20 +110,6 @@ export namespace NotaService {
       [id.toString()]
     );
     return convert(dto);
-  }
-
-  export function getMedia(notaDto: NotaUpdate | NotaDto): number {
-    const nota = Math.max(0, notaDto.nota as any);
-    if (nota <= 0) {
-      return Number(notaDto.nota);
-    }
-    const notaMaxima = Math.max(0, notaDto.notamaxima as any);
-    let maximo = Math.max(notaDto.peso as any, notaMaxima);
-    if (maximo <= 0 || nota > maximo) {
-      maximo = 10;
-    }
-    const media = (nota / maximo) * 10;
-    return Math.round(media * 100) / 100;
   }
 
   export async function getHistorico(usuario_disciplina: number): Promise<HistoricoDto[]> {
